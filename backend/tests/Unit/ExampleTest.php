@@ -6,6 +6,7 @@ use App\Enums\ExecutionCommandStatus;
 use App\Enums\ExecutionCommandType;
 use App\Enums\OrderDirection;
 use App\Enums\OrderStatus;
+use App\Enums\OrderType;
 use App\Enums\PositionEventType;
 use App\Enums\PositionStatus;
 use App\Enums\SignalDirection;
@@ -51,6 +52,10 @@ class ExampleTest extends TestCase
         $this->assertSame(
             ['PLACE_ORDER', 'MODIFY_ORDER', 'CANCEL_ORDER', 'CLOSE_POSITION', 'PARTIAL_CLOSE', 'MODIFY_POSITION_SL', 'MODIFY_POSITION_TP'],
             array_column(ExecutionCommandType::cases(), 'value'),
+        );
+        $this->assertSame(
+            ['MARKET', 'BUY_LIMIT', 'SELL_LIMIT', 'BUY_STOP', 'SELL_STOP'],
+            array_column(OrderType::cases(), 'value'),
         );
         $this->assertSame(
             ['CREATED', 'QUEUED', 'PROCESSING', 'ACKNOWLEDGED', 'COMPLETED', 'FAILED', 'CANCELLED', 'EXPIRED'],

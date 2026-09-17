@@ -53,6 +53,8 @@ class TradeLifecycleService
     /** @return array{intent:TradeIntent,replayed:bool} */
     public function createIntent(array $data, Request $request): array
     {
+        $this->assertOrderTypeMatchesSide(OrderType::from($data['order_type']), OrderDirection::from($data['side']));
+
         return DB::transaction(function () use ($data, $request): array {
             $user = $request->user();
             $existing = TradeIntent::where('user_id', $user->id)
@@ -112,6 +114,11 @@ class TradeLifecycleService
             || ($signal->expires_at && $signal->expires_at->isPast())) {
             throw ValidationException::withMessages(['signal' => 'The signal is not eligible for simulation.']);
         }
+        $side = OrderDirection::from($signal->direction->value);
+        $this->assertOrderTypeMatchesSide(
+            OrderType::from($data['order_type'] ?? OrderType::Market->value),
+            $side,
+        );
 
         return DB::transaction(function () use ($signal, $data, $request): array {
             $signal = Signal::whereKey($signal->id)->lockForUpdate()->firstOrFail();
@@ -699,5 +706,14 @@ class TradeLifecycleService
     private function assertPositionOwned(Position $position, User $user): void
     {
         abort_unless($position->user_id === $user->id, 404);
+    }
+
+    private function assertOrderTypeMatchesSide(OrderType $orderType, OrderDirection $side): void
+    {
+        if ($orderType->side() !== null && $orderType->side() !== $side) {
+            throw ValidationException::withMessages([
+                'order_type' => "{$orderType->value} cannot be used with side {$side->value}.",
+            ]);
+        }
     }
 }

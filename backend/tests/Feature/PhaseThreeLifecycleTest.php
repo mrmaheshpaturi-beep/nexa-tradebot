@@ -142,7 +142,7 @@ class PhaseThreeLifecycleTest extends TestCase
     {
         [$user, $account, $instrument] = $this->tradingContext();
         $payload = $this->intentPayload($account, $instrument, 'pending-intent');
-        $payload['order_type'] = 'LIMIT';
+        $payload['order_type'] = 'BUY_LIMIT';
         $payload['requested_entry'] = 1.09;
         $payload['stop_loss'] = 1.08;
         $created = $this->actingAs($user)->postJson('/api/v1/trade-intents', $payload)->assertCreated();
@@ -159,6 +159,20 @@ class PhaseThreeLifecycleTest extends TestCase
             'idempotency_key' => 'cancel-pending',
         ])->assertCreated()->assertJsonPath('data.type', 'CANCEL_ORDER');
         $this->assertDatabaseHas('orders', ['public_id' => $orderPublicId, 'status' => 'CANCELLED']);
+    }
+
+    public function test_typed_pending_order_must_match_its_side(): void
+    {
+        [$user, $account, $instrument] = $this->tradingContext();
+        $payload = $this->intentPayload($account, $instrument, 'mismatched-pending-intent');
+        $payload['side'] = 'SELL';
+        $payload['order_type'] = 'BUY_LIMIT';
+        $payload['requested_entry'] = 1.09;
+
+        $this->actingAs($user)->postJson('/api/v1/trade-intents', $payload)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('order_type');
+        $this->assertDatabaseCount('trade_intents', 0);
     }
 
     public function test_partial_close_protection_change_and_full_close_update_account_consistently(): void
@@ -374,8 +388,8 @@ class PhaseThreeLifecycleTest extends TestCase
             'symbol' => 'EURUSD',
             'direction' => 'BUY',
             'side' => 'BUY',
-            'type' => 'LIMIT',
-            'order_type' => 'LIMIT',
+            'type' => 'BUY_LIMIT',
+            'order_type' => 'BUY_LIMIT',
             'volume' => 0.1,
             'requested_volume' => 0.1,
             'status' => 'CANCELLED',
