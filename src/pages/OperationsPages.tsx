@@ -50,9 +50,10 @@ export function PendingOrders() {
 }
 export function TradeHistory() {
   const load = useCallback(() => services.trades.getTrades(), []);
-  const { data, loading } = useService(load);
+  const { data, loading, error } = useService(load);
   const [selected, setSelected] = useState(false);
-  if (loading || !data) return <LoadingState />;
+  if (loading) return <LoadingState />;
+  if (error || !data) return <ErrorState message={error ?? "Trade history is unavailable."} />;
   return (
     <>
       <PageHeader title="Trade History" description="Closed simulation deals with complete cost and outcome accounting." />
@@ -116,9 +117,10 @@ export function TradeHistory() {
 }
 export function RiskManagement() {
   const load = useCallback(() => Promise.all([services.risk.getProfile(), services.risk.getEvents()]), []);
-  const { data, loading } = useService(load);
+  const { data, loading, error } = useService(load);
   const [stopped, setStopped] = useState(false);
-  if (loading || !data) return <LoadingState />;
+  if (loading) return <LoadingState />;
+  if (error || !data) return <ErrorState message={error ?? "Risk data is unavailable."} />;
   const [p, events] = data;
   return (
     <>
@@ -231,8 +233,9 @@ export function PaperTrading() {
 }
 export function Analytics() {
   const load = useCallback(() => services.analytics.getEquitySeries(), []);
-  const { data, loading } = useService(load);
-  if (loading || !data) return <LoadingState />;
+  const { data, loading, error } = useService(load);
+  if (loading) return <LoadingState />;
+  if (error || !data) return <ErrorState message={error ?? "Analytics data is unavailable."} />;
   return (
     <>
       <PageHeader title="Performance Analytics" description="Professional simulation breakdown across trading dimensions." />
@@ -364,8 +367,9 @@ export function NewsCalendar() {
 }
 export function MT5Accounts() {
   const load = useCallback(() => services.account.getAccounts(), []);
-  const { data, loading } = useService(load);
-  if (loading || !data) return <LoadingState />;
+  const { data, loading, error } = useService(load);
+  if (loading) return <LoadingState />;
+  if (error || !data) return <ErrorState message={error ?? "Account status is unavailable."} />;
   return (
     <>
       <PageHeader title="MT5 Accounts" description="Connection inventory only. Nexa TradeBot never requests broker passwords in Phase 1." actions={<StatusBadge tone="bad">NOT CONNECTED</StatusBadge>} />
@@ -409,9 +413,10 @@ export function MT5Accounts() {
 }
 export function Notifications() {
   const load = useCallback(() => services.notifications.getNotifications(), []);
-  const { data, loading } = useService(load);
+  const { data, loading, error } = useService(load);
   const [read, setRead] = useState(false);
-  if (loading || !data) return <LoadingState />;
+  if (loading) return <LoadingState />;
+  if (error || !data) return <ErrorState message={error ?? "Notifications are unavailable."} />;
   return (
     <>
       <PageHeader
@@ -453,8 +458,9 @@ export function Notifications() {
 }
 export function SystemHealthPage() {
   const load = useCallback(() => services.health.getHealth(), []);
-  const { data, loading } = useService(load);
-  if (loading || !data) return <LoadingState />;
+  const { data, loading, error } = useService(load);
+  if (loading) return <LoadingState />;
+  if (error || !data) return <ErrorState message={error ?? "System health is unavailable."} />;
   return (
     <>
       <PageHeader title="System Health" description="Operational readiness across simulation and future integration boundaries." actions={<StatusBadge tone="good">PHASE 1 HEALTHY</StatusBadge>} />

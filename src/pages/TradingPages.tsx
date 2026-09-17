@@ -229,8 +229,9 @@ function QuoteTable({ quotes }: { quotes: Quote[] }) {
 
 export function MarketScanner() {
   const loader = useCallback(() => services.market.getQuotes(), []);
-  const { data, loading } = useService(loader);
-  if (loading || !data) return <LoadingState />;
+  const { data, loading, error } = useService(loader);
+  if (loading) return <LoadingState />;
+  if (error || !data) return <ErrorState message={error ?? "Scanner data is unavailable."} />;
   return (
     <>
       <PageHeader title="Market Scanner" description="Ranked multi-timeframe opportunities from deterministic simulation rules." />
@@ -350,7 +351,8 @@ function SignalCard({ signal }: { signal: Signal }) {
 export function LiveCharts() {
   const [symbol, setSymbol] = useState("XAUUSD");
   const loader = useCallback(() => services.market.getCandles(symbol), [symbol]);
-  const { data, loading } = useService(loader);
+  const { data, loading, error } = useService(loader);
+  if (error) return <ErrorState message={error} />;
   return (
     <>
       <PageHeader title="Live Charts" description="Interactive mock OHLC workspace with simulation entry and risk overlays." actions={<EnvironmentBadge />} />
@@ -419,9 +421,10 @@ export function LiveCharts() {
 
 export function Strategies() {
   const loader = useCallback(() => services.strategies.getStrategies(), []);
-  const { data, loading } = useService(loader);
+  const { data, loading, error } = useService(loader);
   const [selected, setSelected] = useState<typeof data extends (infer U)[] | undefined ? U : never>();
-  if (loading || !data) return <LoadingState />;
+  if (loading) return <LoadingState />;
+  if (error || !data) return <ErrorState message={error ?? "Strategy data is unavailable."} />;
   return (
     <>
       <PageHeader
@@ -693,9 +696,10 @@ export function ManualTrading() {
 
 export function Positions() {
   const loader = useCallback(() => services.positions.getPositions(), []);
-  const { data, loading } = useService(loader);
+  const { data, loading, error } = useService(loader);
   const [action, setAction] = useState<{ name: string; p: Position } | null>(null);
-  if (loading || !data) return <LoadingState />;
+  if (loading) return <LoadingState />;
+  if (error || !data) return <ErrorState message={error ?? "Position data is unavailable."} />;
   return (
     <>
       <PageHeader title="Open Positions" description="Monitor and manage virtual positions in the simulation ledger." actions={<EnvironmentBadge />} />
