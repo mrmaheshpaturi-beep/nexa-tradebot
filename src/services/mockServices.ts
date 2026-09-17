@@ -1,6 +1,6 @@
-import type { AccountSnapshot, AppNotification, AuditEvent, BacktestConfig, BacktestResult, BrokerAccount, Candle, NewsEvent, Order, PaperTradingSnapshot, Position, Quote, RiskEvent, RiskProfile, Signal, Strategy, SystemHealth, Trade } from '../domain/types'
+import type { AccountSnapshot, AppNotification, AuditEvent, BacktestConfig, BacktestResult, BrokerAccount, Candle, NewsEvent, Order, PaperTradingSnapshot, Position, Quote, RiskEvent, RiskProfile, Signal, Strategy, SystemHealth, Timeframe, Trade } from '../domain/types'
 
-export interface MarketDataService { getQuotes(): Promise<Quote[]>; getCandles(symbol: string): Promise<Candle[]> }
+export interface MarketDataService { getQuotes(): Promise<Quote[]>; getCandles(symbol: string, timeframe: Timeframe): Promise<Candle[]> }
 export interface AccountService { getSnapshot(): Promise<AccountSnapshot>; getAccounts(): Promise<BrokerAccount[]> }
 export interface SignalService { getSignals(): Promise<Signal[]> }
 export interface StrategyService { getStrategies(): Promise<Strategy[]> }
@@ -31,12 +31,16 @@ export class MockMarketDataService implements MarketDataService {
     change: +(((i % 5) - 2) * .34).toFixed(2), high: +(bid * 1.006).toFixed(3), low: +(bid * .994).toFixed(3),
     trend: i % 3 === 0 ? 'Bullish' : i % 3 === 1 ? 'Bearish' : 'Neutral', volatility: i % 4 === 0 ? 'High' : 'Medium', marketStatus: 'OPEN',
   })) as Quote[])
-  getCandles = async (symbol: string) => {
-    void symbol
+  getCandles = async (symbol: string, timeframe: Timeframe) => {
+    const startingPrice: Record<string, number> = { XAUUSD: 2618, EURUSD: 1.102, NAS100: 19520 }
+    const volatility: Record<string, number> = { XAUUSD: 7, EURUSD: .004, NAS100: 95 }
+    const intervalSeconds: Record<Timeframe, number> = { M1: 60, M5: 300, M15: 900, M30: 1800, H1: 3600, H4: 14400, D1: 86400 }
+    const basePrice = startingPrice[symbol] ?? 100
+    const range = volatility[symbol] ?? 2
     return wait(Array.from({ length: 80 }, (_, i) => {
-    const base = 2618 + i * .31 + Math.sin(i / 4) * 7
-    const close = base + Math.sin(i) * 2
-    return { time: Math.floor(Date.now() / 1000) - (80 - i) * 3600, open: base, high: Math.max(base, close) + 2.4, low: Math.min(base, close) - 2.1, close, volume: 600 + i * 13 }
+      const base = basePrice + i * range * .045 + Math.sin(i / 4) * range
+      const close = base + Math.sin(i) * range * .3
+      return { time: Math.floor(Date.now() / 1000) - (80 - i) * intervalSeconds[timeframe], open: base, high: Math.max(base, close) + range * .34, low: Math.min(base, close) - range * .3, close, volume: 600 + i * 13 }
     }))
   }
 }
@@ -79,7 +83,14 @@ export class MockRiskService implements RiskService {
   getProfile = () => wait({ riskPerTrade: 1, maxLotSize: 5, maxDailyLoss: 4, maxWeeklyLoss: 8, maxDrawdown: 12, maxOpenPositions: 8, maxOpenRisk: 6, maxTradesPerDay: 20, maxConsecutiveLosses: 4, minMarginLevel: 300, maxSpread: 3, maxSlippage: 1.5, minRiskReward: 1.5 })
   getEvents = () => wait<RiskEvent[]>([{ id: 'r1', severity: 'WARNING', title: 'Position exposure warning', detail: 'USD exposure is at 72% of configured simulation limit.', occurredAt: '08:42 UTC' }, { id: 'r2', severity: 'INFO', title: 'Spread protection checked', detail: 'All monitored spreads within simulation profile.', occurredAt: '08:38 UTC' }])
 }
-export class MockBacktestService implements BacktestService { run = async (config: BacktestConfig) => { void config; return wait({ netProfit: 18426, returnPercent: 18.43, totalTrades: 284, winningTrades: 181, losingTrades: 103, winRate: 63.73, profitFactor: 1.82, maxDrawdown: 7.4, averageWin: 214, averageLoss: -126, expectancy: 64.88, sharpe: 1.46, recoveryFactor: 2.49 }) } }
+export class MockBacktestService implements BacktestService {
+  run = async (config: BacktestConfig) => {
+    const costFactor = Math.max(.7, 1 - (config.spread + config.slippage) / 100)
+    const netProfit = Math.round(config.initialBalance * .18426 * config.risk * costFactor)
+    const returnPercent = +(netProfit / config.initialBalance * 100).toFixed(2)
+    return wait({ netProfit, returnPercent, totalTrades: 284, winningTrades: 181, losingTrades: 103, winRate: 63.73, profitFactor: +(1.82 * costFactor).toFixed(2), maxDrawdown: +(7.4 * config.risk).toFixed(2), averageWin: Math.round(214 * config.risk), averageLoss: Math.round(-126 * config.risk), expectancy: +(64.88 * config.risk * costFactor).toFixed(2), sharpe: +(1.46 * costFactor).toFixed(2), recoveryFactor: 2.49 })
+  }
+}
 export class MockAnalyticsService implements AnalyticsService { getEquitySeries = () => wait(Array.from({ length: 12 }, (_, i) => ({ name: new Date(2026, i, 1).toLocaleString('en', { month: 'short' }), value: 100000 + i * 2100 + Math.sin(i) * 1800 }))) }
 export class MockNotificationService implements NotificationService { getNotifications = () => wait<AppNotification[]>([{ id: 'n1', category: 'Signal', title: 'High-confluence simulation signal', body: 'XAUUSD H1 scored 91/100.', time: '2m ago', read: false }, { id: 'n2', category: 'Risk', title: 'Exposure review', body: 'USD exposure reached the warning zone.', time: '18m ago', read: false }, { id: 'n3', category: 'System', title: 'Simulation heartbeat', body: 'All mock services responding.', time: '1h ago', read: true }]) }
 export class MockSystemHealthService implements SystemHealthService { getHealth = () => wait<SystemHealth>({ services: [{ name: 'Web App', state: 'ONLINE', detail: 'React + Laravel' }, { name: 'Database', state: 'ONLINE', detail: 'SQLite development' }, { name: 'Trading Engine', state: 'SIMULATION', detail: 'No execution adapter' }, { name: 'MT5 Terminal', state: 'NOT CONNECTED', detail: 'Phase 1 lock' }, { name: 'Broker Connection', state: 'NOT CONNECTED', detail: 'No credentials configured' }, { name: 'Market Data', state: 'MOCK', detail: 'Deterministic fixtures' }, { name: 'Risk Engine', state: 'SIMULATION', detail: 'Client-side demonstration' }, { name: 'Signal Engine', state: 'MOCK', detail: 'No real AI' }, { name: 'Notification Service', state: 'ONLINE', detail: 'In-memory' }], lastHeartbeat: 'Just now', lastMarketUpdate: '4s ago', lastSignal: '2m ago', version: '1.0.0-phase1' }) }

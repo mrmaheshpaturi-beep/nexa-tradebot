@@ -5,7 +5,7 @@ import { useService } from "../hooks/useService";
 import { AIScoreGauge, ConfirmationDialog, DataTable, DirectionBadge, EnvironmentBadge, ErrorState, FilterBar, LoadingState, MetricCard, PageHeader, Panel, PnLDisplay, RiskGauge, StatusBadge } from "../components/ui";
 import { CandlestickTerminal, EquityChart, PerformanceChart } from "../components/TradingCharts";
 import { useSimulation } from "../context/simulationState";
-import type { BacktestConfig, Position, Quote, Signal } from "../domain/types";
+import type { BacktestConfig, Position, Quote, Signal, Timeframe } from "../domain/types";
 
 const Button = ({ children, tone = "", onClick, disabled = false }: { children: React.ReactNode; tone?: string; onClick?: () => void; disabled?: boolean }) => (
   <button className={`btn ${tone}`} onClick={onClick} disabled={disabled}>
@@ -353,15 +353,18 @@ function SignalCard({ signal }: { signal: Signal }) {
 
 export function LiveCharts() {
   const [symbol, setSymbol] = useState("XAUUSD");
-  const loader = useCallback(() => services.market.getCandles(symbol), [symbol]);
+  const [timeframe, setTimeframe] = useState<Timeframe>("H1");
+  const loader = useCallback(() => services.market.getCandles(symbol, timeframe), [symbol, timeframe]);
   const { data, loading, error } = useService(loader);
   if (error) return <ErrorState message={error} />;
+  const latest = data?.at(-1);
+  const decimals = symbol === "EURUSD" ? 5 : 2;
   return (
     <>
       <PageHeader title="Live Charts" description="Interactive mock OHLC workspace with simulation entry and risk overlays." actions={<EnvironmentBadge />} />
       <div className="chart-layout">
         <Panel
-          title={`${symbol} · H1`}
+          title={`${symbol} · ${timeframe}`}
           subtitle="MOCK MARKET DATA"
           actions={
             <div className="inline-controls">
@@ -371,7 +374,7 @@ export function LiveCharts() {
                 <option>NAS100</option>
               </select>
               {["M1", "M5", "M15", "M30", "H1", "H4", "D1"].map((t) => (
-                <button key={t} className={t === "H1" ? "active" : ""}>
+                <button key={t} className={t === timeframe ? "active" : ""} onClick={() => setTimeframe(t as Timeframe)}>
                   {t}
                 </button>
               ))}
@@ -394,12 +397,12 @@ export function LiveCharts() {
         <Panel title="Market information" subtitle="Simulated quote">
           <div className="market-info">
             {[
-              ["Bid", "2,642.18"],
-              ["Ask", "2,642.58"],
-              ["Spread", "1.8"],
-              ["Daily high", "2,653.42"],
-              ["Daily low", "2,617.81"],
-              ["Daily change", "+0.74%"],
+              ["Bid", latest ? latest.close.toFixed(decimals) : "—"],
+              ["Ask", latest ? (latest.close + (symbol === "EURUSD" ? .00018 : .4)).toFixed(decimals) : "—"],
+              ["Spread", symbol === "EURUSD" ? "0.9" : "1.8"],
+              ["Daily high", data ? Math.max(...data.map((c) => c.high)).toFixed(decimals) : "—"],
+              ["Daily low", data ? Math.min(...data.map((c) => c.low)).toFixed(decimals) : "—"],
+              ["Daily change", latest && data ? `${((latest.close / data[0].open - 1) * 100).toFixed(2)}%` : "—"],
               ["Market status", "OPEN"],
             ].map(([l, v]) => (
               <div key={l}>
