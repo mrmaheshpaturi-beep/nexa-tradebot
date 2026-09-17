@@ -60,7 +60,7 @@ Executed September 17, 2026:
 | Gate | Result |
 |---|---|
 | TypeScript (`npm run typecheck`) | Pass |
-| Oxlint (`npm run lint`) | Pass; JSX key advisories remain non-blocking |
+| Oxlint (`npm run lint`) | Pass — no warnings |
 | Frontend tests (`npm test`) | Pass — 2 tests |
 | Production build (`npm run build`) | Pass — 2,474 modules |
 | Laravel tests (`php artisan test`) | Pass — 5 tests, 10 assertions |
@@ -74,7 +74,7 @@ Data resets on reload. Filters and local settings demonstrate interaction but ar
 
 ## 15. Technical debt
 
-Split Recharts and Lightweight Charts into finer lazy chunks, resolve remaining non-blocking JSX key lint advisories, add browser-level regression coverage, and split the two route composition files further as behavior grows.
+Split Recharts and Lightweight Charts into finer lazy chunks, add browser-level regression coverage, and split the two route composition files further as behavior grows.
 
 ## 16. Security observations
 
