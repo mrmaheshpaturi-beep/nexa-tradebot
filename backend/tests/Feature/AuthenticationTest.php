@@ -12,6 +12,11 @@ class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
 
+    public function test_protected_api_returns_json_unauthorized_without_login_route_redirect(): void
+    {
+        $this->get('/api/v1/auth/me')->assertUnauthorized();
+    }
+
     public function test_active_user_can_login_read_session_and_logout(): void
     {
         $user = User::factory()->create(['password' => 'SecurePassword!123', 'status' => 'ACTIVE']);
