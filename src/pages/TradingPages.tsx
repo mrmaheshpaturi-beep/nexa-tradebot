@@ -5,7 +5,7 @@ import { useService } from "../hooks/useService";
 import { AIScoreGauge, ConfirmationDialog, DataTable, DirectionBadge, EnvironmentBadge, ErrorState, FilterBar, LoadingState, MetricCard, PageHeader, Panel, PnLDisplay, RiskGauge, StatusBadge } from "../components/ui";
 import { CandlestickTerminal, EquityChart, PerformanceChart } from "../components/TradingCharts";
 import { useSimulation } from "../context/simulationState";
-import type { BacktestConfig, Position, Quote, Signal, Timeframe } from "../domain/types";
+import type { BacktestConfig, LegacyMockPosition, LegacyMockQuote, LegacyMockSignal, LegacyMockTimeframe } from "../domain/types";
 
 const Button = ({ children, tone = "", onClick, disabled = false }: { children: React.ReactNode; tone?: string; onClick?: () => void; disabled?: boolean }) => (
   <button className={`btn ${tone}`} onClick={onClick} disabled={disabled}>
@@ -201,7 +201,7 @@ export function MarketWatch() {
     </>
   );
 }
-function QuoteTable({ quotes }: { quotes: Quote[] }) {
+function QuoteTable({ quotes }: { quotes: LegacyMockQuote[] }) {
   return (
     <DataTable
       columns={["", "Symbol", "Bid", "Ask", "Spread", "Change %", "High", "Low", "Trend", "Volatility", "Market"]}
@@ -301,7 +301,7 @@ export function AISignals() {
     </>
   );
 }
-function SignalCard({ signal }: { signal: Signal }) {
+function SignalCard({ signal }: { signal: LegacyMockSignal }) {
   const [open, setOpen] = useState(false);
   return (
     <article className="signal-card">
@@ -353,7 +353,7 @@ function SignalCard({ signal }: { signal: Signal }) {
 
 export function LiveCharts() {
   const [symbol, setSymbol] = useState("XAUUSD");
-  const [timeframe, setTimeframe] = useState<Timeframe>("H1");
+  const [timeframe, setTimeframe] = useState<LegacyMockTimeframe>("H1");
   const loader = useCallback(() => services.market.getCandles(symbol, timeframe), [symbol, timeframe]);
   const { data, loading, error } = useService(loader);
   if (error) return <ErrorState message={error} />;
@@ -374,7 +374,7 @@ export function LiveCharts() {
                 <option>NAS100</option>
               </select>
               {["M1", "M5", "M15", "M30", "H1", "H4", "D1"].map((t) => (
-                <button key={t} className={t === timeframe ? "active" : ""} onClick={() => setTimeframe(t as Timeframe)}>
+                <button key={t} className={t === timeframe ? "active" : ""} onClick={() => setTimeframe(t as LegacyMockTimeframe)}>
                   {t}
                 </button>
               ))}
@@ -522,12 +522,12 @@ export function Strategies() {
 export function AutoTrading() {
   return (
     <>
-      <PageHeader title="Auto Trading" description="Execution remains unavailable and server-locked in Phase 2." actions={<EnvironmentBadge />} />
+      <PageHeader title="Auto Trading" description="Live and automated execution remain unavailable and server-locked in Phase 3." actions={<EnvironmentBadge />} />
       <div className="lock-panel">
         <div className="lock-icon">
           <LockKeyhole />
         </div>
-        <span className="eyebrow">PHASE 2 SAFETY LOCK</span>
+        <span className="eyebrow">PHASE 3 LIVE SAFETY LOCK</span>
         <h2>Auto trading is disabled</h2>
         <p>
           Real broker execution is not configured. Current environment: <strong>SIMULATION</strong>.
@@ -719,7 +719,7 @@ export function ManualTrading() {
 export function Positions() {
   const loader = useCallback(() => services.positions.getPositions(), []);
   const { data, loading, error } = useService(loader);
-  const [action, setAction] = useState<{ name: string; p: Position } | null>(null);
+  const [action, setAction] = useState<{ name: string; p: LegacyMockPosition } | null>(null);
   if (loading) return <LoadingState />;
   if (error || !data) return <ErrorState message={error ?? "Position data is unavailable."} />;
   return (

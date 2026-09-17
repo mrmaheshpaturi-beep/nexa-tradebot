@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { CandlestickSeries, ColorType, CrosshairMode, createChart, type CandlestickData, type IChartApi, type UTCTimestamp } from 'lightweight-charts'
-import type { Candle } from '../domain/types'
+import type { LegacyMockCandle } from '../domain/types'
 
 const tooltipStyle = { background: '#111b2a', border: '1px solid #24344a', borderRadius: 8, fontSize: 12 }
 
@@ -12,7 +12,7 @@ export function PerformanceChart() {
   const data = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map((name, i) => ({ name, profit: [820, -340, 1260, 640, 1842][i] }))
   return <div className="chart-box small"><ResponsiveContainer width="100%" height="100%"><BarChart data={data}><CartesianGrid stroke="#1d2a3b" vertical={false} /><XAxis dataKey="name" stroke="#64748b" fontSize={11} /><Tooltip contentStyle={tooltipStyle} /><Bar dataKey="profit" fill="#3794ff" radius={[3, 3, 0, 0]} /></BarChart></ResponsiveContainer></div>
 }
-export function CandlestickTerminal({ candles }: { candles: Candle[] }) {
+export function CandlestickTerminal({ candles }: { candles: LegacyMockCandle[] }) {
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (!ref.current || !candles.length) return

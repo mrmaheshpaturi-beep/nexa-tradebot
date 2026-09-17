@@ -15,6 +15,7 @@ export function PersistentRiskManagement() {
   const { stopped, setStopped } = useSimulation()
   const { can } = useAuth()
   const [busy, setBusy] = useState(false)
+  const [simulationBusy, setSimulationBusy] = useState(false)
   const [actionError, setActionError] = useState('')
   if (result.loading) return <LoadingState />
   if (result.error || !result.data) return <ErrorState message={result.error ?? 'Risk data is unavailable.'} />
@@ -22,19 +23,31 @@ export function PersistentRiskManagement() {
   const profile = profiles.data.find((item) => item.is_default) ?? profiles.data[0]
   const toggle = async () => {
     setBusy(true); setActionError('')
-    try { await setStopped(!stopped) } catch (error) { setActionError(firstValidationError(error)) } finally { setBusy(false) }
+    try { await setStopped(!stopped); result.reload() } catch (error) { setActionError(firstValidationError(error)) } finally { setBusy(false) }
+  }
+  const toggleSimulationExecution = async () => {
+    setSimulationBusy(true); setActionError('')
+    try {
+      await phaseTwoApi.updateSetting('simulation_execution_enabled', !status.simulation_execution_enabled, true)
+      result.reload()
+    } catch (error) {
+      setActionError(firstValidationError(error))
+    } finally {
+      setSimulationBusy(false)
+    }
   }
   return <>
     <PageHeader title="Risk Management" description="Persistent risk profiles and the server-enforced emergency stop."
-      actions={<button className="btn danger" disabled={!can('emergency_stop.manage') || busy} onClick={toggle}><AlertOctagon />{stopped ? 'RESUME SIMULATION' : 'EMERGENCY STOP'}</button>} />
+      actions={<div className="inline-controls"><button className="btn ghost" disabled={!can('settings.update') || simulationBusy} onClick={toggleSimulationExecution}>{status.simulation_execution_enabled ? 'DISABLE SIMULATION EXECUTION' : 'ENABLE SIMULATION EXECUTION'}</button><button className="btn danger" disabled={!can('emergency_stop.manage') || busy} onClick={toggle}><AlertOctagon />{stopped ? 'RESUME SIMULATION' : 'EMERGENCY STOP'}</button></div>} />
     {stopped && <div className="danger-banner"><ShieldAlert /> Simulation stopped. New simulation orders are rejected by the backend.</div>}
     {actionError && <div className="danger-banner" role="alert">{actionError}</div>}
     <div className="health-meta">
-      <div><span>Emergency stop</span><strong>{status.emergency_stop ? 'ENABLED' : 'DISABLED'}</strong></div>
-      <div><span>Trading enabled</span><strong>{status.trading_enabled ? 'ENABLED' : 'DISABLED'}</strong></div>
-      <div><span>Execution</span><strong>UNAVAILABLE</strong></div>
-      <div><span>Broker transmission</span><strong>DISABLED</strong></div>
+      <div><span>Persistent emergency stop</span><strong>{status.emergency_stop ? 'ENABLED' : 'DISABLED'}</strong></div>
+      <div><span>Simulation execution enabled</span><strong>{status.simulation_execution_enabled ? 'ENABLED' : 'DISABLED'}</strong></div>
+      <div><span>Trading enabled</span><strong>{status.trading_enabled ? 'UNEXPECTEDLY ENABLED' : 'FALSE / LIVE LOCKED'}</strong></div>
+      <div><span>Broker execution</span><strong>DISABLED</strong></div>
     </div>
+    <div className="info-banner">Simulation execution is a separate, permission-controlled ledger feature. It cannot enable broker or live execution.</div>
     {!can('emergency_stop.manage') && <p className="permission-note">Emergency-stop state is visible; your role cannot change it.</p>}
     {!profile ? <EmptyState title="No risk profile" detail="Create a profile through an authorized workflow." /> : <>
       <div className="gauge-grid">
@@ -100,20 +113,22 @@ export function PersistentSystemHealth() {
   if (result.error || !result.data) return <ErrorState message={result.error ?? 'System status is unavailable.'} />
   const status = result.data
   const services = [
-    ['Web Application', 'ONLINE', 'React + Laravel'],
-    ['Database', status.database.status, status.database.source],
-    ['Authentication', 'ONLINE', 'Sanctum session guard'],
-    ['Trading Engine', 'NOT IMPLEMENTED', 'No execution engine exists'],
-    ['MT5 Terminal', 'NOT CONNECTED', 'No MT5 adapter exists'],
-    ['Broker Connection', 'NOT CONNECTED', 'No broker adapter exists'],
+    ['Web App', status.web_application.status, 'React + Laravel'],
+    ['DB verified', status.database.status === 'CONNECTED' ? 'VERIFIED' : 'UNAVAILABLE', status.database.source],
+    ['Auth', status.authentication.status, 'Sanctum session guard'],
+    ['Trading Domain', 'ONLINE', 'Persistent Phase 3 lifecycle APIs'],
+    ['Simulation Adapter', 'AVAILABLE', status.terminal.adapter],
+    ['Risk Simulator', 'AVAILABLE', status.risk_execution.mode],
     ['Market Data', status.market_data.status, status.market_data.source],
-    ['Signal Engine', 'SIMULATION', 'Mock analysis only'],
-    ['Risk Execution', 'NOT IMPLEMENTED', 'Configuration only'],
-    ['Environment', status.environment, 'Simulation safety boundary'],
+    ['Trading Engine', 'NOT IMPLEMENTED', 'No live trading engine'],
+    ['MT5', 'NOT CONNECTED', status.terminal.status],
+    ['Broker', 'NOT CONNECTED', 'No broker adapter'],
+    ['Live Execution', 'DISABLED', 'Broker transmission is false'],
   ]
   return <>
-    <PageHeader title="System Health" description="Exact Phase 2 backend status labels." actions={<StatusBadge tone={status.database.status === 'CONNECTED' ? 'good' : 'bad'}>PHASE 2</StatusBadge>} />
-    <div className="health-grid">{services.map(([name, state, detail]) => <article key={name}><div className={`health-icon ${state.toLowerCase().replaceAll(' ', '-')}`}><span /></div><p><strong>{name}</strong><span>{detail}</span></p><StatusBadge tone={['ONLINE', 'CONNECTED', 'SIMULATION'].includes(state) ? 'good' : state === 'MOCK' ? 'info' : state === 'STOPPED' ? 'warning' : 'bad'}>{state}</StatusBadge></article>)}</div>
+    <PageHeader title="System Health" description="Exact Phase 3 capability boundary from backend status." actions={<StatusBadge tone={status.database.status === 'CONNECTED' ? 'good' : 'bad'}>PHASE 3</StatusBadge>} />
+    <div className="health-meta"><div><span>Last simulation heartbeat</span><strong>{status.simulation_engine.last_heartbeat_at ? new Date(status.simulation_engine.last_heartbeat_at).toLocaleString() : 'NONE'}</strong></div><div><span>Environment</span><strong>SIMULATION</strong></div><div><span>Broker transmission</span><strong>FALSE</strong></div><div><span>Live execution</span><strong>DISABLED</strong></div></div>
+    <div className="health-grid">{services.map(([name, state, detail]) => <article key={name}><div className={`health-icon ${state.toLowerCase().replaceAll(' ', '-')}`}><span /></div><p><strong>{name}</strong><span>{detail}</span></p><StatusBadge tone={['ONLINE', 'CONNECTED', 'VERIFIED', 'AVAILABLE'].includes(state) ? 'good' : state === 'MOCK' ? 'info' : state === 'STOPPED' ? 'warning' : 'bad'}>{state}</StatusBadge></article>)}</div>
   </>
 }
 

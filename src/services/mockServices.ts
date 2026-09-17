@@ -1,13 +1,13 @@
-import type { AccountSnapshot, AppNotification, AuditEvent, BacktestConfig, BacktestResult, BrokerAccount, Candle, NewsEvent, Order, PaperTradingSnapshot, Position, Quote, RiskEvent, RiskProfile, Signal, Strategy, SystemHealth, Timeframe, Trade } from '../domain/types'
+import type { AccountSnapshot, AppNotification, AuditEvent, BacktestConfig, BacktestResult, BrokerAccount, LegacyMockCandle, NewsEvent, LegacyMockOrder, PaperTradingSnapshot, LegacyMockPosition, LegacyMockQuote, RiskEvent, RiskProfile, LegacyMockSignal, Strategy, SystemHealth, LegacyMockTimeframe, Trade } from '../domain/types'
 
-export interface MarketDataService { getQuotes(): Promise<Quote[]>; getCandles(symbol: string, timeframe: Timeframe): Promise<Candle[]> }
+export interface MarketDataService { getQuotes(): Promise<LegacyMockQuote[]>; getCandles(symbol: string, timeframe: LegacyMockTimeframe): Promise<LegacyMockCandle[]> }
 export interface AccountService { getSnapshot(): Promise<AccountSnapshot>; getAccounts(): Promise<BrokerAccount[]> }
-export interface SignalService { getSignals(): Promise<Signal[]> }
+export interface SignalService { getSignals(): Promise<LegacyMockSignal[]> }
 export interface StrategyService { getStrategies(): Promise<Strategy[]> }
-export interface PositionService { getPositions(): Promise<Position[]> }
+export interface PositionService { getPositions(): Promise<LegacyMockPosition[]> }
 export interface SimulationOrderInput { symbol: string; direction: 'BUY' | 'SELL'; orderType: 'Market' | 'Limit' | 'Stop'; volume: number; riskPercent: number; comment: string }
 export interface SimulationOrderResult { ticket: string; accepted: true; simulated: true; input: SimulationOrderInput }
-export interface OrderService { getPendingOrders(): Promise<Order[]>; simulateOrder(input: SimulationOrderInput): Promise<SimulationOrderResult> }
+export interface OrderService { getPendingOrders(): Promise<LegacyMockOrder[]>; simulateOrder(input: SimulationOrderInput): Promise<SimulationOrderResult> }
 export interface RiskService { getProfile(): Promise<RiskProfile>; getEvents(): Promise<RiskEvent[]> }
 export interface BacktestService { run(config: BacktestConfig): Promise<BacktestResult> }
 export interface AnalyticsService { getEquitySeries(): Promise<{ name: string; value: number }[]> }
@@ -30,11 +30,11 @@ export class MockMarketDataService implements MarketDataService {
     symbol, bid, ask: +(bid + (bid > 100 ? .4 : .00018)).toFixed(bid > 100 ? 2 : 5), spread: i % 3 === 0 ? 1.8 : .9,
     change: +(((i % 5) - 2) * .34).toFixed(2), high: +(bid * 1.006).toFixed(3), low: +(bid * .994).toFixed(3),
     trend: i % 3 === 0 ? 'Bullish' : i % 3 === 1 ? 'Bearish' : 'Neutral', volatility: i % 4 === 0 ? 'High' : 'Medium', marketStatus: 'OPEN',
-  })) as Quote[])
-  getCandles = async (symbol: string, timeframe: Timeframe) => {
+  })) as LegacyMockQuote[])
+  getCandles = async (symbol: string, timeframe: LegacyMockTimeframe) => {
     const startingPrice: Record<string, number> = { XAUUSD: 2618, EURUSD: 1.102, NAS100: 19520 }
     const volatility: Record<string, number> = { XAUUSD: 7, EURUSD: .004, NAS100: 95 }
-    const intervalSeconds: Record<Timeframe, number> = { M1: 60, M5: 300, M15: 900, M30: 1800, H1: 3600, H4: 14400, D1: 86400 }
+    const intervalSeconds: Record<LegacyMockTimeframe, number> = { M1: 60, M5: 300, M15: 900, M30: 1800, H1: 3600, H4: 14400, D1: 86400 }
     const basePrice = startingPrice[symbol] ?? 100
     const range = volatility[symbol] ?? 2
     return wait(Array.from({ length: 80 }, (_, i) => {
@@ -56,19 +56,19 @@ export class MockSignalService implements SignalService {
     { id: 'sig-1', symbol: 'XAUUSD', direction: 'BUY', score: 91, timeframe: 'H1', regime: 'Trending', strategy: 'EMA Pullback', entry: 2642.2, stopLoss: 2631.4, takeProfit1: 2658.4, takeProfit2: 2671.8, riskReward: 2.7, simulated: true, analysis },
     { id: 'sig-2', symbol: 'EURUSD', direction: 'SELL', score: 84, timeframe: 'H4', regime: 'Breakout', strategy: 'Market Structure', entry: 1.1148, stopLoss: 1.1192, takeProfit1: 1.1082, takeProfit2: 1.104, riskReward: 2.4, simulated: true, analysis },
     { id: 'sig-3', symbol: 'NAS100', direction: 'NO TRADE', score: 46, timeframe: 'M15', regime: 'Range', strategy: 'Range Breakout', entry: 19746, stopLoss: 19690, takeProfit1: 19830, takeProfit2: 19910, riskReward: 1.5, simulated: true, analysis },
-  ] as Signal[])
+  ] as LegacyMockSignal[])
 }
 export class MockStrategyService implements StrategyService {
   getStrategies = () => wait(['EMA Trend', 'EMA Pullback', 'RSI Reversal', 'MACD Momentum', 'London Breakout', 'Range Breakout', 'Gold Scalper', 'Market Structure', 'Liquidity Sweep'].map((name, i) => ({ id: `st-${i}`, name, category: ['Trend', 'Trend', 'Reversal', 'Momentum', 'Breakout', 'Breakout', 'Scalping', 'Market Structure', 'AI Assisted'][i], symbols: i === 6 ? ['XAUUSD'] : ['EURUSD', 'XAUUSD'], timeframe: ['H1', 'M15', 'H4'][i % 3] as Strategy['timeframe'], mode: 'SIMULATION', status: i === 2 ? 'Disabled' : 'Enabled', signals: 18 + i * 3, trades: 12 + i, winRate: 54 + i * 2.1, profitFactor: 1.18 + i * .08, description: `${name} is a deterministic demonstration strategy. It produces simulated signals only.` })) as Strategy[])
 }
 export class MockPositionService implements PositionService {
-  getPositions = () => wait<Position[]>([
+  getPositions = () => wait<LegacyMockPosition[]>([
     { id: 'p1', ticket: 'SIM-10482', symbol: 'XAUUSD', direction: 'BUY', strategy: 'EMA Pullback', volume: .4, entry: 2638.4, current: 2642.2, stopLoss: 2629, takeProfit: 2661, profit: 152, pips: 38, risk: .8, openedAt: '2h 18m', status: 'OPEN', simulated: true },
     { id: 'p2', ticket: 'SIM-10479', symbol: 'EURUSD', direction: 'SELL', strategy: 'Market Structure', volume: 1.2, entry: 1.1172, current: 1.1148, stopLoss: 1.121, takeProfit: 1.108, profit: 288, pips: 24, risk: 1, openedAt: '5h 42m', status: 'OPEN', simulated: true },
   ])
 }
 export class MockOrderService implements OrderService {
-  getPendingOrders = () => wait<Order[]>([
+  getPendingOrders = () => wait<LegacyMockOrder[]>([
     { id: 'o1', ticket: 'SIM-20412', symbol: 'EURUSD', direction: 'BUY', type: 'Buy Limit', volume: 1, entry: 1.1084, stopLoss: 1.1032, takeProfit: 1.1196, expiry: 'GTC', strategy: 'EMA Pullback', createdAt: '08:12 UTC', status: 'PENDING', simulated: true },
     { id: 'o2', ticket: 'SIM-20411', symbol: 'XAUUSD', direction: 'SELL', type: 'Sell Stop', volume: .4, entry: 2629, stopLoss: 2641, takeProfit: 2602, expiry: 'Today', strategy: 'Gold Scalper', createdAt: '07:58 UTC', status: 'PENDING', simulated: true },
     { id: 'o3', ticket: 'SIM-20408', symbol: 'NAS100', direction: 'BUY', type: 'Buy Stop', volume: .25, entry: 19820, stopLoss: 19720, takeProfit: 20040, expiry: 'GTC', strategy: 'Range Breakout', createdAt: '06:44 UTC', status: 'PENDING', simulated: true },

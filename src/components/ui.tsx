@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { AlertTriangle, ChevronDown, LoaderCircle, Search } from 'lucide-react'
 
 export function PageHeader({ title, description, actions }: { title: string; description: string; actions?: ReactNode }) {
-  return <header className="page-header"><div><div className="eyebrow">NEXA TRADEBOT / PHASE 2</div><h1>{title}</h1><p>{description}</p></div>{actions && <div className="header-actions">{actions}</div>}</header>
+  return <header className="page-header"><div><div className="eyebrow">NEXA TRADEBOT / PHASE 3</div><h1>{title}</h1><p>{description}</p></div>{actions && <div className="header-actions">{actions}</div>}</header>
 }
 export function EnvironmentBadge() { return <span className="badge simulation"><span className="pulse-dot" /> SIMULATION</span> }
 export function StatusBadge({ children, tone = 'neutral' }: { children: ReactNode; tone?: 'good' | 'bad' | 'warning' | 'info' | 'purple' | 'neutral' }) { return <span className={`badge ${tone}`}>{children}</span> }
