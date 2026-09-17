@@ -43,7 +43,7 @@ function GeneralSettingsForm({ settings }: { settings: Awaited<ReturnType<typeof
     } catch (caught) { setError(firstValidationError(caught)) } finally { setBusy(false) }
   }
   return <Panel title="General Settings" subtitle="Database-backed application values">
-    <div className="settings-form">{Object.entries(values).map(([key, value]) => <label className="setting-row" key={key}><p><strong>{key.replaceAll('_', ' ')}</strong><span>Application setting</span></p><input value={value} disabled={!can('settings.update')} onChange={(e) => setValues((current) => ({ ...current, [key]: e.target.value }))} /></label>)}</div>
+    <div className="settings-form">{Object.entries(values).map(([key, value]) => <label className="setting-row" key={key} htmlFor={`setting-${key}`}><p><strong>{key.replaceAll('_', ' ')}</strong><span>Application setting</span></p><input id={`setting-${key}`} name={key} value={value} disabled={!can('settings.update')} onChange={(e) => setValues((current) => ({ ...current, [key]: e.target.value }))} /></label>)}</div>
     {error && <p className="form-alert error">{error}</p>}{message && <p className="form-alert success">{message}</p>}
     <button className="btn primary" disabled={!can('settings.update') || busy} onClick={save}><Check />{busy ? 'Saving…' : 'Save general settings'}</button>
   </Panel>
