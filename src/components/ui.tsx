@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import { AlertTriangle, ChevronDown, LoaderCircle, Search } from 'lucide-react'
 
 export function PageHeader({ title, description, actions }: { title: string; description: string; actions?: ReactNode }) {
-  return <header className="page-header"><div><div className="eyebrow">NEXA TRADEBOT / PHASE 1</div><h1>{title}</h1><p>{description}</p></div>{actions && <div className="header-actions">{actions}</div>}</header>
+  return <header className="page-header"><div><div className="eyebrow">NEXA TRADEBOT / PHASE 2</div><h1>{title}</h1><p>{description}</p></div>{actions && <div className="header-actions">{actions}</div>}</header>
 }
 export function EnvironmentBadge() { return <span className="badge simulation"><span className="pulse-dot" /> SIMULATION</span> }
 export function StatusBadge({ children, tone = 'neutral' }: { children: ReactNode; tone?: 'good' | 'bad' | 'warning' | 'info' | 'purple' | 'neutral' }) { return <span className={`badge ${tone}`}>{children}</span> }
@@ -14,10 +14,10 @@ export function FilterBar({ search, searchId = 'filter-search', onSearch, childr
   return <div className="filter-bar">{onSearch && <label className="search-input" htmlFor={searchId}><Search size={15} /><input id={searchId} name={searchId} aria-label="Search" value={search} onChange={(e) => onSearch(e.target.value)} placeholder="Search…" /></label>}{children}<button className="select-btn" type="button">Last updated: now <ChevronDown size={14} /></button></div>
 }
 export function DataTable({ columns, rows }: { columns: string[]; rows: ReactNode[][] }) {
-  if (!rows.length) return <EmptyState title="No records found" detail="Adjust the current filters to see simulated data." />
+  if (!rows.length) return <EmptyState title="No records found" detail="No persisted records match the current view." />
   return <div className="table-wrap"><table><thead><tr>{columns.map((column) => <th key={column}>{column}</th>)}</tr></thead><tbody>{rows.map((row, index) => <tr key={index}>{row.map((cell, i) => <td key={i}>{cell}</td>)}</tr>)}</tbody></table></div>
 }
-export function LoadingState() { return <div className="state"><LoaderCircle className="spin" /><strong>Loading simulation data</strong><span>Retrieving deterministic mock records…</span></div> }
+export function LoadingState() { return <div className="state"><LoaderCircle className="spin" /><strong>Loading workspace</strong><span>Retrieving authorized data…</span></div> }
 export function ErrorState({ message }: { message: string }) { return <div className="state error"><AlertTriangle /><strong>Unable to load module</strong><span>{message}</span></div> }
 export function EmptyState({ title, detail }: { title: string; detail: string }) { return <div className="state"><strong>{title}</strong><span>{detail}</span></div> }
 export function RiskGauge({ label, value, limit, inverse = false }: { label: string; value: number; limit: number; inverse?: boolean }) {

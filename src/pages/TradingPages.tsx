@@ -139,7 +139,7 @@ export function Dashboard() {
             ))}
           </div>
         </Panel>
-        <Panel title="System health" subtitle="Phase 1 services">
+        <Panel title="System health" subtitle="Simulation services">
           <div className="compact-list">
             {[
               ["Web application", "ONLINE"],
@@ -522,12 +522,12 @@ export function Strategies() {
 export function AutoTrading() {
   return (
     <>
-      <PageHeader title="Auto Trading" description="Future automation configuration preview — execution is permanently locked in Phase 1." actions={<EnvironmentBadge />} />
+      <PageHeader title="Auto Trading" description="Execution remains unavailable and server-locked in Phase 2." actions={<EnvironmentBadge />} />
       <div className="lock-panel">
         <div className="lock-icon">
           <LockKeyhole />
         </div>
-        <span className="eyebrow">PHASE 1 SAFETY LOCK</span>
+        <span className="eyebrow">PHASE 2 SAFETY LOCK</span>
         <h2>Auto trading is disabled</h2>
         <p>
           Real broker execution is not configured. Current environment: <strong>SIMULATION</strong>.
@@ -704,7 +704,7 @@ export function ManualTrading() {
             <AlertOctagon />
             <p>
               <strong>No execution capability</strong>
-              <span>This ticket calls an in-memory mock service. Frontend tampering cannot create broker connectivity.</span>
+              <span>This ticket is persisted only through the simulation API. Frontend tampering cannot create broker connectivity.</span>
             </p>
           </div>
         </Panel>

@@ -204,7 +204,7 @@ export function PaperTrading() {
   if (error || !data) return <ErrorState message={error ?? "Paper trading data is unavailable."} />;
   return (
     <>
-      <PageHeader title="Paper Trading" description="Virtual capital workspace using simulated data in Phase 1." actions={<StatusBadge tone="info">SIMULATED DATA</StatusBadge>} />
+      <PageHeader title="Paper Trading" description="Virtual capital workspace using retained mock data." actions={<StatusBadge tone="info">SIMULATED DATA</StatusBadge>} />
       <div className="metrics-grid">
         <MetricCard label="Virtual Balance" value={`$${data.balance.toLocaleString()}`} />
         <MetricCard label="Virtual Equity" value={`$${data.equity.toLocaleString()}`} />
@@ -212,7 +212,7 @@ export function PaperTrading() {
         <MetricCard label="Paper P/L" value={<PnLDisplay value={data.profit} />} />
       </div>
       <div className="info-banner">
-        <FileText /> Paper trading will eventually use real prices with virtual capital. Phase 1 uses deterministic simulated market data.
+        <FileText /> Paper trading remains a deterministic mock module; no Phase 2 persistence API is available for this area.
       </div>
       <Panel title="Paper positions" subtitle="Virtual ledger">
         <DataTable
@@ -304,7 +304,7 @@ export function Reports() {
             <EnvironmentBadge />
           </div>
           <h2>{category} Trading Performance</h2>
-          <p>Prepared from deterministic Phase 1 mock records.</p>
+          <p>Prepared from deterministic mock records retained in Phase 2.</p>
           <div className="report-kpis">
             <div>
               <span>Net P/L</span>
@@ -361,7 +361,7 @@ export function NewsCalendar() {
         />
       </Panel>
       <div className="placeholder-note">
-        <ShieldAlert /> News Trading Protection is planned for a future phase. It does not block simulation activity in Phase 1.
+        <ShieldAlert /> News Trading Protection is not available. Mock calendar events do not control Phase 2 simulation activity.
       </div>
     </>
   );
@@ -373,7 +373,7 @@ export function MT5Accounts() {
   if (error || !data) return <ErrorState message={error ?? "Account status is unavailable."} />;
   return (
     <>
-      <PageHeader title="MT5 Accounts" description="Connection inventory only. Nexa TradeBot never requests broker passwords in Phase 1." actions={<StatusBadge tone="bad">NOT CONNECTED</StatusBadge>} />
+      <PageHeader title="MT5 Accounts" description="Connection inventory only. Nexa TradeBot never requests broker passwords." actions={<StatusBadge tone="bad">NOT CONNECTED</StatusBadge>} />
       <div className="account-card">
         {data.map((a) => (
           <Fragment key={a.id}>
@@ -398,7 +398,7 @@ export function MT5Accounts() {
                 </p>
               ))}
             </div>
-            <Button disabled>Connection unavailable in Phase 1</Button>
+            <Button disabled>Connection unavailable</Button>
           </Fragment>
         ))}
       </div>
@@ -464,7 +464,7 @@ export function SystemHealthPage() {
   if (error || !data) return <ErrorState message={error ?? "System health is unavailable."} />;
   return (
     <>
-      <PageHeader title="System Health" description="Operational readiness across simulation and future integration boundaries." actions={<StatusBadge tone="good">PHASE 1 HEALTHY</StatusBadge>} />
+      <PageHeader title="System Health" description="Operational readiness across simulation and future integration boundaries." actions={<StatusBadge tone="good">PHASE 2</StatusBadge>} />
       <div className="health-meta">
         {[
           ["App version", data.version],
@@ -503,7 +503,7 @@ export function AuditLogs() {
   return (
     <>
       <PageHeader title="Audit Logs" description="Tamper-evident interface preview using simulated security events." />
-      <Panel title="Activity ledger" subtitle="Phase 1 in-memory events">
+      <Panel title="Activity ledger" subtitle="Activity events">
         <FilterBar>
           {["User", "Module", "Action", "Result", "Date"].map((x) => (
             <Button key={x} tone="ghost">
@@ -542,7 +542,7 @@ export function Settings() {
             </button>
           ))}
         </nav>
-        <Panel title={`${t} Settings`} subtitle="Phase 1 local preference preview">
+        <Panel title={`${t} Settings`} subtitle="Preference preview">
           <div className="settings-form">
             {t === "Appearance" ? (
               <>
@@ -551,7 +551,7 @@ export function Settings() {
                     <label htmlFor="appearance-theme">
                       <strong>Color theme</strong>
                     </label>
-                    <span>Dark professional terminal is the Phase 1 default.</span>
+                    <span>Dark professional terminal is the application default.</span>
                   </p>
                   <select id="appearance-theme" name="appearance-theme">
                     <option>Dark (default)</option>
@@ -582,7 +582,7 @@ export function Settings() {
               ))
             )}
           </div>
-          <Button tone="primary">Save local preferences</Button>
+          <Button tone="primary">Save preferences</Button>
         </Panel>
       </div>
     </>

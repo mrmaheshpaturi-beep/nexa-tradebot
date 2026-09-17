@@ -5,6 +5,12 @@ import { defineConfig } from 'vitest/config'
 
 // https://vite.dev/config/
 export default defineConfig({
+  server: {
+    proxy: {
+      '/api': 'http://127.0.0.1:43128',
+      '/sanctum': 'http://127.0.0.1:43128',
+    },
+  },
   plugins: [
     react(),
     tailwindcss(),
