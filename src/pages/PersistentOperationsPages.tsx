@@ -78,7 +78,7 @@ export function PersistentAccounts() {
     <PageHeader title="MT5 / Broker Accounts" description="Credential-free database metadata. No connection adapter exists." actions={<StatusBadge tone="bad">DISCONNECTED</StatusBadge>} />
     <Panel title="Account inventory" subtitle={`${result.data.total} persisted metadata records`}>
       <DataTable columns={['Name', 'Broker', 'Platform', 'Server', 'Reference', 'Environment', 'Currency', 'Leverage', 'Status']}
-        rows={result.data.data.map((account) => [<strong key={account.id}>{account.name}</strong>, account.broker ?? '—', account.platform, account.server ?? '—', account.account_reference ?? '—', account.environment, account.currency, `1:${account.leverage}`, <StatusBadge key={`${account.id}-status`} tone={account.status === 'READY' ? 'good' : 'bad'}>{account.status}</StatusBadge>])} />
+        rows={result.data.data.map((account) => [<strong key={account.id}>{account.name}</strong>, account.broker ?? '—', account.platform, account.server ?? '—', account.account_reference ?? '—', account.environment, account.currency, `1:${account.leverage}`, <StatusBadge key={`${account.id}-status`} tone={['CONFIGURED', 'CONNECTED'].includes(account.status) ? 'good' : account.status === 'CONNECTING' ? 'warning' : 'bad'}>{account.status}</StatusBadge>])} />
     </Panel>
     <div className="warning-box"><ShieldAlert /><p><strong>Credential-safe boundary</strong><span>The API prohibits password, token, API key, secret, and live-execution fields.</span></p></div>
   </>
