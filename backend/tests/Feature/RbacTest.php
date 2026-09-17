@@ -31,6 +31,23 @@ class RbacTest extends TestCase
         $this->assertDatabaseHas('audit_logs', ['action' => 'user.created']);
     }
 
+    public function test_role_change_is_persisted_and_audited_without_password_data(): void
+    {
+        $admin = $this->userWithRole();
+        $target = $this->userWithRole('TRADER');
+
+        $this->actingAs($admin)->putJson("/api/v1/users/{$target->id}", [
+            'name' => $target->name,
+            'email' => $target->email,
+            'role' => 'ANALYST',
+        ])->assertOk()->assertJsonPath('data.roles.0.name', 'ANALYST');
+
+        $this->assertDatabaseHas('audit_logs', [
+            'action' => 'user.role_updated',
+            'entity_id' => (string) $target->id,
+        ]);
+    }
+
     public function test_inactive_authenticated_session_is_rejected(): void
     {
         $user = $this->userWithRole('VIEWER');

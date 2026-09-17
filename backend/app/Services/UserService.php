@@ -18,6 +18,10 @@ class UserService
         return DB::transaction(function () use ($data, $request, $user): User {
             $role = Role::where('name', $data['role'])->firstOrFail();
             $before = $user?->only(['name', 'email', 'status']) ?? [];
+            $beforeRoles = $user?->roles()->pluck('name')->all() ?? [];
+            if ($user) {
+                $before['roles'] = $beforeRoles;
+            }
             $attributes = Arr::only($data, ['name', 'email', 'status', 'password']);
             if (empty($attributes['password'])) {
                 unset($attributes['password']);
@@ -26,7 +30,18 @@ class UserService
             $user->fill($attributes)->save();
             $user->roles()->sync([$role->id]);
             $user->preference()->firstOrCreate();
-            $this->audit->record($before ? 'user.updated' : 'user.created', $user, $before, $user->only(['name', 'email', 'status']), $request);
+            $after = [...$user->only(['name', 'email', 'status']), 'roles' => [$role->name]];
+            $this->audit->record($before ? 'user.updated' : 'user.created', $user, $before, $after, $request);
+            if ($beforeRoles && $beforeRoles !== [$role->name]) {
+                $this->audit->record(
+                    'user.role_updated',
+                    $user,
+                    ['roles' => $beforeRoles],
+                    ['roles' => [$role->name]],
+                    $request,
+                    "User role changed to {$role->name}.",
+                );
+            }
 
             return $user->load('roles', 'preference');
         });

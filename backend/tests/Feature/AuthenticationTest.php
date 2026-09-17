@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -27,6 +28,11 @@ class AuthenticationTest extends TestCase
         $this->getJson('/api/v1/auth/me')->assertOk()->assertJsonPath('data.id', $user->id);
         $this->postJson('/api/v1/auth/logout')->assertOk();
         $this->getJson('/api/v1/auth/me')->assertUnauthorized();
+        $this->assertDatabaseHas('audit_logs', ['action' => 'auth.login', 'result' => 'SUCCESS']);
+        $this->assertDatabaseHas('audit_logs', ['action' => 'auth.logout', 'result' => 'SUCCESS']);
+        $this->assertFalse(AuditLog::query()->get()->contains(
+            fn (AuditLog $log): bool => str_contains(json_encode([$log->before, $log->after, $log->description]), 'SecurePassword!123'),
+        ));
     }
 
     public function test_suspended_and_disabled_users_cannot_login(): void
@@ -47,6 +53,7 @@ class AuthenticationTest extends TestCase
             $this->postJson('/api/v1/auth/login', ['email' => 'missing@example.test', 'password' => 'wrong'])->assertUnprocessable();
         }
         $this->postJson('/api/v1/auth/login', ['email' => 'missing@example.test', 'password' => 'wrong'])->assertTooManyRequests();
+        $this->assertDatabaseHas('audit_logs', ['action' => 'auth.login', 'result' => 'FAILED']);
     }
 
     public function test_password_request_is_non_enumerating_and_does_not_claim_email_delivery(): void

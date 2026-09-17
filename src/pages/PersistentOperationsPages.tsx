@@ -100,15 +100,20 @@ export function PersistentSystemHealth() {
   if (result.error || !result.data) return <ErrorState message={result.error ?? 'System status is unavailable.'} />
   const status = result.data
   const services = [
+    ['Web Application', 'ONLINE', 'React + Laravel'],
     ['Database', status.database.status, status.database.source],
-    ['Market data', status.market_data.status, status.market_data.source],
-    ['Simulation engine', status.simulation_engine.status, status.simulation_engine.source],
-    ['Broker', status.broker.status, 'No broker connection'],
-    ['Execution', status.execution.available ? 'AVAILABLE' : 'UNAVAILABLE', 'Broker transmission disabled'],
+    ['Authentication', 'ONLINE', 'Sanctum session guard'],
+    ['Trading Engine', 'NOT IMPLEMENTED', 'No execution engine exists'],
+    ['MT5 Terminal', 'NOT CONNECTED', 'No MT5 adapter exists'],
+    ['Broker Connection', 'NOT CONNECTED', 'No broker adapter exists'],
+    ['Market Data', status.market_data.status, status.market_data.source],
+    ['Signal Engine', 'SIMULATION', 'Mock analysis only'],
+    ['Risk Execution', 'NOT IMPLEMENTED', 'Configuration only'],
+    ['Environment', status.environment, 'Simulation safety boundary'],
   ]
   return <>
     <PageHeader title="System Health" description="Exact Phase 2 backend status labels." actions={<StatusBadge tone={status.database.status === 'CONNECTED' ? 'good' : 'bad'}>PHASE 2</StatusBadge>} />
-    <div className="health-grid">{services.map(([name, state, detail]) => <article key={name}><div className={`health-icon ${state.toLowerCase()}`}><span /></div><p><strong>{name}</strong><span>{detail}</span></p><StatusBadge tone={['CONNECTED', 'READY'].includes(state) ? 'good' : state === 'MOCK' ? 'info' : state === 'STOPPED' ? 'warning' : 'bad'}>{state}</StatusBadge></article>)}</div>
+    <div className="health-grid">{services.map(([name, state, detail]) => <article key={name}><div className={`health-icon ${state.toLowerCase().replaceAll(' ', '-')}`}><span /></div><p><strong>{name}</strong><span>{detail}</span></p><StatusBadge tone={['ONLINE', 'CONNECTED', 'SIMULATION'].includes(state) ? 'good' : state === 'MOCK' ? 'info' : state === 'STOPPED' ? 'warning' : 'bad'}>{state}</StatusBadge></article>)}</div>
   </>
 }
 

@@ -8,6 +8,7 @@ use App\Models\BrokerAccount;
 use App\Services\AuditService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class BrokerAccountController extends Controller
 {
@@ -21,13 +22,17 @@ class BrokerAccountController extends Controller
     public function store(BrokerAccountRequest $request): JsonResponse
     {
         $this->assertOwnedRiskProfile($request);
-        $account = $request->user()->brokerAccounts()->create([
-            ...$request->validated(),
-            'environment' => 'SIMULATION',
-            'status' => 'DISCONNECTED',
-            'created_by' => $request->user()->id,
-        ]);
-        $this->audit->record('broker_account.created', $account, [], $account->toArray(), $request);
+        $account = DB::transaction(function () use ($request): BrokerAccount {
+            $account = $request->user()->brokerAccounts()->create([
+                ...$request->validated(),
+                'environment' => 'SIMULATION',
+                'status' => 'DISCONNECTED',
+                'created_by' => $request->user()->id,
+            ]);
+            $this->audit->record('broker_account.created', $account, [], $account->toArray(), $request);
+
+            return $account;
+        });
 
         return response()->json(['data' => $account], 201);
     }
@@ -36,12 +41,14 @@ class BrokerAccountController extends Controller
     {
         abort_unless($brokerAccount->user_id === $request->user()->id, 404);
         $this->assertOwnedRiskProfile($request);
-        $before = $brokerAccount->toArray();
-        $brokerAccount->update([
-            ...$request->validated(),
-            'environment' => 'SIMULATION',
-        ]);
-        $this->audit->record('broker_account.updated', $brokerAccount, $before, $brokerAccount->toArray(), $request);
+        DB::transaction(function () use ($request, $brokerAccount): void {
+            $before = $brokerAccount->toArray();
+            $brokerAccount->update([
+                ...$request->validated(),
+                'environment' => 'SIMULATION',
+            ]);
+            $this->audit->record('broker_account.updated', $brokerAccount, $before, $brokerAccount->toArray(), $request);
+        });
 
         return response()->json(['data' => $brokerAccount]);
     }
