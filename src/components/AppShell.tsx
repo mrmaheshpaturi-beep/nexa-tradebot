@@ -26,7 +26,7 @@ export function AppShell() {
       <header className="topbar">
         <button className="menu-button" aria-label="Open navigation" onClick={() => setMobileOpen(true)}><Menu /></button>
         <div className="terminal-title"><strong>Nexa TradeBot</strong><EnvironmentBadge /></div>
-        <label className="global-search"><Search size={16} /><input aria-label="Global search" placeholder="Search symbol, strategy, ticket…" /></label>
+        <label className="global-search" htmlFor="global-search"><Search size={16} /><input id="global-search" name="global-search" aria-label="Global search" placeholder="Search symbol, strategy, ticket…" /></label>
         <div className="top-actions"><span className="connection"><span className="status-dot" /> Mock data connected</span><button aria-label="Notifications" className="icon-button"><Bell size={18} /><i>2</i></button><button className="profile"><span>MP</span><p><strong>Mahesh P.</strong><small>Administrator</small></p><UserCircle size={17} /></button></div>
       </header>
       <div className="safety-strip"><ShieldAlert size={14} /> Simulation environment — no broker connection, live execution, or real funds are available.</div>
