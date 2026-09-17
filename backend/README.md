@@ -1,58 +1,72 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Nexa TradeBot backend
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Laravel 13 persistence and session API for the Nexa TradeBot simulation environment. This backend has no MT5 adapter, broker connection, real execution path, or execution endpoint.
 
-## About Laravel
+## Safety contract
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- Environment is always `SIMULATION`.
+- `trading_enabled=false`, `auto_trading_enabled=false`, and `emergency_stop=true` by default.
+- `allow_demo_execution=false` and `allow_live_execution=false` are hard-disabled.
+- Broker accounts contain metadata only; credentials are neither accepted nor stored.
+- Orders are local simulation records and always return `simulated=true` and `broker_transmitted=false`.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Local setup
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Use only local SQLite for development:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+cp .env.example .env
+touch database/database.sqlite
+php artisan key:generate
+php artisan migrate
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Development seeding requires an explicit secret and fails if it is absent or shorter than 12 characters:
 
-## Contributing
+```bash
+DEV_SUPER_ADMIN_PASSWORD='choose-a-local-password' php artisan db:seed
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+The seeded account is `admin@nexa.local`. The password is never embedded in source. Seed data is disconnected, simulation-only, and starts with emergency stop active.
 
-## Code of Conduct
+## Session authentication
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Sanctum uses the Laravel session guard. Browser clients must first request `/sanctum/csrf-cookie`, send credentials with cookies, and include the decoded `XSRF-TOKEN` as `X-XSRF-TOKEN` on writes. Login is limited to five attempts per minute per email/IP.
 
-## Security Vulnerabilities
+Password-reset requests create a genuine reset token but do not pretend an email was sent. The response explicitly says token delivery is not configured. Connect an approved notification provider before exposing reset delivery outside development.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## API (`/api/v1`)
 
-## License
+Public:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- `POST /auth/login`
+- `POST /auth/password/request`
+- `POST /auth/password/reset`
+- `GET /system/status` and the compatibility alias `GET /simulation/status`
+
+Authenticated:
+
+- `GET /auth/me`, `POST /auth/logout`
+- `GET /dashboard`
+- `GET|POST /users`, `PUT /users/{user}`
+- `POST /users/{user}/activate|suspend|disable`
+- `GET|POST /strategies`, `PUT /strategies/{strategy}`
+- `GET|POST /risk-profiles`, `PUT /risk-profiles/{riskProfile}`
+- `GET|POST /broker-accounts`, `PUT /broker-accounts/{brokerAccount}`
+- `GET /settings`, `PUT /settings/{key}`, `PUT /emergency-stop`
+- `GET|PUT /preferences`
+- `GET /notifications`, `POST /notifications/{notification}/read`
+- `GET /audit-logs`
+- `POST /simulation/orders`
+
+Protected routes enforce `ACTIVE` user status and granular permissions assigned through `SUPER_ADMIN`, `ADMIN`, `TRADER`, `ANALYST`, and `VIEWER`. Simulation order writes require a globally unique `command_id` plus a user-scoped `idempotency_key`, run in a transaction with their immutable audit entry, and are rejected while emergency stop is active or trading is disabled.
+
+## Quality checks
+
+```bash
+php artisan migrate:fresh --force
+php artisan test
+vendor/bin/pint --test
+```
+
+Migrations use Laravel's portable schema builder and avoid vendor-specific SQL so they remain suitable for later MySQL/PostgreSQL validation.
