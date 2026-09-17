@@ -18,6 +18,9 @@ class RolePermissionSeeder extends Seeder
         'preferences.view', 'preferences.update',
         'notifications.view', 'notifications.update',
         'audit_logs.view', 'simulation_orders.create',
+        'trading.read', 'signals.view', 'simulation_lifecycle.create',
+        'simulation_lifecycle.evaluate', 'simulation_lifecycle.execute',
+        'simulation_orders.cancel', 'simulation_positions.manage',
     ];
 
     public function run(): void
@@ -36,15 +39,20 @@ class RolePermissionSeeder extends Seeder
                 'risk_profiles.view', 'broker_accounts.view', 'settings.view',
                 'preferences.view', 'preferences.update', 'notifications.view',
                 'notifications.update', 'simulation_orders.create',
+                'trading.read', 'signals.view', 'simulation_lifecycle.create',
+                'simulation_lifecycle.evaluate', 'simulation_lifecycle.execute',
+                'simulation_orders.cancel', 'simulation_positions.manage',
             ],
             'ANALYST' => [
                 'dashboard.view', 'strategies.view', 'risk_profiles.view',
                 'broker_accounts.view', 'settings.view', 'preferences.view',
                 'preferences.update', 'notifications.view', 'notifications.update',
+                'trading.read', 'signals.view',
             ],
             'VIEWER' => [
                 'dashboard.view', 'strategies.view', 'settings.view',
                 'preferences.view', 'notifications.view',
+                'trading.read',
             ],
         ];
 

@@ -25,7 +25,8 @@ class SimulationSafetyTest extends TestCase
     {
         $user = $this->userWithRole('TRADER');
         ApplicationSetting::create(['key' => 'emergency_stop', 'value' => false]);
-        ApplicationSetting::create(['key' => 'trading_enabled', 'value' => true]);
+        ApplicationSetting::create(['key' => 'trading_enabled', 'value' => false]);
+        ApplicationSetting::create(['key' => 'simulation_execution_enabled', 'value' => true]);
 
         $this->actingAs($user)->postJson('/api/v1/simulation/orders', [
             'command_id' => '10000000-0000-4000-8000-000000000001',

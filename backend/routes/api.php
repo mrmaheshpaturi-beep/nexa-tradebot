@@ -4,12 +4,18 @@ use App\Http\Controllers\Api\AuditLogController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BrokerAccountController;
 use App\Http\Controllers\Api\NotificationController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PasswordResetController;
+use App\Http\Controllers\Api\PositionController;
 use App\Http\Controllers\Api\RiskProfileController;
+use App\Http\Controllers\Api\ServiceHeartbeatController;
 use App\Http\Controllers\Api\SettingController;
+use App\Http\Controllers\Api\SignalController;
 use App\Http\Controllers\Api\SimulationOrderController;
 use App\Http\Controllers\Api\StrategyController;
 use App\Http\Controllers\Api\SystemController;
+use App\Http\Controllers\Api\TradeIntentController;
+use App\Http\Controllers\Api\TradingInstrumentController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\UserPreferenceController;
 use Illuminate\Support\Facades\Route;
@@ -54,5 +60,29 @@ Route::prefix('v1')->middleware('web')->group(function (): void {
         Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])->middleware('permission:notifications.update');
         Route::get('/audit-logs', [AuditLogController::class, 'index'])->middleware('permission:audit_logs.view');
         Route::post('/simulation/orders', [SimulationOrderController::class, 'store'])->middleware('permission:simulation_orders.create');
+
+        Route::get('/instruments', [TradingInstrumentController::class, 'index'])->middleware('permission:trading.read');
+        Route::get('/instruments/{instrument}', [TradingInstrumentController::class, 'show'])->middleware('permission:trading.read');
+        Route::get('/signals', [SignalController::class, 'index'])->middleware('permission:signals.view');
+        Route::get('/signals/{signal}', [SignalController::class, 'show'])->middleware('permission:signals.view');
+        Route::post('/signals/{signal}/trade-intent', [SignalController::class, 'createIntent'])->middleware('permission:simulation_lifecycle.create');
+
+        Route::get('/trade-intents', [TradeIntentController::class, 'index'])->middleware('permission:trading.read');
+        Route::post('/trade-intents', [TradeIntentController::class, 'store'])->middleware('permission:simulation_lifecycle.create');
+        Route::get('/trade-intents/{tradeIntent}', [TradeIntentController::class, 'show'])->middleware('permission:trading.read');
+        Route::post('/trade-intents/{tradeIntent}/evaluate', [TradeIntentController::class, 'evaluate'])->middleware('permission:simulation_lifecycle.evaluate');
+        Route::post('/trade-intents/{tradeIntent}/execute', [TradeIntentController::class, 'execute'])->middleware('permission:simulation_lifecycle.execute');
+
+        Route::get('/orders', [OrderController::class, 'index'])->middleware('permission:trading.read');
+        Route::get('/orders/{order}', [OrderController::class, 'show'])->middleware('permission:trading.read');
+        Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->middleware('permission:simulation_orders.cancel');
+        Route::get('/positions', [PositionController::class, 'index'])->middleware('permission:trading.read');
+        Route::get('/positions/{position}', [PositionController::class, 'show'])->middleware('permission:trading.read');
+        Route::post('/positions/{position}/close', [PositionController::class, 'close'])->middleware('permission:simulation_positions.manage');
+        Route::post('/positions/{position}/partial-close', [PositionController::class, 'partialClose'])->middleware('permission:simulation_positions.manage');
+        Route::put('/positions/{position}/stop-loss', [PositionController::class, 'modifyStopLoss'])->middleware('permission:simulation_positions.manage');
+        Route::put('/positions/{position}/take-profit', [PositionController::class, 'modifyTakeProfit'])->middleware('permission:simulation_positions.manage');
+        Route::put('/positions/{position}/protection', [PositionController::class, 'modifyProtection'])->middleware('permission:simulation_positions.manage');
+        Route::get('/heartbeats', [ServiceHeartbeatController::class, 'index'])->middleware('permission:trading.read');
     });
 });

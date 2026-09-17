@@ -27,6 +27,11 @@ class RiskProfile extends BaseModel
         return $this->hasMany(RiskEvent::class);
     }
 
+    public function riskDecisions(): HasMany
+    {
+        return $this->hasMany(RiskDecision::class);
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

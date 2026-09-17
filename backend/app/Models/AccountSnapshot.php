@@ -10,7 +10,7 @@ class AccountSnapshot extends BaseModel
 
     protected function casts(): array
     {
-        return ['captured_at' => 'datetime'];
+        return ['captured_at' => 'datetime', 'open_positions' => 'integer'];
     }
 
     public function brokerAccount(): BelongsTo

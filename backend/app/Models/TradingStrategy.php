@@ -39,6 +39,16 @@ class TradingStrategy extends BaseModel
         return $this->hasMany(Signal::class);
     }
 
+    public function tradeIntents(): HasMany
+    {
+        return $this->hasMany(TradeIntent::class);
+    }
+
+    public function positions(): HasMany
+    {
+        return $this->hasMany(Position::class);
+    }
+
     public function riskProfile(): BelongsTo
     {
         return $this->belongsTo(RiskProfile::class);

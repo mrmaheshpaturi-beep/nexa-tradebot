@@ -14,7 +14,8 @@ class SimulationOrderIdempotencyTest extends TestCase
     {
         $user = $this->userWithRole('TRADER');
         ApplicationSetting::create(['key' => 'emergency_stop', 'value' => false]);
-        ApplicationSetting::create(['key' => 'trading_enabled', 'value' => true]);
+        ApplicationSetting::create(['key' => 'trading_enabled', 'value' => false]);
+        ApplicationSetting::create(['key' => 'simulation_execution_enabled', 'value' => true]);
         $payload = [
             'command_id' => '20000000-0000-4000-8000-000000000001',
             'idempotency_key' => 'unique-request-1',
@@ -44,7 +45,8 @@ class SimulationOrderIdempotencyTest extends TestCase
         $firstUser = $this->userWithRole('TRADER');
         $secondUser = $this->userWithRole('TRADER');
         ApplicationSetting::create(['key' => 'emergency_stop', 'value' => false]);
-        ApplicationSetting::create(['key' => 'trading_enabled', 'value' => true]);
+        ApplicationSetting::create(['key' => 'trading_enabled', 'value' => false]);
+        ApplicationSetting::create(['key' => 'simulation_execution_enabled', 'value' => true]);
         $payload = [
             'command_id' => '20000000-0000-4000-8000-000000000002',
             'idempotency_key' => 'shared',

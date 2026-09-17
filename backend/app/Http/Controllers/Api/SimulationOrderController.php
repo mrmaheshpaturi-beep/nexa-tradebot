@@ -18,6 +18,8 @@ class SimulationOrderController extends Controller
         return response()->json(['data' => [
             ...$result['order']->toArray(),
             'idempotent_replay' => $result['replayed'],
-        ]], $result['replayed'] ? 200 : 201);
+            'deprecated' => true,
+            'replacement' => '/api/v1/trade-intents',
+        ]], $result['replayed'] ? 200 : 201)->header('Deprecation', 'true');
     }
 }

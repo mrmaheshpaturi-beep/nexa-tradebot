@@ -2,8 +2,14 @@
 
 namespace App\Providers;
 
+use App\Contracts\ExecutionAdapter;
+use App\Contracts\MarketDataProvider;
+use App\Contracts\PositionReconciliationService;
 use App\Contracts\SimulationRepository;
 use App\Repositories\InMemorySimulationRepository;
+use App\Services\MockMarketDataProvider;
+use App\Services\SimulationExecutionAdapter;
+use App\Services\SimulationPositionReconciliationService;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -17,6 +23,9 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(SimulationRepository::class, InMemorySimulationRepository::class);
+        $this->app->bind(MarketDataProvider::class, MockMarketDataProvider::class);
+        $this->app->bind(ExecutionAdapter::class, SimulationExecutionAdapter::class);
+        $this->app->bind(PositionReconciliationService::class, SimulationPositionReconciliationService::class);
     }
 
     /**

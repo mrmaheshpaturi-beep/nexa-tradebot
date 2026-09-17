@@ -11,6 +11,7 @@ class SettingsService
 {
     public const SAFETY_DEFAULTS = [
         'trading_enabled' => false,
+        'simulation_execution_enabled' => false,
         'auto_trading_enabled' => false,
         'emergency_stop' => true,
         'allow_demo_execution' => false,

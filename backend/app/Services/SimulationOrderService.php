@@ -17,7 +17,7 @@ class SimulationOrderService
 
     public function create(array $data, Request $request): array
     {
-        if ($this->settings->value('emergency_stop') !== false || $this->settings->value('trading_enabled') !== true) {
+        if ($this->settings->value('emergency_stop') !== false || $this->settings->value('simulation_execution_enabled') !== true) {
             throw ValidationException::withMessages(['trading' => 'Simulation trading is stopped.']);
         }
 

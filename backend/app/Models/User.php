@@ -61,6 +61,26 @@ class User extends Authenticatable
         return $this->hasMany(Order::class);
     }
 
+    public function tradeIntents(): HasMany
+    {
+        return $this->hasMany(TradeIntent::class);
+    }
+
+    public function executionCommands(): HasMany
+    {
+        return $this->hasMany(ExecutionCommand::class);
+    }
+
+    public function positions(): HasMany
+    {
+        return $this->hasMany(Position::class);
+    }
+
+    public function signals(): HasMany
+    {
+        return $this->hasMany(Signal::class);
+    }
+
     public function notifications(): HasMany
     {
         return $this->hasMany(Notification::class);
