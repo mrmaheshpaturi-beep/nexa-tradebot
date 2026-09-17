@@ -4,6 +4,7 @@ import { useService } from "../hooks/useService";
 import { services } from "../services/mockServices";
 import { DataTable, DirectionBadge, EnvironmentBadge, ErrorState, FilterBar, LoadingState, MetricCard, PageHeader, Panel, PnLDisplay, RiskGauge, StatusBadge } from "../components/ui";
 import { EquityChart, PerformanceChart } from "../components/TradingCharts";
+import { useSimulation } from "../context/SimulationContext";
 
 const Button = ({ children, tone = "", disabled = false, onClick }: { children: React.ReactNode; tone?: string; disabled?: boolean; onClick?: () => void }) => (
   <button className={`btn ${tone}`} disabled={disabled} onClick={onClick}>
@@ -118,7 +119,7 @@ export function TradeHistory() {
 export function RiskManagement() {
   const load = useCallback(() => Promise.all([services.risk.getProfile(), services.risk.getEvents()]), []);
   const { data, loading, error } = useService(load);
-  const [stopped, setStopped] = useState(false);
+  const { stopped, setStopped } = useSimulation();
   if (loading) return <LoadingState />;
   if (error || !data) return <ErrorState message={error ?? "Risk data is unavailable."} />;
   const [p, events] = data;

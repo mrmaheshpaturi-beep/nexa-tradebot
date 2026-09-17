@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { HashRouter, Route, Routes } from 'react-router-dom'
 import { AppShell } from './components/AppShell'
 import { LoadingState } from './components/ui'
+import { SimulationProvider } from './context/SimulationContext'
 import './App.css'
 
 const page = (file: 'TradingPages' | 'OperationsPages', name: string) =>
@@ -31,7 +32,7 @@ const AuditLogs = page('OperationsPages', 'AuditLogs')
 const Settings = page('OperationsPages', 'Settings')
 
 export default function App() {
-  return <HashRouter><Suspense fallback={<LoadingState />}><Routes><Route element={<AppShell />}>
+  return <SimulationProvider><HashRouter><Suspense fallback={<LoadingState />}><Routes><Route element={<AppShell />}>
     <Route index element={<Dashboard />} /><Route path="market-watch" element={<MarketWatch />} /><Route path="market-scanner" element={<MarketScanner />} />
     <Route path="ai-signals" element={<AISignals />} /><Route path="live-charts" element={<LiveCharts />} /><Route path="strategies" element={<Strategies />} />
     <Route path="auto-trading" element={<AutoTrading />} /><Route path="manual-trading" element={<ManualTrading />} /><Route path="open-positions" element={<Positions />} />
@@ -40,5 +41,5 @@ export default function App() {
     <Route path="reports" element={<Reports />} /><Route path="news-calendar" element={<NewsCalendar />} /><Route path="mt5-accounts" element={<MT5Accounts />} />
     <Route path="notifications" element={<Notifications />} /><Route path="system-health" element={<SystemHealth />} /><Route path="audit-logs" element={<AuditLogs />} />
     <Route path="settings" element={<Settings />} />
-  </Route></Routes></Suspense></HashRouter>
+  </Route></Routes></Suspense></HashRouter></SimulationProvider>
 }

@@ -4,6 +4,7 @@ import { services } from "../services/mockServices";
 import { useService } from "../hooks/useService";
 import { AIScoreGauge, ConfirmationDialog, DataTable, DirectionBadge, EnvironmentBadge, ErrorState, FilterBar, LoadingState, MetricCard, PageHeader, Panel, PnLDisplay, RiskGauge, StatusBadge } from "../components/ui";
 import { CandlestickTerminal, EquityChart, PerformanceChart } from "../components/TradingCharts";
+import { useSimulation } from "../context/SimulationContext";
 import type { BacktestConfig, Position, Quote, Signal } from "../domain/types";
 
 const Button = ({ children, tone = "", onClick, disabled = false }: { children: React.ReactNode; tone?: string; onClick?: () => void; disabled?: boolean }) => (
@@ -267,6 +268,7 @@ export function MarketScanner() {
 }
 
 export function AISignals() {
+  const { stopped } = useSimulation();
   const loader = useCallback(() => services.signals.getSignals(), []);
   const { data, loading, error } = useService(loader);
   const [filter, setFilter] = useState("All");
@@ -290,8 +292,9 @@ export function AISignals() {
           </button>
         ))}
       </FilterBar>
+      {stopped && <div className="danger-banner"><AlertOctagon /> Simulation emergency stop is active. New simulated signals are suppressed.</div>}
       <div className="signal-grid">
-        {shown.map((s) => (
+        {!stopped && shown.map((s) => (
           <SignalCard key={s.id} signal={s} />
         ))}
       </div>
@@ -577,19 +580,31 @@ export function AutoTrading() {
 }
 
 export function ManualTrading() {
+  const { stopped } = useSimulation();
   const [direction, setDirection] = useState<"BUY" | "SELL">("BUY");
+  const [symbol, setSymbol] = useState("XAUUSD");
+  const [orderType, setOrderType] = useState<"Market" | "Limit" | "Stop">("Market");
   const [volume, setVolume] = useState(0.4);
   const [risk, setRisk] = useState(1);
+  const [comment, setComment] = useState("");
   const [confirmed, setConfirmed] = useState(false);
   const [ticket, setTicket] = useState("");
+  const [submitError, setSubmitError] = useState("");
   const submit = async () => {
-    const r = await services.orders.simulateOrder({
-      symbol: "XAUUSD",
-      direction,
-      volume,
-    });
-    setTicket(r.ticket);
-    setConfirmed(false);
+    setSubmitError("");
+    if (stopped) {
+      setSubmitError("Simulation emergency stop is active. Resume simulation in Risk Management.");
+      setConfirmed(false);
+      return;
+    }
+    try {
+      const r = await services.orders.simulateOrder({ symbol, direction, orderType, volume, riskPercent: risk, comment });
+      setTicket(r.ticket);
+      setConfirmed(false);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "The simulated order was rejected.");
+      setConfirmed(false);
+    }
   };
   return (
     <>
@@ -599,6 +614,7 @@ export function ManualTrading() {
           <Check /> Simulated order {ticket} accepted. No broker action occurred.
         </div>
       )}
+      {submitError && <div className="danger-banner"><AlertOctagon /> {submitError}</div>}
       <div className="ticket-layout">
         <Panel title="Simulation order ticket" subtitle="All fields are local demonstration inputs">
           <div className="direction-toggle">
@@ -613,15 +629,18 @@ export function ManualTrading() {
             <Select id="manual-account" label="Account">
               <option>XM Demo · NOT CONNECTED</option>
             </Select>
-            <Select id="manual-symbol" label="Symbol">
-              <option>XAUUSD</option>
-              <option>EURUSD</option>
-            </Select>
-            <Select id="manual-order-type" label="Order type">
-              <option>Market</option>
-              <option>Limit</option>
-              <option>Stop</option>
-            </Select>
+            <label className="field" htmlFor="manual-symbol">
+              <span>Symbol</span>
+              <select id="manual-symbol" name="manual-symbol" value={symbol} onChange={(event) => setSymbol(event.target.value)}>
+                <option>XAUUSD</option><option>EURUSD</option>
+              </select>
+            </label>
+            <label className="field" htmlFor="manual-order-type">
+              <span>Order type</span>
+              <select id="manual-order-type" name="manual-order-type" value={orderType} onChange={(event) => setOrderType(event.target.value as "Market" | "Limit" | "Stop")}>
+                <option>Market</option><option>Limit</option><option>Stop</option>
+              </select>
+            </label>
             <label className="field" htmlFor="manual-volume">
               <span>Volume</span>
               <input id="manual-volume" name="manual-volume" type="number" value={volume} onChange={(e) => setVolume(Number(e.target.value))} />
@@ -652,10 +671,10 @@ export function ManualTrading() {
             </label>
             <label className="field wide" htmlFor="manual-comment">
               <span>Comment</span>
-              <input id="manual-comment" name="manual-comment" placeholder="Simulation note" />
+              <input id="manual-comment" name="manual-comment" value={comment} onChange={(event) => setComment(event.target.value)} placeholder="Simulation note" />
             </label>
           </div>
-          <Button tone={direction === "BUY" ? "buy" : "sell"} onClick={() => setConfirmed(true)}>
+          <Button tone={direction === "BUY" ? "buy" : "sell"} onClick={() => setConfirmed(true)} disabled={stopped}>
             SIMULATE {direction}
           </Button>
         </Panel>

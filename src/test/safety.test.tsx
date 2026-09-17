@@ -13,10 +13,26 @@ describe('Phase 1 safety controls', () => {
     const result = await new MockOrderService().simulateOrder({
       symbol: 'XAUUSD',
       direction: 'BUY',
+      orderType: 'Market',
       volume: 0.4,
+      riskPercent: 1,
+      comment: 'Test simulation',
     })
     expect(result.simulated).toBe(true)
     expect(result.accepted).toBe(true)
     expect(result.ticket).toMatch(/^SIM-/)
+    expect(result.input.symbol).toBe('XAUUSD')
+  })
+
+  it('rejects unsafe simulation order inputs', async () => {
+    const service = new MockOrderService()
+    await expect(service.simulateOrder({
+      symbol: 'XAUUSD',
+      direction: 'BUY',
+      orderType: 'Market',
+      volume: 20,
+      riskPercent: 5,
+      comment: '',
+    })).rejects.toThrow('Volume must be between')
   })
 })

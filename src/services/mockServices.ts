@@ -5,7 +5,9 @@ export interface AccountService { getSnapshot(): Promise<AccountSnapshot>; getAc
 export interface SignalService { getSignals(): Promise<Signal[]> }
 export interface StrategyService { getStrategies(): Promise<Strategy[]> }
 export interface PositionService { getPositions(): Promise<Position[]> }
-export interface OrderService { getPendingOrders(): Promise<Order[]>; simulateOrder(input: { symbol: string; direction: 'BUY' | 'SELL'; volume: number }): Promise<{ ticket: string; accepted: true; simulated: true }> }
+export interface SimulationOrderInput { symbol: string; direction: 'BUY' | 'SELL'; orderType: 'Market' | 'Limit' | 'Stop'; volume: number; riskPercent: number; comment: string }
+export interface SimulationOrderResult { ticket: string; accepted: true; simulated: true; input: SimulationOrderInput }
+export interface OrderService { getPendingOrders(): Promise<Order[]>; simulateOrder(input: SimulationOrderInput): Promise<SimulationOrderResult> }
 export interface RiskService { getProfile(): Promise<RiskProfile>; getEvents(): Promise<RiskEvent[]> }
 export interface BacktestService { run(config: BacktestConfig): Promise<BacktestResult> }
 export interface AnalyticsService { getEquitySeries(): Promise<{ name: string; value: number }[]> }
@@ -67,7 +69,11 @@ export class MockOrderService implements OrderService {
     { id: 'o2', ticket: 'SIM-20411', symbol: 'XAUUSD', direction: 'SELL', type: 'Sell Stop', volume: .4, entry: 2629, stopLoss: 2641, takeProfit: 2602, expiry: 'Today', strategy: 'Gold Scalper', createdAt: '07:58 UTC', status: 'PENDING', simulated: true },
     { id: 'o3', ticket: 'SIM-20408', symbol: 'NAS100', direction: 'BUY', type: 'Buy Stop', volume: .25, entry: 19820, stopLoss: 19720, takeProfit: 20040, expiry: 'GTC', strategy: 'Range Breakout', createdAt: '06:44 UTC', status: 'PENDING', simulated: true },
   ])
-  simulateOrder = async (input: { symbol: string; direction: 'BUY' | 'SELL'; volume: number }) => { void input; return wait({ ticket: `SIM-${Date.now().toString().slice(-6)}`, accepted: true as const, simulated: true as const }) }
+  simulateOrder = async (input: SimulationOrderInput) => {
+    if (!Number.isFinite(input.volume) || input.volume < .01 || input.volume > 5) throw new Error('Volume must be between 0.01 and 5 lots.')
+    if (!Number.isFinite(input.riskPercent) || input.riskPercent <= 0 || input.riskPercent > 2) throw new Error('Risk must be between 0.01% and 2%.')
+    return wait({ ticket: `SIM-${Date.now().toString().slice(-6)}`, accepted: true as const, simulated: true as const, input })
+  }
 }
 export class MockRiskService implements RiskService {
   getProfile = () => wait({ riskPerTrade: 1, maxLotSize: 5, maxDailyLoss: 4, maxWeeklyLoss: 8, maxDrawdown: 12, maxOpenPositions: 8, maxOpenRisk: 6, maxTradesPerDay: 20, maxConsecutiveLosses: 4, minMarginLevel: 300, maxSpread: 3, maxSlippage: 1.5, minRiskReward: 1.5 })
