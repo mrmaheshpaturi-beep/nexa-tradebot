@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Contracts\ExecutionAdapter;
+use App\Contracts\MarketDataProvider;
 use App\Enums\DealType;
 use App\Enums\ExecutionCommandStatus;
 use App\Enums\ExecutionCommandType;
