@@ -47,6 +47,25 @@ class PhaseThreeContractsTest extends TestCase
         $this->assertEqualsWithDelta(2.0, $calculator->rewardRisk(OrderDirection::Buy, 1.1, 1.095, 1.11), 0.0001);
     }
 
+    public function test_instrument_api_exposes_the_exact_backend_mock_quote_and_price_semantics(): void
+    {
+        $viewer = $this->userWithRole('VIEWER');
+        $instrument = $this->instrument();
+
+        $this->actingAs($viewer)->getJson('/api/v1/instruments?symbol=eurusd')
+            ->assertOk()
+            ->assertJsonCount(1, 'data.data')
+            ->assertJsonPath('data.data.0.public_id', $instrument->public_id)
+            ->assertJsonPath('data.data.0.digits', 5)
+            ->assertJsonPath('data.data.0.tick_size', '0.0000100000')
+            ->assertJsonPath('data.data.0.minimum_stop_distance', '0.0000000000')
+            ->assertJsonPath('data.data.0.mock_quote.symbol', 'EURUSD')
+            ->assertJsonPath('data.data.0.mock_quote.bid', '1.10000')
+            ->assertJsonPath('data.data.0.mock_quote.ask', '1.10020')
+            ->assertJsonPath('data.data.0.mock_quote.source', 'MOCK')
+            ->assertJsonPath('data.data.0.mock_quote.environment', 'SIMULATION');
+    }
+
     public function test_simulation_reconciliation_detects_and_accepts_deal_consistency(): void
     {
         $user = $this->userWithRole('TRADER');

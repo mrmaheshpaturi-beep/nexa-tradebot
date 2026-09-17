@@ -121,6 +121,56 @@ class PhaseThreeLifecycleTest extends TestCase
         $this->assertDatabaseCount('positions', 0);
     }
 
+    public function test_market_protection_uses_the_mock_execution_quote_and_rejects_only_invalid_sides(): void
+    {
+        [$user, $account, $instrument] = $this->tradingContext();
+
+        $buy = $this->intentPayload($account, $instrument, 'valid-buy-protection', volume: 0.01);
+        $buy['stop_loss'] = 1.09;
+        $buy['take_profit'] = 1.12;
+        $buyId = $this->actingAs($user)->postJson('/api/v1/trade-intents', $buy)
+            ->assertCreated()
+            ->json('data.public_id');
+        $this->actingAs($user)->postJson("/api/v1/trade-intents/{$buyId}/evaluate")
+            ->assertOk()
+            ->assertJsonPath('data.status', 'RISK_APPROVED')
+            ->assertJsonPath('data.risk_decision.checks.symbol', 'EURUSD');
+
+        $reportedInvalid = $this->intentPayload($account, $instrument, 'invalid-buy-protection', volume: 0.01);
+        $reportedInvalid['stop_loss'] = 1.04;
+        $reportedInvalid['take_profit'] = 1.06;
+        $invalidBuyId = $this->actingAs($user)->postJson('/api/v1/trade-intents', $reportedInvalid)
+            ->assertCreated()
+            ->json('data.public_id');
+        $this->actingAs($user)->postJson("/api/v1/trade-intents/{$invalidBuyId}/evaluate")
+            ->assertOk()
+            ->assertJsonPath('data.status', 'RISK_REJECTED')
+            ->assertJsonPath('data.risk_decision.reason_code', 'INVALID_PROTECTION');
+
+        $sell = $this->intentPayload($account, $instrument, 'valid-sell-protection', volume: 0.01);
+        $sell['side'] = 'SELL';
+        $sell['stop_loss'] = 1.11;
+        $sell['take_profit'] = 1.08;
+        $sellId = $this->actingAs($user)->postJson('/api/v1/trade-intents', $sell)
+            ->assertCreated()
+            ->json('data.public_id');
+        $this->actingAs($user)->postJson("/api/v1/trade-intents/{$sellId}/evaluate")
+            ->assertOk()
+            ->assertJsonPath('data.status', 'RISK_APPROVED');
+
+        $invalidSell = $this->intentPayload($account, $instrument, 'invalid-sell-protection', volume: 0.01);
+        $invalidSell['side'] = 'SELL';
+        $invalidSell['stop_loss'] = 1.09;
+        $invalidSell['take_profit'] = 1.12;
+        $invalidSellId = $this->actingAs($user)->postJson('/api/v1/trade-intents', $invalidSell)
+            ->assertCreated()
+            ->json('data.public_id');
+        $this->actingAs($user)->postJson("/api/v1/trade-intents/{$invalidSellId}/evaluate")
+            ->assertOk()
+            ->assertJsonPath('data.status', 'RISK_REJECTED')
+            ->assertJsonPath('data.risk_decision.reason_code', 'INVALID_PROTECTION');
+    }
+
     public function test_demo_and_live_environments_are_never_executable(): void
     {
         [$user, $account, $instrument] = $this->tradingContext();
@@ -183,6 +233,10 @@ class PhaseThreeLifecycleTest extends TestCase
             'idempotency_key' => 'open-managed-position',
         ])->assertCreated();
         $positionPublicId = $executed->json('data.order.position.public_id');
+        $openedPosition = Position::where('public_id', $positionPublicId)->firstOrFail();
+        $this->assertEqualsWithDelta(1.1002, (float) $openedPosition->average_entry_price, 0.000001);
+        $this->assertEqualsWithDelta(1.1000, (float) $openedPosition->current_price, 0.000001);
+        $this->assertEqualsWithDelta(-4.0, (float) $openedPosition->unrealized_pnl, 0.0001);
 
         $this->actingAs($user)->postJson("/api/v1/positions/{$positionPublicId}/partial-close", [
             'idempotency_key' => 'partial-managed-position',
@@ -192,7 +246,12 @@ class PhaseThreeLifecycleTest extends TestCase
             'public_id' => $positionPublicId,
             'status' => 'PARTIALLY_CLOSED',
             'volume' => 0.1,
+            'unrealized_pnl' => -2,
         ]);
+        $partialSnapshot = $account->snapshots()->latest('captured_at')->latest('id')->firstOrFail();
+        $this->assertEqualsWithDelta(9998.0, (float) $partialSnapshot->balance, 0.0001);
+        $this->assertEqualsWithDelta(9996.0, (float) $partialSnapshot->equity, 0.0001);
+        $this->assertSame(1, $partialSnapshot->open_positions);
 
         $this->actingAs($user)->putJson("/api/v1/positions/{$positionPublicId}/stop-loss", [
             'idempotency_key' => 'stop-loss-managed-position',
@@ -209,12 +268,35 @@ class PhaseThreeLifecycleTest extends TestCase
         $position = Position::where('public_id', $positionPublicId)->firstOrFail();
         $this->assertSame('CLOSED', $position->status->value);
         $this->assertEqualsWithDelta(-4.0, (float) $position->realized_pnl, 0.0001);
-        $this->assertEqualsWithDelta(9996.0, (float) $account->snapshots()->latest('captured_at')->value('balance'), 0.0001);
-        $this->assertSame(0, $account->snapshots()->latest('captured_at')->value('open_positions'));
+        $this->assertEqualsWithDelta(0, (float) $position->unrealized_pnl, 0.0001);
+        $latestSnapshot = $account->snapshots()->latest('captured_at')->latest('id')->firstOrFail();
+        $this->assertEqualsWithDelta(9996.0, (float) $latestSnapshot->balance, 0.0001);
+        $this->assertEqualsWithDelta(9996.0, (float) $latestSnapshot->equity, 0.0001);
+        $this->assertSame(0, $latestSnapshot->open_positions);
         $this->assertDatabaseCount('deals', 3);
         $this->assertDatabaseCount('position_events', 5);
         $this->assertDatabaseHas('position_events', ['type' => 'STOP_LOSS_MODIFIED', 'source' => 'SIMULATION']);
         $this->assertDatabaseHas('position_events', ['type' => 'TAKE_PROFIT_MODIFIED', 'source' => 'SIMULATION']);
+    }
+
+    public function test_position_protection_modification_uses_the_current_close_side_mock_quote(): void
+    {
+        [$user, $account, $instrument] = $this->tradingContext();
+        $intent = $this->approvedIntent($user, $account, $instrument, 'quote-protected-position');
+        $positionPublicId = $this->actingAs($user)->postJson("/api/v1/trade-intents/{$intent->public_id}/execute", [
+            'idempotency_key' => 'open-quote-protected-position',
+        ])->assertCreated()->json('data.order.position.public_id');
+
+        $this->actingAs($user)->putJson("/api/v1/positions/{$positionPublicId}/take-profit", [
+            'idempotency_key' => 'valid-current-bid-take-profit',
+            'take_profit' => 1.1001,
+        ])->assertCreated()->assertJsonPath('data.type', 'MODIFY_POSITION_TP');
+
+        $this->actingAs($user)->putJson("/api/v1/positions/{$positionPublicId}/stop-loss", [
+            'idempotency_key' => 'invalid-current-bid-stop-loss',
+            'stop_loss' => 1.1001,
+        ])->assertUnprocessable()->assertJsonValidationErrors('protection');
+        $this->assertDatabaseCount('execution_commands', 2);
     }
 
     public function test_partial_close_rejects_a_non_step_volume(): void

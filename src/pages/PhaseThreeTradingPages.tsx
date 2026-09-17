@@ -89,7 +89,18 @@ export function PersistentManualTrading() {
   const accounts = reference.data?.[0].data ?? []
   const instruments = reference.data?.[1].data.filter((item) => item.is_enabled) ?? []
   const selectedAccount = accountId || accounts[0]?.public_id || ''
-  const selectedInstrument = instrumentId || instruments[0]?.public_id || ''
+  const defaultInstrument = instruments.find((item) => item.symbol === 'EURUSD') ?? instruments[0]
+  const selectedInstrument = instrumentId || defaultInstrument?.public_id || ''
+  const instrument = instruments.find((item) => item.public_id === selectedInstrument)
+  const quote = instrument?.mock_quote
+  const marketReference = quote ? n(side === 'BUY' ? quote.ask : quote.bid) : null
+  const protectionReference = orderType === 'MARKET' ? marketReference : (entry ? Number(entry) : null)
+  const referenceLabel = orderType === 'MARKET'
+    ? `${side === 'BUY' ? 'ask' : 'bid'} mock entry`
+    : 'requested entry'
+  const protectionGuidance = protectionReference === null || !instrument
+    ? 'Enter a requested entry to determine valid protection sides.'
+    : `${side} requires SL ${side === 'BUY' ? '<' : '>'} ${protectionReference.toFixed(instrument.digits)} and TP ${side === 'BUY' ? '>' : '<'} ${protectionReference.toFixed(instrument.digits)} (${referenceLabel}).`
 
   const submit = async () => {
     if (submitting) return
@@ -149,13 +160,20 @@ export function PersistentManualTrading() {
         <label className="field" htmlFor="manual-account"><span>Persisted simulation account</span><select id="manual-account" value={selectedAccount} onChange={(e) => setAccountId(e.target.value)}>{accounts.map((item) => <option value={item.public_id} key={item.public_id}>{item.name} · {item.environment}</option>)}</select></label>
         <label className="field" htmlFor="manual-instrument"><span>Persisted instrument</span><select id="manual-instrument" value={selectedInstrument} onChange={(e) => setInstrumentId(e.target.value)}>{instruments.map((item) => <option value={item.public_id} key={item.public_id}>{item.symbol} · {item.display_name}</option>)}</select></label>
         <label className="field" htmlFor="manual-order-type"><span>Order type</span><select id="manual-order-type" value={orderType} onChange={(e) => setOrderType(e.target.value as OrderType)}><option>MARKET</option><option>{side}_LIMIT</option><option>{side}_STOP</option></select></label>
-        <label className="field" htmlFor="manual-volume"><span>Volume</span><input id="manual-volume" type="number" min=".01" step=".01" value={volume} onChange={(e) => setVolume(Number(e.target.value))} /></label>
-        <label className="field" htmlFor="manual-entry"><span>{orderType === 'MARKET' ? 'Entry override (optional)' : 'Requested entry'}</span><input id="manual-entry" type="number" step="any" required={orderType !== 'MARKET'} value={entry} onChange={(e) => setEntry(e.target.value)} /></label>
+        <label className="field" htmlFor="manual-volume"><span>Volume</span><input id="manual-volume" type="number" min={String(instrument?.minimum_volume ?? .01)} step={String(instrument?.step_volume ?? .01)} value={volume} onChange={(e) => setVolume(Number(e.target.value))} /></label>
+        <label className="field" htmlFor="manual-entry"><span>{orderType === 'MARKET' ? 'Entry override (optional)' : 'Requested entry'}</span><input id="manual-entry" type="number" step={String(instrument?.tick_size ?? 'any')} required={orderType !== 'MARKET'} value={entry} onChange={(e) => setEntry(e.target.value)} /></label>
         <label className="field" htmlFor="manual-risk"><span>Risk %</span><input id="manual-risk" type="number" min="0" max="100" step=".1" value={risk} onChange={(e) => setRisk(Number(e.target.value))} /></label>
-        <label className="field" htmlFor="manual-stop-loss"><span>Stop loss</span><input id="manual-stop-loss" type="number" step="any" value={stopLoss} onChange={(e) => setStopLoss(e.target.value)} /></label>
-        <label className="field" htmlFor="manual-take-profit"><span>Take profit</span><input id="manual-take-profit" type="number" step="any" value={takeProfit} onChange={(e) => setTakeProfit(e.target.value)} /></label>
+        <label className="field" htmlFor="manual-stop-loss"><span>Stop loss</span><input id="manual-stop-loss" aria-describedby="manual-protection-guidance" type="number" step={String(instrument?.tick_size ?? 'any')} value={stopLoss} onChange={(e) => setStopLoss(e.target.value)} /></label>
+        <label className="field" htmlFor="manual-take-profit"><span>Take profit</span><input id="manual-take-profit" aria-describedby="manual-protection-guidance" type="number" step={String(instrument?.tick_size ?? 'any')} value={takeProfit} onChange={(e) => setTakeProfit(e.target.value)} /></label>
         <label className="field wide" htmlFor="manual-comment"><span>Comment</span><input id="manual-comment" maxLength={255} value={comment} onChange={(e) => setComment(e.target.value)} /></label>
       </div>
+      {instrument && quote && <div className="health-meta" aria-label="Backend mock quote and instrument rules">
+        <div><span>Backend MOCK bid / ask</span><strong>{quote.bid} / {quote.ask}</strong></div>
+        <div><span>Digits / tick size</span><strong>{instrument.digits} / {instrument.tick_size}</strong></div>
+        <div><span>Minimum stop distance</span><strong>{instrument.minimum_stop_distance}</strong></div>
+        <div><span>Quote source</span><strong>{quote.source} · {quote.environment}</strong></div>
+      </div>}
+      <p id="manual-protection-guidance" className="permission-note">{protectionGuidance}</p>
       <button className={`btn ${side === 'BUY' ? 'buy' : 'sell'} persistence-submit`} disabled={!can('simulation_lifecycle.create') || !can('simulation_lifecycle.evaluate') || !can('simulation_lifecycle.execute') || !selectedAccount || !selectedInstrument || submitting || (orderType !== 'MARKET' && !entry)} onClick={() => setConfirm(true)}>
         <Play />{submitting ? 'SIMULATING…' : `SIMULATE ${side}`}
       </button>
@@ -336,6 +354,10 @@ export function PersistentPositions() {
   const [page, strategies] = result.data
   const openPositions = page.data.filter((position) => position.status !== 'CLOSED')
   const strategyName = (id: number | null) => strategies.data.find((s) => s.id === id)?.name ?? (id ? `Strategy #${id}` : 'Manual')
+  const actionQuote = action?.position.instrument?.mock_quote
+  const actionReference = action && actionQuote
+    ? n(action.position.side === 'BUY' ? actionQuote.bid : actionQuote.ask)
+    : null
   const runAction = async () => {
     if (!action || busy) return
     setBusy(true); setError('')
@@ -377,7 +399,10 @@ export function PersistentPositions() {
     </Panel>
     {action && <div className="dialog-backdrop"><div className="dialog" role="dialog" aria-modal="true" aria-labelledby="position-action-title">
       <h2 id="position-action-title">Confirm SIMULATION {action.type.toUpperCase()}</h2><p>This modifies {action.position.public_id} in the simulation ledger only. No broker transmission.</p>
-      {action.type !== 'close' && <label className="field" htmlFor="position-action-value"><span>{action.type === 'partial' ? 'Close volume' : action.type === 'sl' ? 'Stop loss' : 'Take profit'}</span><input id="position-action-value" type="number" step="any" value={amount} onChange={(e) => setAmount(e.target.value)} /></label>}
+      {['sl', 'tp'].includes(action.type) && actionReference !== null && <p className="permission-note" id="position-protection-guidance">
+        Backend MOCK {action.position.side === 'BUY' ? 'bid' : 'ask'}: {actionReference.toFixed(action.position.instrument?.digits ?? 8)}. {action.position.side} requires SL {action.position.side === 'BUY' ? '<' : '>'} and TP {action.position.side === 'BUY' ? '>' : '<'} this current close-side price.
+      </p>}
+      {action.type !== 'close' && <label className="field" htmlFor="position-action-value"><span>{action.type === 'partial' ? 'Close volume' : action.type === 'sl' ? 'Stop loss' : 'Take profit'}</span><input id="position-action-value" aria-describedby={action.type === 'partial' ? undefined : 'position-protection-guidance'} type="number" step={String(action.type === 'partial' ? action.position.instrument?.step_volume ?? .01 : action.position.instrument?.tick_size ?? 'any')} value={amount} onChange={(e) => setAmount(e.target.value)} /></label>}
       <div><button className="btn ghost" onClick={() => setAction(undefined)}>Cancel</button><button className="btn danger" disabled={busy || (action.type !== 'close' && !amount)} onClick={runAction}>{busy ? 'WORKING…' : 'Confirm simulation action'}</button></div>
     </div></div>}
     {selected && <PositionDetailDrawer publicId={selected} onClose={() => setSelected('')} />}

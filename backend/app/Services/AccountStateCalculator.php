@@ -9,7 +9,7 @@ class AccountStateCalculator
     /** @return array{balance:float,equity:float,margin:float,free_margin:float,margin_level:?float,floating_pnl:float,drawdown:float,open_positions:int} */
     public function calculate(BrokerAccount $account, float $realizedAdjustment = 0): array
     {
-        $latest = $account->snapshots()->latest('captured_at')->first();
+        $latest = $account->snapshots()->latest('captured_at')->latest('id')->first();
         $balance = (float) ($latest?->balance ?? 0) + $realizedAdjustment;
         $openPositions = $account->positions()->whereIn('status', ['OPEN', 'PARTIALLY_CLOSED']);
         $floating = (float) (clone $openPositions)->sum('unrealized_pnl');

@@ -46,7 +46,7 @@ class SimulationRiskEvaluator
             [$reason, $message] = [RiskReasonCode::InvalidVolume, 'Volume violates the instrument or profile limit.'];
         } elseif ($account->positions()->whereIn('status', ['OPEN', 'PARTIALLY_CLOSED'])->count() >= $profile->max_open_positions) {
             [$reason, $message] = [RiskReasonCode::MaxOpenPositions, 'Maximum open positions reached.'];
-        } elseif ($account->snapshots()->latest('captured_at')->first() === null) {
+        } elseif ($account->snapshots()->latest('captured_at')->latest('id')->first() === null) {
             [$reason, $message] = [RiskReasonCode::MissingSnapshot, 'An account snapshot is required.'];
         }
 
@@ -70,7 +70,7 @@ class SimulationRiskEvaluator
             || ($intent->side->value === 'SELL'
                 && (($intent->stop_loss !== null && (float) $intent->stop_loss <= $entry)
                     || ($intent->take_profit !== null && (float) $intent->take_profit >= $entry)));
-        $snapshot = $account->snapshots()->latest('captured_at')->first();
+        $snapshot = $account->snapshots()->latest('captured_at')->latest('id')->first();
         $calculatedRiskPercent = $snapshot && (float) $snapshot->balance > 0.00000001
             ? $riskAmount / (float) $snapshot->balance * 100
             : 0;

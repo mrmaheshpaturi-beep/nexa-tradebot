@@ -67,6 +67,35 @@ describe('Phase 3 typed API boundary', () => {
 })
 
 describe('Manual simulation gates', () => {
+  it('defaults to EURUSD and renders backend mock quote protection guidance', async () => {
+    vi.spyOn(globalThis, 'fetch').mockImplementation(async (path) => {
+      if (path === '/api/v1/broker-accounts') return json({ current_page: 1, last_page: 1, per_page: 15, total: 1, data: [{ public_id: 'account', name: 'Simulation Account', environment: 'SIMULATION' }] })
+      return json({
+        current_page: 1, last_page: 1, per_page: 15, total: 2, data: [
+          {
+            public_id: 'btc', symbol: 'BTCUSD', display_name: 'Bitcoin', is_enabled: true,
+            digits: 2, tick_size: '0.0100000000', minimum_volume: '0.0100', step_volume: '0.0100',
+            minimum_stop_distance: '0.0000000000',
+            mock_quote: { symbol: 'BTCUSD', bid: '60000.00', ask: '60010.00', spread: '10', timestamp: '2026-09-17T12:00:00Z', source: 'MOCK', environment: 'SIMULATION' },
+          },
+          {
+            public_id: 'eur', symbol: 'EURUSD', display_name: 'Euro / US Dollar', is_enabled: true,
+            digits: 5, tick_size: '0.0000100000', minimum_volume: '0.0100', step_volume: '0.0100',
+            minimum_stop_distance: '0.0000000000',
+            mock_quote: { symbol: 'EURUSD', bid: '1.10000', ask: '1.10020', spread: '0.0002', timestamp: '2026-09-17T12:00:00Z', source: 'MOCK', environment: 'SIMULATION' },
+          },
+        ],
+      })
+    })
+
+    render(<PersistentManualTrading />)
+
+    expect(await screen.findByLabelText('Persisted instrument')).toHaveValue('eur')
+    expect(screen.getByText('1.10000 / 1.10020')).toBeInTheDocument()
+    expect(screen.getByText('BUY requires SL < 1.10020 and TP > 1.10020 (ask mock entry).')).toBeInTheDocument()
+    expect(screen.getByLabelText('Stop loss')).toHaveAttribute('step', '0.0000100000')
+  })
+
   it('does not execute when deterministic risk rejects the persisted intent', async () => {
     const paths: string[] = []
     vi.spyOn(globalThis, 'fetch').mockImplementation(async (path) => {

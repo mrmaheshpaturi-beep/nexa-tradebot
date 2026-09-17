@@ -59,7 +59,7 @@ class SystemController extends Controller
     public function dashboard(Request $request): JsonResponse
     {
         $latestSnapshot = $request->user()->brokerAccounts()
-            ->with(['snapshots' => fn ($query) => $query->latest('captured_at')->limit(1)])
+            ->with(['snapshots' => fn ($query) => $query->latest('captured_at')->latest('id')->limit(1)])
             ->get()
             ->flatMap->snapshots
             ->sortByDesc('captured_at')

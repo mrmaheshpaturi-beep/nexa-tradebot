@@ -2,35 +2,45 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Contracts\MarketDataProvider;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PositionActionRequest;
 use App\Models\ExecutionCommand;
 use App\Models\Position;
+use App\Models\TradingInstrument;
 use App\Services\TradeLifecycleService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class PositionController extends Controller
 {
-    public function __construct(private readonly TradeLifecycleService $lifecycle) {}
+    public function __construct(
+        private readonly TradeLifecycleService $lifecycle,
+        private readonly MarketDataProvider $marketData,
+    ) {}
 
     public function index(Request $request): JsonResponse
     {
-        return response()->json(['data' => Position::query()
+        $positions = Position::query()
             ->where('user_id', $request->user()->id)
             ->with(['instrument', 'brokerAccount'])
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')))
             ->latest()
-            ->paginate()]);
+            ->paginate();
+        $positions->getCollection()->each(fn (Position $position) => $this->attachMockQuote($position->instrument));
+
+        return response()->json(['data' => $positions]);
     }
 
     public function show(Request $request, Position $position): JsonResponse
     {
         abort_unless($position->user_id === $request->user()->id, 404);
-
-        return response()->json(['data' => $position->load([
+        $position->load([
             'instrument', 'brokerAccount', 'openingOrder', 'deals', 'events.executionCommand',
-        ])]);
+        ]);
+        $this->attachMockQuote($position->instrument);
+
+        return response()->json(['data' => $position]);
     }
 
     public function close(PositionActionRequest $request, Position $position): JsonResponse
@@ -103,5 +113,12 @@ class PositionController extends Controller
             ...$result['command']->toArray(),
             'idempotent_replay' => $result['replayed'],
         ]], $result['replayed'] ? 200 : 201);
+    }
+
+    private function attachMockQuote(?TradingInstrument $instrument): void
+    {
+        if ($instrument) {
+            $instrument->setAttribute('mock_quote', $this->marketData->getQuote($instrument->symbol));
+        }
     }
 }

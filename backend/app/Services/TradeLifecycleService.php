@@ -45,6 +45,7 @@ class TradeLifecycleService
         private readonly SimulationRiskEvaluator $riskEvaluator,
         private readonly ExecutionGate $gate,
         private readonly ExecutionAdapter $adapter,
+        private readonly MarketDataProvider $marketData,
         private readonly FinancialCalculator $calculator,
         private readonly AccountStateUpdater $accounts,
         private readonly AuditService $audit,
@@ -276,11 +277,20 @@ class TradeLifecycleService
                 $order = $this->createClosingOrder($command, $position, $closeVolume, $price);
                 $before = (float) $position->current_volume;
                 $after = round($before - $closeVolume, 4);
+                $unrealized = $isFullClose ? 0 : $this->calculator->profit(
+                    $position->instrument,
+                    $position->direction,
+                    $after,
+                    (float) $position->average_entry_price,
+                    $price,
+                );
                 $position->update([
                     'volume' => $after,
                     'current_volume' => $after,
                     'realized_pnl' => round((float) $position->realized_pnl + $realized, 4),
                     'current_price' => $price,
+                    'floating_pnl' => $unrealized,
+                    'unrealized_pnl' => $unrealized,
                     'margin_used' => $isFullClose ? 0 : round((float) $position->margin_used * ($after / $before), 4),
                     'closed_at' => $isFullClose ? now() : null,
                 ]);
@@ -357,7 +367,8 @@ class TradeLifecycleService
         if ($position->status === PositionStatus::Closed) {
             throw ValidationException::withMessages(['position' => 'Closed positions cannot be modified.']);
         }
-        $referencePrice = (float) ($position->current_price ?? $position->average_entry_price);
+        $quote = $this->marketData->getQuote($position->symbol);
+        $referencePrice = $this->markPrice($position->direction, $quote);
         $stopLoss = array_key_exists('stop_loss', $data) && $data['stop_loss'] !== null ? (float) $data['stop_loss'] : null;
         $takeProfit = array_key_exists('take_profit', $data) && $data['take_profit'] !== null ? (float) $data['take_profit'] : null;
         $invalidProtection = ($position->direction === OrderDirection::Buy
@@ -380,15 +391,25 @@ class TradeLifecycleService
         ));
 
         try {
-            return DB::transaction(function () use ($position, $data, $request, $command, $field): array {
+            return DB::transaction(function () use ($position, $data, $request, $command, $field, $referencePrice): array {
                 $before = $position->only(['stop_loss', 'take_profit']);
                 $result = $this->adapter->execute($command);
                 if (! $result['accepted']) {
                     throw new DomainException($result['reason'] ?? 'Simulation adapter rejected the modification.');
                 }
+                $unrealized = $this->calculator->profit(
+                    $position->instrument,
+                    $position->direction,
+                    (float) $position->current_volume,
+                    (float) $position->average_entry_price,
+                    $referencePrice,
+                );
                 $position->update([
                     'stop_loss' => array_key_exists('stop_loss', $data) ? $data['stop_loss'] : $position->stop_loss,
                     'take_profit' => array_key_exists('take_profit', $data) ? $data['take_profit'] : $position->take_profit,
+                    'current_price' => $referencePrice,
+                    'floating_pnl' => $unrealized,
+                    'unrealized_pnl' => $unrealized,
                 ]);
                 $position->events()->create([
                     'execution_command_id' => $command->id,
@@ -521,6 +542,15 @@ class TradeLifecycleService
         }
 
         $price = (float) $result['fill_price'];
+        $quote = $this->marketData->getQuote($intent->instrument->symbol);
+        $currentPrice = $this->markPrice($intent->side, $quote);
+        $unrealized = $this->calculator->profit(
+            $intent->instrument,
+            $intent->side,
+            (float) $intent->requested_volume,
+            $price,
+            $currentPrice,
+        );
         $order->update([
             'filled_volume' => $intent->requested_volume,
             'remaining_volume' => 0,
@@ -544,9 +574,11 @@ class TradeLifecycleService
             'current_volume' => $intent->requested_volume,
             'open_price' => $price,
             'average_entry_price' => $price,
-            'current_price' => $price,
+            'current_price' => $currentPrice,
             'stop_loss' => $intent->stop_loss,
             'take_profit' => $intent->take_profit,
+            'floating_pnl' => $unrealized,
+            'unrealized_pnl' => $unrealized,
             'margin_used' => $this->calculator->margin(
                 $intent->instrument,
                 (float) $intent->requested_volume,
@@ -715,5 +747,11 @@ class TradeLifecycleService
                 'order_type' => "{$orderType->value} cannot be used with side {$side->value}.",
             ]);
         }
+    }
+
+    /** @param array{bid:string,ask:string} $quote */
+    private function markPrice(OrderDirection $side, array $quote): float
+    {
+        return (float) ($side === OrderDirection::Buy ? $quote['bid'] : $quote['ask']);
     }
 }

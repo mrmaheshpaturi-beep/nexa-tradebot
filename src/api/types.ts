@@ -180,6 +180,11 @@ export type DealType = 'ENTRY' | 'EXIT' | 'PARTIAL_EXIT'
 export type RiskReasonCode = 'APPROVED' | 'DAILY_LOSS_LIMIT' | 'WEEKLY_LOSS_LIMIT' | 'DRAWDOWN_LIMIT' | 'MAX_POSITIONS' | 'MAX_EXPOSURE' | 'MAX_LOT' | 'SPREAD_LIMIT' | 'SLIPPAGE_LIMIT' | 'MARGIN_LIMIT' | 'CONSECUTIVE_LOSS_LIMIT' | 'MINIMUM_RR' | 'EMERGENCY_STOP' | 'TRADING_DISABLED' | 'SESSION_RESTRICTED' | 'NEWS_RESTRICTED' | 'CORRELATION_LIMIT' | 'VALIDATION_FAILURE' | 'SIMULATION_EXECUTION_DISABLED' | 'INVALID_ENVIRONMENT' | 'INVALID_ACCOUNT' | 'INVALID_INSTRUMENT' | 'INVALID_VOLUME' | 'INVALID_PROTECTION' | 'RISK_LIMIT' | 'REWARD_RISK' | 'MAX_OPEN_POSITIONS' | 'MISSING_ACCOUNT_SNAPSHOT'
 export type Numeric = string | number
 
+export interface BackendMockQuote {
+  symbol: string; bid: Numeric; ask: Numeric; spread: Numeric; timestamp: string
+  source: 'MOCK'; environment: 'SIMULATION'
+}
+
 export interface TradingInstrument {
   id: number; public_id: string; symbol: string; name: string; display_name: string
   asset_class: 'FOREX' | 'METAL' | 'INDEX' | 'CRYPTO' | 'COMMODITY' | 'OTHER' | 'EQUITY'
@@ -187,7 +192,7 @@ export interface TradingInstrument {
   digits: number; point_size: Numeric; contract_size: Numeric; tick_size: Numeric; tick_value: Numeric
   volume_min: Numeric; volume_max: Numeric; volume_step: Numeric; minimum_volume: Numeric
   maximum_volume: Numeric; step_volume: Numeric; minimum_stop_distance: Numeric; margin_rate: Numeric
-  is_enabled: boolean; created_at: string; updated_at: string
+  is_enabled: boolean; mock_quote: BackendMockQuote; created_at: string; updated_at: string
 }
 
 export interface Signal {
