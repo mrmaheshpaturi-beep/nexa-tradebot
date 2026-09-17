@@ -47,16 +47,16 @@ class DatabaseSeeder extends Seeder
             }
         }
 
-        $risk = $user->riskProfiles()->firstOrCreate(['name' => 'Conservative Simulation'], [
+        $risk = $user->riskProfiles()->updateOrCreate(['name' => 'Conservative Simulation'], [
             'status' => 'ACTIVE', 'is_default' => true, 'created_by' => $user->id, 'updated_by' => $user->id,
             'max_risk_per_trade' => 1, 'max_lot_size' => 1, 'max_daily_loss' => 4, 'max_weekly_loss' => 8,
             'max_drawdown' => 12, 'max_open_positions' => 8, 'max_open_risk' => 6, 'max_trades_per_day' => 20,
             'max_consecutive_losses' => 4, 'min_margin_level' => 300, 'max_spread' => 3,
             'max_slippage' => 1.5, 'min_reward_risk' => 1.5,
         ]);
-        $account = $user->brokerAccounts()->firstOrCreate(['name' => 'Development Simulation'], [
+        $account = $user->brokerAccounts()->updateOrCreate(['name' => 'Development Simulation'], [
             'risk_profile_id' => $risk->id, 'broker' => 'No broker - metadata only', 'platform' => 'NONE',
-            'environment' => 'SIMULATION', 'status' => 'DISCONNECTED', 'is_enabled' => false,
+            'environment' => 'SIMULATION', 'status' => 'CONFIGURED', 'is_enabled' => true,
             'currency' => 'USD', 'leverage' => 1, 'created_by' => $user->id,
         ]);
         $account->snapshots()->firstOrCreate(['captured_at' => now()->startOfMinute()], [

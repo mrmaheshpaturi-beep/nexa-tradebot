@@ -94,7 +94,7 @@ export interface BrokerAccountRecord {
   environment: 'SIMULATION'
   currency: string
   leverage: number
-  status: 'DISCONNECTED' | 'READY' | 'DISABLED'
+  status: 'CONFIGURED' | 'CONNECTING' | 'CONNECTED' | 'DISCONNECTED' | 'ERROR' | 'DISABLED'
   is_enabled: boolean
   metadata: Record<string, unknown> | null
 }
