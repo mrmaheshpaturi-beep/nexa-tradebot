@@ -7,7 +7,6 @@ export function useService<T>(loader: () => Promise<T>) {
 
   useEffect(() => {
     let current = true
-    setLoading(true)
     loader()
       .then((value) => current && setData(value))
       .catch(() => current && setError('This simulated module could not be loaded. Try again.'))
