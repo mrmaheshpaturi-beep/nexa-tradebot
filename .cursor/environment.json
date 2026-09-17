@@ -1,0 +1,19 @@
+{
+  "name": "Nexa TradeBot",
+  "snapshot": "snapshot-20260917-bbb1cff5-1982-42c6-b4e5-34c85276428c",
+  "install": "set -e\nnpm install\ncd backend\ncomposer install --no-interaction --no-progress\n[ -f .env ] || cp .env.example .env\ntouch database/database.sqlite\ngrep -q '^APP_KEY=base64:' .env || php artisan key:generate --force\nphp artisan migrate --force\n[ -z \"${DEV_SUPER_ADMIN_PASSWORD:-}\" ] || php artisan db:seed --force",
+  "terminals": [
+    {
+      "name": "backend-api",
+      "command": "cd backend && php artisan serve --host=0.0.0.0 --port=43128"
+    },
+    {
+      "name": "frontend",
+      "command": "npm run dev -- --host=0.0.0.0 --port=43127"
+    }
+  ],
+  "ports": [
+    { "name": "frontend", "port": 43127 },
+    { "name": "backend-api", "port": 43128 }
+  ]
+}
