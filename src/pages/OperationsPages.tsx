@@ -2,7 +2,7 @@ import { Fragment, useCallback, useState } from "react";
 import { AlertOctagon, Bell, Check, Download, FileText, ShieldAlert } from "lucide-react";
 import { useService } from "../hooks/useService";
 import { services } from "../services/mockServices";
-import { DataTable, DirectionBadge, EnvironmentBadge, FilterBar, LoadingState, MetricCard, PageHeader, Panel, PnLDisplay, RiskGauge, StatusBadge } from "../components/ui";
+import { DataTable, DirectionBadge, EnvironmentBadge, ErrorState, FilterBar, LoadingState, MetricCard, PageHeader, Panel, PnLDisplay, RiskGauge, StatusBadge } from "../components/ui";
 import { EquityChart, PerformanceChart } from "../components/TradingCharts";
 
 const Button = ({ children, tone = "", disabled = false, onClick }: { children: React.ReactNode; tone?: string; disabled?: boolean; onClick?: () => void }) => (
@@ -12,11 +12,10 @@ const Button = ({ children, tone = "", disabled = false, onClick }: { children: 
 );
 
 export function PendingOrders() {
-  const rows = [
-    ["SIM-20412", "EURUSD", "Buy Limit", "1.00", "1.10840", "1.10320", "1.11960", "GTC", "EMA Pullback", "08:12 UTC"],
-    ["SIM-20411", "XAUUSD", "Sell Stop", "0.40", "2629.00", "2641.00", "2602.00", "Today", "Gold Scalper", "07:58 UTC"],
-    ["SIM-20408", "NAS100", "Buy Stop", "0.25", "19820.00", "19720.00", "20040.00", "GTC", "Range Breakout", "06:44 UTC"],
-  ];
+  const load = useCallback(() => services.orders.getPendingOrders(), []);
+  const { data, loading, error } = useService(load);
+  if (loading) return <LoadingState />;
+  if (error || !data) return <ErrorState message={error ?? "Pending simulation orders are unavailable."} />;
   return (
     <>
       <PageHeader title="Pending Orders" description="Virtual instructions awaiting mock market conditions." actions={<EnvironmentBadge />} />
@@ -24,12 +23,21 @@ export function PendingOrders() {
         <FilterBar />
         <DataTable
           columns={["Ticket", "Symbol", "Order Type", "Volume", "Entry", "SL", "TP", "Expiry", "Strategy", "Created", "Status", "Actions"]}
-          rows={rows.map((r) => [
-            ...r,
-            <StatusBadge key={`${r[0]}-status`} tone="warning">
-              PENDING
+          rows={data.map((order) => [
+            order.ticket,
+            order.symbol,
+            order.type,
+            order.volume.toFixed(2),
+            order.entry,
+            order.stopLoss,
+            order.takeProfit,
+            order.expiry ?? "GTC",
+            order.strategy ?? "Manual",
+            order.createdAt ?? "—",
+            <StatusBadge key={`${order.id}-status`} tone="warning">
+              {order.status}
             </StatusBadge>,
-            <div key={`${r[0]}-actions`} className="row-actions">
+            <div key={`${order.id}-actions`} className="row-actions">
               <button>View</button>
               <button>Modify</button>
               <button>Cancel</button>
@@ -187,14 +195,18 @@ export function RiskManagement() {
   );
 }
 export function PaperTrading() {
+  const load = useCallback(() => services.paper.getSnapshot(), []);
+  const { data, loading, error } = useService(load);
+  if (loading) return <LoadingState />;
+  if (error || !data) return <ErrorState message={error ?? "Paper trading data is unavailable."} />;
   return (
     <>
       <PageHeader title="Paper Trading" description="Virtual capital workspace using simulated data in Phase 1." actions={<StatusBadge tone="info">SIMULATED DATA</StatusBadge>} />
       <div className="metrics-grid">
-        <MetricCard label="Virtual Balance" value="$50,000.00" />
-        <MetricCard label="Virtual Equity" value="$51,284.60" />
-        <MetricCard label="Open Paper Positions" value="3" />
-        <MetricCard label="Paper P/L" value={<PnLDisplay value={1284.6} />} />
+        <MetricCard label="Virtual Balance" value={`$${data.balance.toLocaleString()}`} />
+        <MetricCard label="Virtual Equity" value={`$${data.equity.toLocaleString()}`} />
+        <MetricCard label="Open Paper Positions" value={data.positions.length} />
+        <MetricCard label="Paper P/L" value={<PnLDisplay value={data.profit} />} />
       </div>
       <div className="info-banner">
         <FileText /> Paper trading will eventually use real prices with virtual capital. Phase 1 uses deterministic simulated market data.
@@ -202,10 +214,16 @@ export function PaperTrading() {
       <Panel title="Paper positions" subtitle="Virtual ledger">
         <DataTable
           columns={["Ticket", "Symbol", "Direction", "Volume", "Entry", "Current", "P/L", "Opened"]}
-          rows={[
-            ["PAPER-082", "XAUUSD", <DirectionBadge key="paper-082-direction" value="BUY" />, "0.20", "2638.40", "2642.20", <PnLDisplay key="paper-082-pnl" value={76} />, "2h 18m"],
-            ["PAPER-079", "EURUSD", <DirectionBadge key="paper-079-direction" value="SELL" />, "0.50", "1.11720", "1.11482", <PnLDisplay key="paper-079-pnl" value={119} />, "5h 42m"],
-          ]}
+          rows={data.positions.map((position) => [
+            position.ticket,
+            position.symbol,
+            <DirectionBadge key={`${position.id}-direction`} value={position.direction} />,
+            position.volume.toFixed(2),
+            position.entry,
+            position.current,
+            <PnLDisplay key={`${position.id}-pnl`} value={position.profit} />,
+            position.openedAt,
+          ])}
         />
       </Panel>
     </>
@@ -308,13 +326,10 @@ export function Reports() {
   );
 }
 export function NewsCalendar() {
-  const events = [
-    ["08:30", "USD", "High", "Core Retail Sales m/m", "0.4%", "0.3%", "0.5%"],
-    ["09:00", "EUR", "Medium", "ECB Economic Bulletin", "—", "—", "—"],
-    ["12:30", "USD", "High", "Initial Jobless Claims", "263K", "260K", "258K"],
-    ["14:00", "GBP", "Low", "MPC Member Speech", "—", "—", "—"],
-    ["23:30", "JPY", "Medium", "National CPI y/y", "2.8%", "2.9%", "—"],
-  ];
+  const load = useCallback(() => services.news.getEvents(), []);
+  const { data, loading, error } = useService(load);
+  if (loading) return <LoadingState />;
+  if (error || !data) return <ErrorState message={error ?? "Mock news events are unavailable."} />;
   return (
     <>
       <PageHeader title="News Calendar" description="Demonstration economic events; not a live news feed." />
@@ -328,16 +343,16 @@ export function NewsCalendar() {
         </FilterBar>
         <DataTable
           columns={["Time", "Currency", "Impact", "Event", "Previous", "Forecast", "Actual"]}
-          rows={events.map((e) => [
-            e[0],
-            <b key={`${e[0]}-${e[1]}-currency`}>{e[1]}</b>,
-            <StatusBadge key={`${e[0]}-${e[1]}-impact`} tone={e[2] === "High" ? "bad" : e[2] === "Medium" ? "warning" : "neutral"}>
-              {e[2]}
+          rows={data.map((event) => [
+            event.time,
+            <b key={`${event.id}-currency`}>{event.currency}</b>,
+            <StatusBadge key={`${event.id}-impact`} tone={event.impact === "High" ? "bad" : event.impact === "Medium" ? "warning" : "neutral"}>
+              {event.impact}
             </StatusBadge>,
-            e[3],
-            e[4],
-            e[5],
-            e[6],
+            event.event,
+            event.previous,
+            event.forecast,
+            event.actual,
           ])}
         />
       </Panel>
@@ -474,13 +489,10 @@ export function SystemHealthPage() {
   );
 }
 export function AuditLogs() {
-  const rows = [
-    ["08:48:12", "Simulation Admin", "UPDATE", "Risk", "Adjusted max open risk from 5% to 6%", "127.0.0.1", "SUCCESS"],
-    ["08:42:08", "System", "WARNING", "Risk", "USD exposure crossed warning threshold", "system", "SUCCESS"],
-    ["08:31:44", "Simulation Admin", "SIMULATE", "Manual Trading", "Created virtual XAUUSD order SIM-10482", "127.0.0.1", "SUCCESS"],
-    ["08:21:05", "Mock Signal Engine", "CREATE", "Signals", "Generated simulated XAUUSD signal", "system", "SUCCESS"],
-    ["07:58:19", "System", "BLOCK", "Auto Trading", "Rejected unavailable execution request", "system", "BLOCKED"],
-  ];
+  const load = useCallback(() => services.audit.getEvents(), []);
+  const { data, loading, error } = useService(load);
+  if (loading) return <LoadingState />;
+  if (error || !data) return <ErrorState message={error ?? "Audit events are unavailable."} />;
   return (
     <>
       <PageHeader title="Audit Logs" description="Tamper-evident interface preview using simulated security events." />
@@ -494,10 +506,15 @@ export function AuditLogs() {
         </FilterBar>
         <DataTable
           columns={["Timestamp", "User", "Action", "Module", "Description", "IP", "Result"]}
-          rows={rows.map((r) => [
-            ...r.slice(0, 6),
-            <StatusBadge key={`${r[0]}-result`} tone={r[6] === "SUCCESS" ? "good" : "bad"}>
-              {r[6]}
+          rows={data.map((event) => [
+            event.timestamp,
+            event.user,
+            event.action,
+            event.module,
+            event.description,
+            event.ip,
+            <StatusBadge key={`${event.id}-result`} tone={event.result === "SUCCESS" ? "good" : "bad"}>
+              {event.result}
             </StatusBadge>,
           ])}
         />
