@@ -21,8 +21,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => setUnauthorizedHandler(undefined)
   }, [clearSession])
 
-  const login = useCallback(async (email: string, password: string) => {
-    setUser(await authApi.login(email, password))
+  const login = useCallback(async (email: string, password: string, remember = false) => {
+    setUser(await authApi.login(email, password, remember))
   }, [])
   const logout = useCallback(async () => {
     try {

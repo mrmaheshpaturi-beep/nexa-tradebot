@@ -4,7 +4,7 @@ import type { CurrentUser } from '../api/types'
 export interface AuthValue {
   user: CurrentUser | null
   loading: boolean
-  login: (email: string, password: string) => Promise<void>
+  login: (email: string, password: string, remember?: boolean) => Promise<void>
   logout: () => Promise<void>
   can: (permission: string) => boolean
 }

@@ -31,7 +31,7 @@ export function LoginPage() {
         const result = await authApi.requestPasswordReset(email)
         setMessage(result.message)
       } else {
-        await login(email, password)
+        await login(email, password, remember)
         if (remember) localStorage.setItem('nexa.rememberedEmail', email)
         else localStorage.removeItem('nexa.rememberedEmail')
         const destination = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? '/'

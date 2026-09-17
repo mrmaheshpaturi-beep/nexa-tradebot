@@ -7,8 +7,8 @@ import type {
 
 export const authApi = {
   me: () => apiRequest<CurrentUser>('/api/v1/auth/me', { csrf: false }),
-  login: (email: string, password: string) =>
-    apiRequest<CurrentUser>('/api/v1/auth/login', { method: 'POST', body: { email, password } }),
+  login: (email: string, password: string, remember = false) =>
+    apiRequest<CurrentUser>('/api/v1/auth/login', { method: 'POST', body: { email, password, remember } }),
   logout: () => apiRequest<{ message: string }>('/api/v1/auth/logout', { method: 'POST' }),
   requestPasswordReset: (email: string) =>
     apiRequest<{ message: string }>('/api/v1/auth/password/request', { method: 'POST', body: { email } }),
