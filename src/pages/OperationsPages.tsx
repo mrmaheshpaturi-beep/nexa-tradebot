@@ -4,7 +4,7 @@ import { useService } from "../hooks/useService";
 import { services } from "../services/mockServices";
 import { DataTable, DirectionBadge, EnvironmentBadge, ErrorState, FilterBar, LoadingState, MetricCard, PageHeader, Panel, PnLDisplay, RiskGauge, StatusBadge } from "../components/ui";
 import { EquityChart, PerformanceChart } from "../components/TradingCharts";
-import { useSimulation } from "../context/SimulationContext";
+import { useSimulation } from "../context/simulationState";
 
 const Button = ({ children, tone = "", disabled = false, onClick }: { children: React.ReactNode; tone?: string; disabled?: boolean; onClick?: () => void }) => (
   <button className={`btn ${tone}`} disabled={disabled} onClick={onClick}>

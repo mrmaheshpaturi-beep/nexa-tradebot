@@ -4,7 +4,7 @@ import { services } from "../services/mockServices";
 import { useService } from "../hooks/useService";
 import { AIScoreGauge, ConfirmationDialog, DataTable, DirectionBadge, EnvironmentBadge, ErrorState, FilterBar, LoadingState, MetricCard, PageHeader, Panel, PnLDisplay, RiskGauge, StatusBadge } from "../components/ui";
 import { CandlestickTerminal, EquityChart, PerformanceChart } from "../components/TradingCharts";
-import { useSimulation } from "../context/SimulationContext";
+import { useSimulation } from "../context/simulationState";
 import type { BacktestConfig, Position, Quote, Signal } from "../domain/types";
 
 const Button = ({ children, tone = "", onClick, disabled = false }: { children: React.ReactNode; tone?: string; onClick?: () => void; disabled?: boolean }) => (
