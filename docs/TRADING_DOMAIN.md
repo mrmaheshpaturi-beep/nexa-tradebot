@@ -1,45 +1,62 @@
 # Trading Domain
 
-## Implemented concepts
+## Canonical concepts
 
-- **User:** authenticated operator with an `ACTIVE`, `SUSPENDED`, or `DISABLED` status and one or more database roles. The shipped administration workflow assigns one role.
-- **Broker Account:** user-owned, credential-free metadata with an optional risk profile. Phase 2 forces `SIMULATION`, starts disconnected, accepts only `NONE` or `SIMULATION` platform metadata, and has no adapter or connection behavior.
-- **Strategy:** user-owned, versionable manual or signal-only configuration. Each configuration update can append a `StrategyVersion`; arbitrary keyed JSON can exist in `StrategySetting`. A strategy can produce signals but cannot execute. `auto_trading_enabled` is always forced false.
-- **Signal:** analytical data with direction, score, timeframe, price levels, source, expiry, explanation, and optional strategy. The table exists, but Phase 2 has no signal ingestion or list/create API; displayed AI signals remain deterministic mocks.
-- **Order:** an instruction record. The only implemented order mutation is `POST /api/v1/simulation/orders`, which writes a user-owned `SIMULATED` record with `simulated=true` and `broker_transmitted=false`. It requires a globally unique UUID command ID and user-scoped idempotency key.
-- **Deal:** a discrete fill linked to an order and optionally a position/account. The table and model exist; Phase 2 creates no deals and exposes no deal API.
-- **Position:** current exposure linked optionally to an opening order/account. It is distinct from an order. The table and model exist; Phase 2 creates no positions and displayed positions are mocks.
-- **Trade:** user-owned reporting projection linked optionally to a position, with entry/exit, P/L, and lifecycle timestamps. The table exists; Phase 2 has no trade API and displayed history is mock data.
-- **Risk Profile:** user-owned set of 13 limits: risk per trade, lot size, daily loss, weekly loss, drawdown, open-position count, open risk, trades/day, consecutive losses, minimum margin level, spread, slippage, and minimum reward/risk. Profiles persist, but no authoritative risk-evaluation engine exists.
-- **Risk Event:** decision record linked optionally to a risk profile/order. The table exists but no engine or API creates/exposes it.
-- **Account Snapshot:** point-in-time persisted account balance, equity, margin, free margin, margin level, floating P/L, and drawdown. The dashboard reads the latest snapshot; there is no snapshot mutation/list API.
-- **Notification:** user-owned persistent message with category, severity, payload, and read state. Individual read mutation exists; mark-all does not.
-- **Audit Log:** append-only application activity record. Selected user, setting, preference, strategy, risk-profile, broker-account, and simulation-order mutations are audited. This is not a claim that every read or framework event is audited.
-- **System Event:** operational record currently used for known-user password-reset requests. Counts appear on the dashboard; there is no list endpoint.
+- **TradingInstrument:** persisted symbol specification: asset class, currencies, digits, point/tick/contract values, volume bounds/step, stop distance, margin rate and enabled state.
+- **BrokerAccount:** current-user-owned simulation metadata with an optional active risk profile and snapshots. It contains no broker credentials or connection behavior.
+- **TradingTerminal / TradingSession / ServiceHeartbeat:** operational schema for adapter status. Phase 3 seeds one offline simulation terminal and a readable heartbeat; it opens no external session.
+- **Strategy:** user-owned, versioned configuration. It may be linked to signals/intents but cannot execute.
+- **Signal:** analytical record with direction, score, timeframe, references, expiry and explicit MOCK/SIMULATION source. It can create one intent but cannot evaluate or execute itself.
+- **TradeIntent:** immutable request facts and lifecycle status. It is neither an order nor authorization to execute.
+- **RiskDecision:** one deterministic approval/rejection attached to one intent, with reason code, calculated risk/reward and check evidence.
+- **ExecutionCommand:** idempotent instruction to the simulation adapter with timestamps and safe failure state.
+- **Order:** accepted/rejected/filled/cancelled instruction ledger. A MARKET fill creates a deal and position; a pending order does not.
+- **Deal:** discrete entry, partial-exit or exit fill.
+- **Position:** current exposure, volume, entry/current prices, protection, realized/unrealized P/L and margin.
+- **PositionEvent:** append-style timeline item for open, protection changes, partial close and close.
+- **AccountSnapshot:** account balance/equity/margin/free-margin/floating P/L/drawdown/open-position state captured after lifecycle mutations.
+- **Trade / RiskEvent:** retained Phase 2 reporting and generic-risk foundations; the Phase 3 lifecycle does not produce them.
 
 ## Environment semantics
 
-The implemented backend `TradingEnvironment` enum contains exactly one value: `SIMULATION`. The `broker_accounts`, `signals`, `orders`, `deals`, `positions`, and `trades` tables default their environment columns to `SIMULATION`. `PAPER`, `DEMO`, and `LIVE` are not accepted persistence values in Phase 2.
+The PHP vocabulary is `SIMULATION`, `PAPER`, `DEMO`, `LIVE`, but only `SIMULATION` is executable. All Phase 3 producers assign SIMULATION server-side. The gate rejects all other environments. PAPER/DEMO/LIVE vocabulary is not evidence of an adapter or capability.
 
-Some retained frontend Phase 1 types contain future-capable environment vocabulary, and a paper-trading demonstration screen exists, but those do not add a backend environment or execution path. The server returns:
+`trading_enabled=false` remains the hard truth for broker/live trading. Phase 3 adds the independent `simulation_execution_enabled` switch so local ledger execution can be tested while broker execution remains nonexistent.
 
-- market data: `MOCK / MOCK MARKET DATA`;
-- broker: `DISCONNECTED`;
-- execution: unavailable, no broker transmission;
-- demo/live execution: false.
+## Order side and type
 
-## Simulation-order behavior
+Directions are BUY and SELL. Types are MARKET, BUY_LIMIT, SELL_LIMIT, BUY_STOP and SELL_STOP. A typed pending order must match its side. Time in force vocabulary is GTC, DAY, IOC and FOK; Phase 3 stores it but has no expiry/trigger scheduler.
 
-The API accepts only `XAUUSD`, `EURUSD`, `GBPUSD`, `USDJPY`, `NAS100`, or `BTCUSD`; `BUY` or `SELL`; volume 0.01–5; optional positive prices; risk percent 0–10; and optional user-owned broker/signal references. The server ignores no hidden execution switch: execution and live fields are not part of the request contract.
+## Protection and price semantics
 
-Creation is rejected unless `emergency_stop` is exactly false and `trading_enabled` is exactly true. Defaults are stop on and trading off. A retry with the same user/idempotency key or command ID returns the existing order and creates no duplicate audit entry. Creation never creates a deal, position, or trade.
+MARKET BUY enters at mock ask and SELL at mock bid. Initial BUY protection requires `SL < entry < TP`; SELL requires `TP < entry < SL`. Pending intents use requested entry. Open positions use close-side quote for modification: bid for BUY, ask for SELL.
 
-## Persistence and display boundaries
+The instrument API returns the exact backend mock quote and specification so the UI can explain these rules. The seeded minimum stop distance is zero. Volume min/max/step is enforced by `FinancialCalculator`.
 
-Persisted: users/roles/permissions, preferences, global settings, risk profiles, broker metadata, strategies/versions/settings, account snapshots, notifications/read state, audit/system events, and submitted simulation orders.
+## Risk semantics
 
-Schema/model foundation only: signals, deals, positions, trades, and risk events. Their Phase 1 screen data remains mock data because no corresponding Phase 2 APIs or producers exist. Market prices, candles, scanner results, AI scores, news, backtests, paper trades, analytics series, pending-order lists, open-position lists, and trade history are retained mocks.
+The evaluator checks environment, emergency stop, simulation switch, account/profile readiness, instrument/strategy eligibility, volume/profile lot limit, maximum open positions, required account snapshot, protection side, risk percentage and minimum reward/risk.
 
-## Future lifecycle recommendation
+The current calculator uses stop distance × volume × contract size. It is deterministic simulation risk, not broker margin/risk parity. Several enumerated future reason codes have no Phase 3 evaluator branch.
 
-A later phase may implement Strategy → Signal → AI Analysis → authoritative Risk Engine → Execution Engine → MT5 Adapter. That is not implemented Phase 2 behavior. Signal, Order, Deal, Position, and Trade must remain distinct, every command must remain auditable/idempotent, and AI must never bypass the future risk engine or call MT5 directly.
+## Financial semantics
+
+- BUY P/L increases with price; SELL P/L increases when price falls.
+- Positions mark at their executable close side, representing spread.
+- Partial/full closes create opposite-side MARKET fills.
+- Balance changes only by realized P/L.
+- Equity is balance plus open-position unrealized P/L.
+- Free margin is equity minus used margin.
+- Latest snapshot selection is ordered by capture timestamp then ID to handle same-second actions.
+
+## Identity, idempotency and ownership
+
+Lifecycle public IDs use simulation prefixes and are separate from internal integer foreign keys. Intent and command idempotency keys are unique per user. Account, signal, intent, order and position access is scoped to the authenticated owner; public IDs are not authorization.
+
+## Retained mock versus persistent UI
+
+Phase 3 database-backs manual lifecycle, signal records, order ledger/cancellation, open-position management, account snapshots and exact health. Market watch, scanner, chart candles, news, backtests, paper trading and many analytics/report screens remain explicitly frontend mocks.
+
+## Intentional limitations
+
+No real quote feed, automatic strategy/signal execution, pending trigger service, broker, credentials, MT5, DEMO/LIVE execution, commissions/swaps/fees, trailing stop, break-even, reconciliation scheduler or real-money behavior exists.

@@ -1,67 +1,72 @@
 # Security
 
-## Implemented Phase 2 controls
+## Authentication and authorization
 
-- Laravel session authentication through Sanctum's stateful API middleware; no browser bearer-token storage.
-- CSRF cookie initialization and `X-XSRF-TOKEN` on state-changing React requests.
-- Session regeneration at login and invalidation plus CSRF-token regeneration at logout.
-- Login throttling at five attempts/minute per normalized email and IP; reset request/reset routes have separate throttles.
-- Password hashing through Laravel's hashed model cast; 12-character minimum for user creation, update replacements, password reset, and development seed.
-- Exactly five seeded roles and 23 granular permissions, enforced per backend route after authentication and active-user checks.
-- `SUSPENDED` and `DISABLED` login rejection; inactive authenticated sessions receive `403` and are invalidated.
-- Current-user ownership checks for user-scoped strategies, risk profiles, broker metadata, notifications, and simulation-order references.
-- Validated allowlists/ranges for strategies, preferences, risk profiles, broker metadata, users, and simulation orders.
-- Database transactions for user writes, settings, risk-profile mutations, strategy/version writes, and simulation-order plus audit creation.
-- User-scoped idempotency key, globally unique command ID, and replay response for simulation orders.
-- Audit model rejects application-level update/delete; audit records capture actor, entity, before/after values, IP, user agent, and timestamp.
-- Non-enumerating reset-request response.
+- Laravel session authentication through Sanctum stateful middleware; no browser bearer token.
+- CSRF cookie and `X-XSRF-TOKEN` on writes; session regeneration on login and invalidation on logout.
+- Login and reset throttles; non-enumerating reset request response.
+- `ACTIVE` user enforcement followed by named backend permission middleware.
+- Five roles and 30 seeded permissions. React permission controls are UX only.
+- Current-user ownership checks for accounts, signals, intents, orders, positions and other user-scoped resources.
 
-Frontend route guards and permission-based controls are not trusted as authorization; the Laravel middleware and ownership checks are authoritative.
+See `AUTHORIZATION.md` for the exact matrix.
 
-## Trading safety defaults
+## Execution safety
 
-The server defaults are:
+| Control | Phase 3 value |
+|---|---|
+| `trading_enabled` | false; not required for local lifecycle simulation |
+| `simulation_execution_enabled` | false by default; authorized setting |
+| `auto_trading_enabled` | hard false |
+| `emergency_stop` | true by default; dedicated SUPER_ADMIN control |
+| `allow_demo_execution` | hard false |
+| `allow_live_execution` | hard false |
+| execution adapter | simulation only |
+| terminal / broker | offline / disconnected |
+| broker transmission | false |
 
-| Setting | Default | Mutability |
-|---|---:|---|
-| `trading_enabled` | `false` | Authorized settings users can change it |
-| `auto_trading_enabled` | `false` | Hard-locked against `true` |
-| `emergency_stop` | `true` | Only `SUPER_ADMIN` through the dedicated endpoint |
-| `allow_demo_execution` | `false` | Hard-locked against `true` |
-| `allow_live_execution` | `false` | Hard-locked against `true` |
+The execution gate requires SIMULATION environment, enabled simulation account, emergency stop false and the simulation switch true. Placement additionally requires a persisted approved risk decision. PAPER/DEMO/LIVE commands are rejected.
 
-Simulation orders are rejected unless trading is enabled and the emergency stop is disabled. Successful records are server-forced to `SIMULATION`, `SIMULATED`, `simulated=true`, and `broker_transmitted=false`; they do not create deals or positions.
+Request contracts prohibit client-assigned environment and broker-transmission fields. Broker metadata requests prohibit password, token, API key, secret and execution/live fields. There is no credential vault, MT5 adapter, broker endpoint or network execution path.
 
-Broker-account requests prohibit `password`, `token`, `api_key`, `secret`, `execution_enabled`, and `live_enabled`; controllers force environment `SIMULATION`. Strategy requests prohibit `auto_trading_enabled`, and the controller also forces it false. There is no credential vault, broker connectivity, MT5 adapter, real execution, or real-funds path.
+## Lifecycle integrity
 
-## Session and cookie configuration
+- User-scoped idempotency constraints for intents and commands.
+- Database transactions and row locks around lifecycle mutations.
+- Typed application state-transition guards.
+- Controlled adapter failures persist safe status/system/audit records without downstream orders/positions.
+- Public IDs do not replace ownership checks.
+- Position close/protection and pending cancellation require explicit permissions.
 
-Development defaults use database sessions, 120-minute idle lifetime, HTTP-only cookies, SameSite `lax`, JSON session serialization, and the root path. `.env.example` leaves `SESSION_SECURE_COOKIE` unspecified through the framework default and has `APP_DEBUG=true`, so it is a local-development file, not production configuration.
+These are application/database controls for one deployment. They are not distributed broker exactly-once delivery, tamper-proof audit, or protection against direct privileged database writes.
 
-Any future hosted configuration must use HTTPS, set secure cookies, disable debug output, set correct same-site/domain values, restrict trusted stateful domains/origins, rotate `APP_KEY` only with an explicit session/data migration plan, and verify proxy headers. This work was not deployed or production-validated in Phase 2.
+## Risk limitations
 
-## Password-reset limitation
+The Phase 3 risk evaluator is deterministic simulation code. It checks core account/instrument/volume/protection/risk/reward gates, but does not implement every enumerated institutional risk rule, market freshness, news/session limits, portfolio correlation, broker margin parity or real slippage. It must never be treated as authorization for live funds.
 
-`POST /api/v1/auth/password/request` creates a real Laravel broker token only for a known account and records a system event, but no notification/mail delivery is invoked or configured. Its response explicitly says delivery is not configured. The React UI can request a reset but cannot accept a token/new password. `POST /api/v1/auth/password/reset` exists and is tested with a valid out-of-band token. Do not describe reset email as delivered until an approved provider, templates, queue/retry behavior, expiry handling, and end-to-end tests exist.
+## Market data safety
+
+All backend quotes are fixed mocks labeled `MOCK` and `SIMULATION`. Request timestamps do not make them live. UI market/price guidance comes from the backend mock contract; unsupported symbols fail. No stream or external provider is configured.
 
 ## Secret handling
 
-- Never commit `.env`, `APP_KEY`, database credentials, mail/AWS secrets, tokens, passwords, terminal data paths, or broker credentials.
-- `DEV_SUPER_ADMIN_PASSWORD` must be supplied at seed time, be at least 12 characters, and never be embedded in source or shell history intended for sharing.
-- Never expose secrets through `VITE_` variables, local/session storage, client bundles, logs, analytics, audit before/after data, or exception messages.
-- The login page stores only an optional remembered email in local storage.
-- Future broker credentials require approved encrypted server-side storage, narrowly scoped decryption, key rotation, access audit, and redaction before any connectivity work.
+- Never commit `.env`, APP key, seed password, database/mail/cloud credentials, terminal paths or broker credentials.
+- Supply `DEV_SUPER_ADMIN_PASSWORD` only to the local seed process; do not expose it in documentation, logs or shell history intended for sharing.
+- Never expose secrets through `VITE_`, browser storage, bundles, audit before/after payloads or error messages.
+- Future integration credentials require encrypted server-side/adapter-host storage, key ownership/rotation, least privilege, redaction and access audit.
 
-## Data and audit limitations
+Repository verification includes tracked-file secret-pattern and MT5/broker-adapter searches. Automated search reduces risk but is not a complete secret scan.
 
-- Audit immutability is enforced by Eloquent model hooks, not database triggers or append-only database privileges. Direct SQL or a privileged database account can alter records.
-- Successful, failed, and blocked login attempts plus logout are audited without credentials. User/role/status, strategy, risk-profile, broker metadata, settings, emergency-stop, and simulation-order changes are also audited. Notification reads, password resets, and ordinary reads are not represented in `audit_logs`.
-- Global application settings and audit logs are visible to anyone holding their named permission. User and audit list APIs use default pagination.
-- Session payloads are not encrypted by the development default (`SESSION_ENCRYPT=false`); database access must be protected. Passwords are hashed separately.
-- SQLite development is confirmed. MySQL/PostgreSQL portability is designed but not security- or behavior-tested.
+## Sessions and deployment
 
-## Required future hardening
+Development uses database sessions, HTTP-only cookies and SameSite lax. `.env.example` is development-oriented. Before deploying the authenticated application: HTTPS, secure cookie/domain/stateful-origin/proxy validation, debug-off configuration, database least privilege/backups, writable Laravel storage/cache, session revocation, rate-limit review, reset delivery, audit retention/tamper evidence, monitoring and recovery exercises are required.
 
-Before any public deployment: production environment review, HTTPS/cookie/CORS validation, reset delivery, rate-limit and session-revocation review, database least privilege/backups, audit retention and tamper evidence, monitoring, dependency scanning, and MySQL/PostgreSQL target testing. Before any execution phase: authoritative risk approval, account/environment allowlists, replay protection beyond local persistence, signed integration boundaries, reconciliation, immutable execution audit, and a separate privileged live-activation governance workflow.
+The prior Hostinger deployment is a frontend-only simulation build. Phase 3 must not replace it with an API-dependent frontend unless Laravel, database, session authentication, CSRF and same-origin routing are deployed and verified together.
 
-No deployment or security certification occurred in Phase 2.
+## Audit boundary
+
+Lifecycle mutations and controlled execution failures are audited, and position events preserve execution linkage and before/after state. Audit immutability is enforced by Eloquent hooks, not database triggers or append-only credentials. Reads are generally not audited.
+
+## Phase 4 prerequisite
+
+Any initial MT5 work must be separately approved and read-only as defined in `MT5_INTEGRATION_CONTRACT.md`. Any DEMO write phase requires a new threat review, account allowlists, durable delivery/reconciliation, signed integration, credential controls and rollback. LIVE requires a separate governance decision.

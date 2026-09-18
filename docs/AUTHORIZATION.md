@@ -2,7 +2,7 @@
 
 ## Authentication architecture
 
-Phase 2 implements first-party browser authentication with Laravel's `web` session guard and Sanctum's stateful API middleware. It does not issue bearer tokens. The React client:
+Phase 3 retains first-party browser authentication with Laravel's `web` session guard and Sanctum's stateful API middleware. It does not issue bearer tokens. The React client:
 
 1. requests `GET /sanctum/csrf-cookie` before a state-changing request;
 2. sends cookies with `credentials: include`;
@@ -56,8 +56,15 @@ There is no roles-discovery endpoint. The React user editor therefore contains t
 | `notifications.update` | ✓ | ✓ | ✓ | ✓ | — |
 | `audit_logs.view` | ✓ | ✓ | — | — | — |
 | `simulation_orders.create` | ✓ | ✓ | ✓ | — | — |
+| `trading.read` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `signals.view` | ✓ | ✓ | ✓ | ✓ | — |
+| `simulation_lifecycle.create` | ✓ | ✓ | ✓ | — | — |
+| `simulation_lifecycle.evaluate` | ✓ | ✓ | ✓ | — | — |
+| `simulation_lifecycle.execute` | ✓ | ✓ | ✓ | — | — |
+| `simulation_orders.cancel` | ✓ | ✓ | ✓ | — | — |
+| `simulation_positions.manage` | ✓ | ✓ | ✓ | — | — |
 
-`SUPER_ADMIN` receives all 23 permissions. `ADMIN` receives all except `emergency_stop.manage`.
+`SUPER_ADMIN` receives all 30 permissions. `ADMIN` receives all except `emergency_stop.manage`.
 
 ## Route enforcement
 
@@ -86,6 +93,13 @@ There is no roles-discovery endpoint. The React user editor therefore contains t
 | `POST /api/v1/notifications/{notification}/read` | `notifications.update` |
 | `GET /api/v1/audit-logs` | `audit_logs.view` |
 | `POST /api/v1/simulation/orders` | `simulation_orders.create` |
+| `GET /api/v1/instruments`, `/trade-intents`, `/orders`, `/positions`, `/heartbeats` and detail routes | `trading.read` |
+| `GET /api/v1/signals` and `/signals/{signal}` | `signals.view` |
+| `POST /api/v1/trade-intents`, `/signals/{signal}/trade-intent` | `simulation_lifecycle.create` |
+| `POST /api/v1/trade-intents/{intent}/evaluate` | `simulation_lifecycle.evaluate` |
+| `POST /api/v1/trade-intents/{intent}/execute` | `simulation_lifecycle.execute` |
+| `POST /api/v1/orders/{order}/cancel` | `simulation_orders.cancel` |
+| Position close, partial-close and protection routes | `simulation_positions.manage` |
 
 Public routes are `POST /api/v1/auth/login`, `POST /api/v1/auth/password/request`, `POST /api/v1/auth/password/reset`, `GET /api/v1/system/status`, and compatibility alias `GET /api/v1/simulation/status`. `GET /api/v1/auth/me` and `POST /api/v1/auth/logout` require an active authenticated session but no additional named permission.
 
@@ -95,10 +109,11 @@ Public routes are `POST /api/v1/auth/login`, `POST /api/v1/auth/password/request
 - Broker-account and strategy risk-profile references must belong to the current user.
 - Notifications are scoped by `user_id`; marking another user's notification read returns `404`.
 - Simulation orders always receive the current `user_id`. Referenced broker accounts and signals must be available to that user.
+- Phase 3 signal, intent, order and position queries are current-user scoped; mutation services repeat ownership checks before execution.
 - The users list and audit log are intentionally global for roles holding their permissions.
 - Application settings are global. Only `SUPER_ADMIN` can change emergency-stop state; the general settings endpoint refuses the `emergency_stop` key.
 - The server, not React, forces broker-account and order environment to `SIMULATION`, forces strategy `auto_trading_enabled=false`, rejects credential/execution broker fields, and rejects enabling locked execution settings.
-- Simulation order creation additionally requires `emergency_stop=false` and `trading_enabled=true`; permission alone is insufficient.
+- The legacy simulation-order endpoint additionally requires `emergency_stop=false` and `trading_enabled=true`. Phase 3 lifecycle execution instead requires `emergency_stop=false`, `simulation_execution_enabled=true`, an enabled SIMULATION account and an approved risk decision; permission alone is insufficient.
 
 React's `can(permission)` checks the permission objects returned in `roles.permissions` to expose or disable controls. It does not replace backend checks. The users page searches and filters only the currently fetched paginated page in the browser; the users endpoint has no server-side search or status filter.
 

@@ -1,8 +1,10 @@
 # Nexa TradeBot
 
-Phase 2 is an authenticated, database-backed foundation for a simulation-only trading operations terminal. It combines a React 19/TypeScript/Vite client with a Laravel 13 API, session authentication, five-role RBAC, portable migrations, persistent configuration and simulation records, audit logging, and 22 protected operational screens.
+Nexa TradeBot Phase 3 is an authenticated, persistent, simulation-only trading operations terminal built with React 19/TypeScript/Vite and Laravel 13/Sanctum.
 
-Market prices, candles, scanning, and AI analysis remain explicit mocks. There is no MT5 adapter, broker credential storage, broker connection, demo/live execution, real market feed, or real-money capability.
+Implemented: explicit trade intent → deterministic risk decision → simulation command → order/deal/position lifecycle, typed pending orders and cancellation, SL/TP changes, partial/full close, signal-to-intent, account snapshots, five-role RBAC, audit and exact health reporting.
+
+Not implemented: MT5, broker connectivity/credentials, real market data, real AI, PAPER/DEMO/LIVE execution or real-money trading. Backend quotes and fills are deterministic MOCK data.
 
 ## Local setup
 
@@ -26,9 +28,13 @@ In another terminal:
 npm run dev -- --host=0.0.0.0 --port=43127
 ```
 
-Sign in with `admin@nexa.local` and the development password supplied only when seeding. Change that credential before sharing any environment.
+Sign in with `admin@nexa.local` and the password supplied only to the development seed process. The Vite server proxies `/api` and `/sanctum` to Laravel.
 
-The frontend dev server proxies `/api` and `/sanctum` to Laravel on port `43128`. SQLite is the confirmed local database; migrations use Laravel Schema Builder for future MySQL/PostgreSQL portability.
+Seed defaults are fail-safe: emergency stop on and simulation execution off. An authorized operator must explicitly disable the emergency stop and enable `simulation_execution_enabled`. `trading_enabled`, broker transmission and demo/live execution remain false.
+
+## Protection reference
+
+The manual ticket displays the backend MOCK bid/ask and instrument precision. MARKET BUY enters at ask and SELL at bid. BUY requires SL below and TP above entry; SELL requires TP below and SL above entry. Open-position changes use the close-side quote (bid for BUY, ask for SELL).
 
 ## Validation
 
@@ -37,10 +43,28 @@ npm run typecheck
 npm run lint
 npm test
 npm run build
+npm audit
+
 cd backend
 composer test
 ./vendor/bin/pint --test
 composer audit --locked
 ```
 
-See `docs/PROJECT_RULES.md`, `docs/ARCHITECTURE.md`, `docs/DATABASE_SCHEMA.md`, `docs/AUTHORIZATION.md`, and `docs/PHASE_2_REPORT.md`.
+Use `php artisan migrate:fresh --seed --force` only after confirming a disposable local SQLite database; it destroys existing data.
+
+## Documentation
+
+- `docs/ARCHITECTURE.md`
+- `docs/TRADING_DOMAIN.md`
+- `docs/TRADE_LIFECYCLE.md`
+- `docs/EXECUTION_MODEL.md`
+- `docs/STATE_MACHINES.md`
+- `docs/MARKET_DATA_CONTRACT.md`
+- `docs/DATABASE_SCHEMA.md`
+- `docs/AUTHORIZATION.md`
+- `docs/SECURITY.md`
+- `docs/MT5_INTEGRATION_CONTRACT.md` (future read-only contract; not implemented)
+- `docs/PHASE_3_REPORT.md`
+
+`npm run build:hostinger` creates only a static frontend artifact. It must not be deployed for Phase 3 unless the Laravel API, database, session/CSRF configuration and same-origin routing are deployed and verified with it.

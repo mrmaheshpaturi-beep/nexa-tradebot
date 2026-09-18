@@ -1,72 +1,66 @@
-# Nexa TradeBot backend
+# Nexa TradeBot Laravel API
 
-Laravel 13 persistence and session API for the Nexa TradeBot simulation environment. This backend has no MT5 adapter, broker connection, real execution path, or execution endpoint.
+Laravel 13/Sanctum backend for the Phase 3 simulation-only trading domain. It persists intents, risk decisions, commands, orders, deals, positions, events and account snapshots. There is no MT5/broker adapter, credential storage, external execution, or real market feed.
 
-## Safety contract
+## Safety
 
-- Environment is always `SIMULATION`.
-- `trading_enabled=false`, `auto_trading_enabled=false`, and `emergency_stop=true` by default.
-- `allow_demo_execution=false` and `allow_live_execution=false` are hard-disabled.
-- Broker accounts contain metadata only; credentials are neither accepted nor stored.
-- Orders are local simulation records and always return `simulated=true` and `broker_transmitted=false`.
+- `trading_enabled=false`, `auto_trading_enabled=false`, `allow_demo_execution=false`, `allow_live_execution=false`.
+- `simulation_execution_enabled=false` and `emergency_stop=true` by default.
+- Only SIMULATION commands pass the execution gate.
+- Broker-account inputs prohibit credential and execution fields.
+- Backend market data and fills are deterministic MOCK values.
 
-## Local setup
-
-Use only local SQLite for development:
+## Local SQLite setup
 
 ```bash
 cp .env.example .env
 touch database/database.sqlite
 php artisan key:generate
 php artisan migrate
+DEV_SUPER_ADMIN_PASSWORD='choose-at-least-12-characters' php artisan db:seed
+php artisan serve --host=0.0.0.0 --port=43128
 ```
 
-Development seeding requires an explicit secret and fails if it is absent or shorter than 12 characters:
+The seed password is required only in the process environment and is never embedded in source. `migrate:fresh` is destructive; use it only after confirming local disposable SQLite.
 
-```bash
-DEV_SUPER_ADMIN_PASSWORD='choose-a-local-password' php artisan db:seed
-```
+## Authentication
 
-The seeded account is `admin@nexa.local`. The password is never embedded in source. Seed data is disconnected, simulation-only, and starts with emergency stop active.
+The browser flow uses Laravel sessions through Sanctum stateful middleware. Obtain `/sanctum/csrf-cookie`, include cookies, and send decoded `XSRF-TOKEN` as `X-XSRF-TOKEN` on writes. Protected routes require an active user and named permission.
 
-## Session authentication
-
-Sanctum uses the Laravel session guard. Browser clients must first request `/sanctum/csrf-cookie`, send credentials with cookies, and include the decoded `XSRF-TOKEN` as `X-XSRF-TOKEN` on writes. Login is limited to five attempts per minute per email/IP.
-
-Password-reset requests create a genuine reset token but do not pretend an email was sent. The response explicitly says token delivery is not configured. Connect an approved notification provider before exposing reset delivery outside development.
-
-## API (`/api/v1`)
+## Phase 3 API
 
 Public:
 
-- `POST /auth/login`
-- `POST /auth/password/request`
-- `POST /auth/password/reset`
-- `GET /system/status` and the compatibility alias `GET /simulation/status`
+- `POST /api/v1/auth/login`, `/auth/password/request`, `/auth/password/reset`
+- `GET /api/v1/system/status`, `/simulation/status`
 
-Authenticated:
+Lifecycle reads:
 
-- `GET /auth/me`, `POST /auth/logout`
-- `GET /dashboard`
-- `GET|POST /users`, `PUT /users/{user}`
-- `POST /users/{user}/activate|suspend|disable`
-- `GET|POST /strategies`, `PUT /strategies/{strategy}`
-- `GET|POST /risk-profiles`, `PUT /risk-profiles/{riskProfile}`
-- `GET|POST /broker-accounts`, `PUT /broker-accounts/{brokerAccount}`
-- `GET /settings`, `PUT /settings/{key}`, `PUT /emergency-stop`
-- `GET|PUT /preferences`
-- `GET /notifications`, `POST /notifications/{notification}/read`
-- `GET /audit-logs`
-- `POST /simulation/orders`
+- `GET /api/v1/instruments[/{instrument}]`
+- `GET /api/v1/signals[/{signal}]`
+- `GET /api/v1/trade-intents[/{intent}]`
+- `GET /api/v1/orders[/{order}]`
+- `GET /api/v1/positions[/{position}]`
+- `GET /api/v1/heartbeats`
 
-Protected routes enforce `ACTIVE` user status and granular permissions assigned through `SUPER_ADMIN`, `ADMIN`, `TRADER`, `ANALYST`, and `VIEWER`. Simulation order writes require a globally unique `command_id` plus a user-scoped `idempotency_key`, run in a transaction with their immutable audit entry, and are rejected while emergency stop is active or trading is disabled.
+Lifecycle writes:
 
-## Quality checks
+- `POST /api/v1/trade-intents`
+- `POST /api/v1/trade-intents/{intent}/evaluate`
+- `POST /api/v1/trade-intents/{intent}/execute`
+- `POST /api/v1/signals/{signal}/trade-intent`
+- `POST /api/v1/orders/{order}/cancel`
+- `POST /api/v1/positions/{position}/close|partial-close`
+- `PUT /api/v1/positions/{position}/stop-loss|take-profit|protection`
+
+Phase 2 administration/configuration endpoints remain available. `/api/v1/simulation/orders` is a deprecated compatibility write.
+
+## Quality gates
 
 ```bash
-php artisan migrate:fresh --force
-php artisan test
-vendor/bin/pint --test
+composer test
+./vendor/bin/pint --test
+composer audit --locked
 ```
 
-Migrations use Laravel's portable schema builder and avoid vendor-specific SQL so they remain suitable for later MySQL/PostgreSQL validation.
+See the root documentation for architecture, lifecycle, state machines, market data, schema, authorization and security contracts.

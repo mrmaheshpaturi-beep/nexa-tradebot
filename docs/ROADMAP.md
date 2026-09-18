@@ -2,64 +2,58 @@
 
 ## Delivered
 
-### Phase 1 — simulation interface foundation
+### Phase 1 — simulation interface
 
-Delivered the 22-screen React terminal, typed trading domain, deterministic mock services, charts, simulation-safe UI, Laravel in-memory boundary, and initial quality/documentation baseline. `PHASE_1_REPORT.md` remains the historical Phase 1 record.
+React terminal, typed frontend domain, deterministic UI mocks, charts and simulation-safe presentation.
 
-### Phase 2 — authentication and portable persistence foundation
+### Phase 2 — authentication and persistence
 
-Implemented:
+Laravel/Sanctum session auth, five-role RBAC, portable schema foundation, persistent administration/settings/risk/account/strategy records, audit and safe legacy simulation-order persistence.
 
-- Laravel session authentication with Sanctum CSRF/stateful middleware;
-- active-user enforcement, five seeded roles, 23 permissions, and backend route checks;
-- password-reset token request/reset endpoints with delivery explicitly unconfigured;
-- SQLite-confirmed schema for identity, settings, audit, strategy/risk/account foundations, and distinct Signal/Order/Deal/Position/Trade records;
-- migrations designed for MySQL/PostgreSQL portability, not yet validated on those engines;
-- database-backed user administration, preferences, application settings, dashboard summary, strategies, risk profiles, broker metadata, notifications/read state, audit logs, and simulation-order writes;
-- server safety locks, ownership checks, command/idempotency keys, and transactional audit;
-- React auth/API adapters while retaining mocks where no API exists;
-- standard split Vite build and optional Hostinger single-file static build;
-- automated frontend/backend tests and static/build gates.
+### Phase 3 — persistent simulation trading domain
 
-Phase 2 did not deploy the application and did not add broker connectivity, MT5, real market data, real AI, a risk engine, or execution.
+- canonical instrument, signal, intent, risk-decision, command, order, deal, position, event, terminal/session/heartbeat and snapshot contracts;
+- deterministic mock quote/provider and financial calculations;
+- explicit intent → risk → simulation-command orchestration;
+- MARKET fills, pending acceptance/cancellation, SL/TP changes, partial/full close and signal-to-intent;
+- state guards, user-scoped idempotency, controlled failures, account recalculation and audit;
+- persisted React manual/signals/orders/positions/lifecycle/health workflows;
+- backend quote/spec guidance and exact protection-side explanations;
+- exact simulation/no-broker health and expanded RBAC;
+- SQLite migration/seed and automated quality/security verification;
+- Phase 3 architecture, contracts, state machines and audit report.
 
-## Known Phase 2 gaps
+Phase 3 does not deploy and does not implement MT5, broker connectivity, real market data, real AI or live execution.
 
-- No roles/permissions discovery endpoint; the five roles are duplicated in the React editor.
-- User search/status filters are client-side and cover only the fetched paginated page; no pagination controls are exposed.
-- No simulation-order list, mark-all-notifications, signal, deal, position, trade, risk-event, account-snapshot, or system-event list endpoint.
-- No API for market data, scanner, charts, AI signals, news, backtesting, paper trading, analytics, or report export; those screens remain mocks.
-- Password-reset delivery and frontend token-completion flow are not configured.
-- Strategy/risk/account create/update APIs exist, but the Phase 2 UI primarily lists those resources.
-- MySQL and PostgreSQL are portability targets only; SQLite is the confirmed development/test engine.
-- The standard build retains a chart chunk above Vite's 500 kB advisory threshold.
-- No deployment, production configuration, observability, recovery exercise, or browser end-to-end suite.
+## Known Phase 3 limitations
 
-## Recommended Phase 3 only
+- Pending orders have no market-trigger/fill/expiry scheduler.
+- Backend quotes are fixed mocks; frontend charts/scanner/news/backtests/paper/analytics remain mocks.
+- The deterministic risk evaluator implements core simulation gates, not every future reason code or broker-grade rule.
+- Heartbeats are seeded/read-only; sessions are schema foundation only.
+- No role-discovery, account-snapshot list or position-event top-level API.
+- Password reset delivery/completion UI remains unconfigured.
+- MySQL/PostgreSQL portability is unverified.
+- No browser E2E/Lighthouse suite, deployment hardening, observability/recovery exercise or distributed execution reconciliation.
+- Standard build may retain the existing large chart-chunk advisory.
 
-Phase 3 should be considered a recommendation, not started work: complete the trading-domain backend contracts around the existing schema without broker execution. Priorities should include server-side pagination/filtering, role discovery, simulation-order history, missing read APIs, explicit resource policies/authorization tests, target-engine portability tests, complete audit coverage decisions, password-reset delivery, and replacing mocks only where reliable backend producers exist.
+## Phase 4 — proposed read-only MT5 integration
 
-Phase 3 should continue to prohibit MT5/broker credentials and execution unless a separately approved phase explicitly authorizes a safe DEMO integration boundary.
+Not implemented or approved by Phase 3. The first integration step must be read-only: terminal health, account/symbol/quote reads, snapshots and reconciliation. No place/modify/cancel/close capability. See `MT5_INTEGRATION_CONTRACT.md`.
 
-## Later roadmap (not approved or implemented)
+Required prerequisites include architecture/threat review, isolated adapter identity, credential/key design, Windows host controls, normalized decimal/freshness contracts, timeouts, rate limits, redaction, correlation/audit, failure tests and operator runbooks.
 
-4. MT5 DEMO connectivity boundary
-5. Real market-data ingestion
-6. Indicator computation
-7. Strategy engine
-8. Market scanner and real signal pipeline
-9. Authoritative risk engine
-10. MT5 DEMO execution
-11. Position and order lifecycle management
-12. AI analysis behind the risk boundary
-13. News and session intelligence
-14. Historical-data backtesting engine
-15. Real-price paper trading
-16. Persistent analytics and valid report exports
-17. Notification delivery
-18. Security hardening and tamper-evident audit
-19. Recovery, reconciliation, and observability
-20. XM DEMO end-to-end validation
-21. Cloud application plus Windows VPS deployment
+## Later phases requiring separate approval
 
-Each later phase requires explicit owner approval, acceptance criteria, threat review, tests, and rollback planning. Real-money activation is not implied by any roadmap item and requires a separate governance decision.
+1. Real market-data ingestion and freshness controls.
+2. Indicator computation and strategy/scanner engines.
+3. Authoritative portfolio risk engine.
+4. MT5 DEMO write adapter with durable delivery and reconciliation.
+5. AI analysis behind the risk boundary.
+6. News/session intelligence.
+7. Historical backtesting and real-price paper trading.
+8. Persistent analytics/report exports and notification delivery.
+9. Security hardening, tamper-evident audit, observability and recovery.
+10. DEMO end-to-end validation and controlled deployment.
+
+LIVE/real-money activation is not implied by any phase. It requires a separate governance, legal, security, operational and rollback decision after DEMO evidence.

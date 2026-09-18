@@ -1,102 +1,171 @@
 # Architecture
 
-## Implemented Phase 2 system
+## Implemented Phase 3 system
 
-Nexa TradeBot is a React 19 + strict TypeScript 6 + Vite 8 single-page client and a separate Laravel 13 + Sanctum 4 API in `backend/`. Phase 2 adds session authentication, role/permission enforcement, portable migrations, and selected database-backed workflows while preserving the simulation-only boundary.
+Nexa TradeBot is a React 19/strict TypeScript/Vite client and Laravel 13/Sanctum API. Phase 3 adds a persistent simulation trading domain while preserving Phase 2 authentication, RBAC, settings and operational persistence.
 
 ```text
 Browser / React
-  ├─ HashRouter + ProtectedRoute
-  ├─ AuthContext (identity and UI permission hints)
-  ├─ api/client.ts (cookies, CSRF, JSON errors, 401 callback)
-  ├─ api/services.ts (endpoint adapter)
-  ├─ persistentServices.ts → authenticated Laravel REST calls
-  └─ mockServices.ts → retained market/trading fixtures
-                   │ same-origin /api and /sanctum
+  ├─ HashRouter + protected routes
+  ├─ session/CSRF API client
+  ├─ typed Phase 2/3 services
+  ├─ persisted lifecycle, order, position, signal and health screens
+  └─ explicitly retained mock-only analytical screens
+                 │ same-origin /api and /sanctum
 Laravel
-  ├─ web session guard + Sanctum stateful API
-  ├─ auth:sanctum → active-user → permission middleware
-  ├─ validated controllers and application services
-  └─ Eloquent → SQLite development database
+  ├─ web session + Sanctum stateful middleware
+  ├─ active-user + named permission middleware
+  ├─ controllers / lifecycle services / guarded state machines
+  ├─ MarketDataProvider → MockMarketDataProvider
+  ├─ ExecutionAdapter → SimulationExecutionAdapter
+  └─ Eloquent → confirmed local SQLite
 ```
 
-The Vite development server proxies `/api` and `/sanctum` to `http://127.0.0.1:43128`. The browser obtains `/sanctum/csrf-cookie`, sends an HTTP-only Laravel session cookie and `X-XSRF-TOKEN`, and includes credentials on every API request. No token is kept in local storage. Sanctum's personal-access-token table exists for framework support, but Phase 2 does not issue API tokens.
+The Vite development server proxies `/api` and `/sanctum` to `http://127.0.0.1:43128`. The browser obtains the CSRF cookie, sends HTTP-only session cookies and `X-XSRF-TOKEN`, and stores no bearer token.
+
+## Trading-domain boundary
+
+The Phase 3 pipeline is `Signal? → TradeIntent → RiskDecision → ExecutionCommand → Order → Deal → Position → PositionEvent → AccountSnapshot`. Each is a distinct persistent entity. Controllers never call a broker. Execution is gated and delegated to the deterministic simulation adapter.
+
+Primary services:
+
+- `TradeLifecycleService`: orchestration, ownership, idempotency, transactions, transitions and audit.
+- `SimulationRiskEvaluator`: account/instrument/volume/snapshot/protection/risk/reward checks.
+- `ExecutionGate`: exact simulation/account/settings gate.
+- `SimulationExecutionAdapter`: fixed-price MARKET fills and accepted local mutations.
+- `MockMarketDataProvider`: deterministic quotes/candles/specifications.
+- `FinancialCalculator`: volume, P/L, margin, risk and reward/risk calculations.
+- `AccountStateCalculator`/`Updater`: deterministic snapshots with same-timestamp ID tie-breaking.
+- `SimulationPositionReconciliationService`: deal/position consistency check.
+
+See `TRADE_LIFECYCLE.md`, `EXECUTION_MODEL.md`, `STATE_MACHINES.md`, and `MARKET_DATA_CONTRACT.md`.
 
 ## React boundaries
 
-- `src/api/client.ts`: initializes CSRF for writes, normalizes JSON/validation errors, sends same-origin credentials, and clears auth state on `401`.
-- `src/api/services.ts`: typed auth and Phase 2 endpoint calls.
-- `src/auth/`: login/reset-request presentation, startup session restoration, logout, permission lookup, and route protection.
-- `src/services/persistenceServices.ts`: page-facing adapters for dashboard, strategies, risk, accounts, notifications, audit logs, settings/preferences, and simulation orders.
-- `src/services/mockServices.ts`: explicitly retained deterministic fixtures where no Phase 2 API exists.
-- `src/domain/types.ts`: transport-independent Phase 1 trading models. `src/api/types.ts` describes Laravel response shapes.
-- `src/pages/PersistentTradingPages.tsx`, `PersistentOperationsPages.tsx`, and `SettingsPage.tsx`: database-backed screens.
-- `src/pages/TradingPages.tsx` and `OperationsPages.tsx`: retained simulation/mock screens.
+- `src/api/client.ts`: cookies, CSRF, normalized validation errors and `401` handling.
+- `src/api/services.ts`/`types.ts`: typed transport contracts.
+- `src/pages/PhaseThreeTradingPages.tsx`: manual intent/risk/execute flow, signals, orders, position controls and lifecycle/detail drawers.
+- `src/pages/PersistentOperationsPages.tsx`: exact backend health and risk controls.
+- `src/services/mockServices.ts`: retained deterministic fixtures for screens without backend producers.
 
-`ProtectedRoute` blocks unauthenticated navigation, and `can()` hides or disables controls. Those are user-experience boundaries only; backend middleware remains authoritative.
+The manual form defaults to seeded EURUSD when present, displays the backend mock bid/ask and instrument precision, and explains valid BUY/SELL protection geometry. React permission checks are presentation only; Laravel middleware is authoritative.
 
-### Persistence versus retained mocks
+## HTTP boundary
 
-Database-backed UI: current identity, dashboard counts/latest account snapshot, strategies list, risk profiles, emergency-stop mutation, broker-account metadata list, notification list/read state, audit logs, application settings, personal preferences, user administration, and simulation-order creation.
+Public: login, password request/reset, `/system/status`, and `/simulation/status`.
 
-Retained deterministic mocks: market watch, scanner, AI signals, live charts/quotes/candles, auto-trading presentation, positions, pending orders, trade history, backtesting, paper trading, analytics/equity history, reports, news calendar, and parts of the dashboard chart. There is no market-data, signals-list, positions-list, deals-list, trades-list, risk-events-list, account-snapshots-list, simulated-orders-list, backtest, analytics, news, report-export, or system-events-list API.
+Authenticated Phase 3 reads:
 
-## Laravel HTTP boundary
+- instruments, signals, trade intents, orders, positions and heartbeats;
+- individual instrument/signal/intent/order/position detail;
+- backend mock quote embedded in instrument responses.
 
-All routes are under `/api/v1` and use Laravel's `web` middleware so session and CSRF facilities are available.
+Authorized mutations:
 
-Public:
+- create/evaluate/execute trade intent;
+- create an intent from an eligible signal;
+- cancel an accepted pending order;
+- close/partially close a position;
+- modify SL or TP.
 
-- `POST /auth/login`
-- `POST /auth/password/request`
-- `POST /auth/password/reset`
-- `GET /system/status`
-- `GET /simulation/status` (compatibility alias)
+The released `/simulation/orders` endpoint remains a deprecated Phase 2 compatibility write. Full route/permission mapping is in `AUTHORIZATION.md`.
 
-Active authenticated session:
+## Persistence
 
-- `GET /auth/me`; `POST /auth/logout`
-- `GET /dashboard`
-- `GET|POST /users`; `PUT /users/{user}`; `POST /users/{user}/activate|suspend|disable`
-- `GET|POST /strategies`; `PUT /strategies/{strategy}`
-- `GET|POST /risk-profiles`; `PUT /risk-profiles/{riskProfile}`
-- `GET|POST /broker-accounts`; `PUT /broker-accounts/{brokerAccount}`
-- `GET /settings`; `PUT /settings/{key}`; `PUT /emergency-stop`
-- `GET|PUT /preferences`
-- `GET /notifications`; `POST /notifications/{notification}/read`
-- `GET /audit-logs`
-- `POST /simulation/orders`
+The repository declares 38 application/framework tables plus Laravel's migration ledger. The Phase 3 migration adds instruments, terminals, sessions, heartbeats, intents, risk decisions, execution commands and position events and expands existing account/signal/order/deal/position/snapshot records. Migrations use Schema Builder. SQLite is verified; MySQL/PostgreSQL remain unverified portability targets.
 
-There is no role-discovery endpoint, simulated-order list endpoint, or mark-all-notifications endpoint.
+## Health contract
 
-## Backend services and enforcement
+The backend reports Web/API/auth state, actual database connectivity, MOCK market data, simulation risk/execution readiness, seeded heartbeat, offline simulation terminal, disconnected broker, and hard-false demo/live execution. The frontend does not relabel unavailable broker capability as healthy.
 
-- `UserService` atomically creates/updates users, synchronizes one assigned role, creates preferences, changes status, and records audit entries.
-- `SettingsService` supplies fail-safe defaults, rejects enabling hard-locked execution settings, persists global values transactionally, and audits changes.
-- `SimulationOrderService` checks stop/trading gates and ownership, provides user-scoped idempotency plus globally unique command IDs, persists a simulation-only order and audit record in one transaction, and never creates a deal or position.
-- `AuditService` captures actor, entity, before/after data, IP, user agent, result, and timestamp. The model rejects update and delete operations.
-- Resource controllers validate request fields and enforce current-user ownership where records are user scoped.
+## Deployment architecture
 
-The legacy Phase 1 `SimulationRepository` and `InMemorySimulationRepository` remain, but `/simulation/status` now maps to `SystemController`; the Phase 2 persisted order path uses `SimulationOrderService`.
+The standard production build is code-split static assets. `build:hostinger` can create a single-file frontend, but that artifact does not contain Laravel. A safe deployment requires the Laravel public directory, PHP runtime, writable storage/cache, environment key, same-origin `/api` and `/sanctum`, persistent database, secure cookie/proxy configuration and migration control. Never replace a working static site with a client that points at absent APIs.
 
-## Data architecture and portability
+## Nonexistent architecture
 
-SQLite is confirmed for local development. The migrations use Laravel Schema Builder and no vendor-specific SQL. This is a portability design for MySQL and PostgreSQL, not evidence that either engine has been tested. See `DATABASE_SCHEMA.md` for every table, relationship, constraint, index, environment column, and migration command.
+There is no MT5 adapter, broker session, credential vault, real market stream, external heartbeat writer, queue-driven execution worker, WebSocket trading feed, real AI, DEMO/LIVE execution, or real-funds path. `MT5_INTEGRATION_CONTRACT.md` is documentation only and limits a separately approved initial Phase 4 to read-only integration.
+# Architecture
 
-## Build architecture
+## Phase 3 system
 
-The standard `npm run build` runs TypeScript project compilation then Vite's normal code-split production build. Lazy route modules produce separate assets. The current chart chunk exceeds Vite's 500 kB advisory threshold.
-
-`npm run build:hostinger` sets `HOSTINGER_SINGLE_FILE=true`; `vite-plugin-singlefile` inlines JavaScript and CSS into `dist/index.html`. This is an optional static-hosting artifact, not a Laravel deployment. The API still must be hosted and routed separately; uploading the single file alone leaves authenticated/persistent pages without a backend.
-
-## Nonexistent future architecture
-
-There is no deployment, Python service, Redis integration, WebSocket stream, real market-data ingestion, AI engine, authoritative risk engine, execution engine, MT5 adapter, broker session, credential vault, or real-funds path. A possible later boundary remains:
+Nexa TradeBot is a React 19/strict TypeScript 6/Vite 8 client with a Laravel 13/Sanctum 4 API. Phase 3 adds a persistent simulation trading domain while preserving session authentication, five-role RBAC and the absolute no-broker boundary.
 
 ```text
-React → Laravel → future trading services
-                  Strategy → Signal/AI → authoritative Risk Engine
-                                              → Execution Engine → MT5 adapter
+React SPA
+  ├─ AuthProvider / ProtectedRoute / permission-aware controls
+  ├─ typed API client (cookies + CSRF)
+  ├─ Phase 3 manual, signal, order, position and health pages
+  └─ retained MOCK screens where no backend producer exists
+                 │ /api + /sanctum
+Laravel
+  ├─ web session → auth:sanctum → active user → permission
+  ├─ validated controllers and ownership checks
+  ├─ TradeLifecycleService
+  │   ├─ deterministic SimulationRiskEvaluator
+  │   ├─ ExecutionGate
+  │   ├─ SimulationExecutionAdapter
+  │   ├─ FinancialCalculator / AccountStateUpdater
+  │   └─ AuditService + domain events
+  ├─ MockMarketDataProvider
+  └─ Eloquent → confirmed local SQLite
 ```
 
-This is recommendation-level architecture only. AI must never bypass the future risk engine or call MT5 directly.
+The Vite development server proxies `/api` and `/sanctum` to `127.0.0.1:43128`. The browser uses an HTTP-only Laravel session and `X-XSRF-TOKEN`; no API token is stored in browser storage.
+
+## Frontend boundaries
+
+- `src/api/client.ts`: CSRF initialization, same-origin credentials, JSON/validation normalization and `401` handling.
+- `src/api/services.ts` and `types.ts`: typed Phase 2/3 REST boundary.
+- `src/pages/PhaseThreeTradingPages.tsx`: manual intent→risk→command orchestration, backend quote/spec guidance, persisted signals/orders/positions, detail drawers and position controls.
+- `src/pages/PersistentOperationsPages.tsx`: risk controls, account metadata, notifications, exact health and audit pages.
+- `src/services/mockServices.ts`: retained, labeled UI fixtures for capabilities with no backend producer.
+
+The manual ticket defaults to seeded EURUSD when available and shows the quote returned by the instrument API, digits, tick size, stop distance and protection geometry. React checks are guidance only; Laravel owns validation and authorization.
+
+## Backend boundaries
+
+Core contracts:
+
+- `MarketDataProvider` → `MockMarketDataProvider`;
+- `ExecutionAdapter` → `SimulationExecutionAdapter`;
+- `PositionReconciliationService` → simulation ledger reconciliation.
+
+`TradeLifecycleService` owns intent creation, signal conversion, execution, cancellation, protection modification and close workflows. `SimulationRiskEvaluator` creates one deterministic decision. `ExecutionGate` permits only enabled SIMULATION accounts while the simulation switch is on and emergency stop is off. Each logical command is idempotent per user and state transitions are guarded.
+
+MARKET fills use ask for BUY and bid for SELL. Positions are marked/closed on the opposite quote side, so spread is represented in unrealized P/L and snapshots. Pending types stop at `ACCEPTED`; there is no trigger scheduler.
+
+See `TRADE_LIFECYCLE.md`, `EXECUTION_MODEL.md`, `STATE_MACHINES.md` and `MARKET_DATA_CONTRACT.md`.
+
+## Persistence
+
+The Phase 3 migration adds instruments, terminals, sessions, heartbeats, intents, risk decisions, execution commands and position events, and expands existing account/signal/order/deal/position records. Distinct resources retain distinct identifiers (`SIM-SIG`, `SIM-INT`, `SIM-RISK`, `SIM-CMD`, `SIM-ORD`, `SIM-DEAL`, `SIM-POS`, `SIM-EVT`).
+
+SQLite is confirmed locally. Schema Builder is used for MySQL/PostgreSQL portability, but those engines are unverified. See `DATABASE_SCHEMA.md`.
+
+## API surface
+
+Public: login, reset request/reset, system status and simulation-status alias.
+
+Protected Phase 3:
+
+- instruments: list/show, including deterministic backend mock quotes;
+- signals: list/show/create intent;
+- trade intents: list/create/show/evaluate/execute;
+- orders: list/show/cancel accepted pending;
+- positions: list/show/close/partial close/modify SL/modify TP;
+- service heartbeats: list.
+
+Legacy `/simulation/orders` remains a deprecated Phase 2 compatibility write and does not represent the Phase 3 lifecycle.
+
+## Health truth model
+
+Health separates implemented capability from unavailable integrations: web/auth/domain online; database connected or unavailable; mock market data; simulation adapter/risk gate ready or stopped; terminal offline; broker disconnected; live execution disabled; broker transmission false.
+
+## Deployment and build
+
+`npm run build` produces the normal code-split SPA. `build:hostinger` remains an optional static single-file frontend artifact and does not include Laravel. No deployment is part of Phase 3.
+
+## Nonexistent architecture
+
+There is no Python service, Redis requirement, socket price feed, real AI, MT5 adapter, broker credential store, external terminal session, broker order path, DEMO execution or LIVE execution. `MT5_INTEGRATION_CONTRACT.md` describes a future Phase 4 read-only starting boundary only; it is not implementation.
