@@ -157,7 +157,7 @@ class PhaseSixIndicatorEngineTest extends TestCase
             ->getJson('/api/v1/market/extension-hooks')
             ->assertOk()
             ->assertJsonPath('data.phase_6_indicator_engine.status', 'READY')
-            ->assertJsonPath('data.phase_7_strategies.status', 'PENDING')
+            ->assertJsonPath('data.phase_7_strategies.status', 'READY')
             ->assertJsonPath('data.execution.order_send', false);
 
         $this->actingAs($this->userWithRole('ANALYST'))

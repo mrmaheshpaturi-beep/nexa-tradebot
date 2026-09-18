@@ -183,7 +183,7 @@ class MarketDataEngineService
             ],
             'extension_hooks' => [
                 'phase_6_indicator_engine' => 'READY',
-                'phase_7_strategies' => 'PENDING',
+                'phase_7_strategies' => 'READY',
             ],
         ];
     }
@@ -402,7 +402,7 @@ class MarketDataEngineService
                 'extension_hooks' => [
                     'phase_6_indicator_engine' => 'READY',
                     'phase_6_get_closed_candles' => 'READY',
-                    'phase_7_strategies' => 'PENDING',
+                    'phase_7_strategies' => 'READY',
                 ],
             ],
             'correlation_id' => (string) Str::uuid(),
@@ -465,7 +465,7 @@ class MarketDataEngineService
         $data['summary']['extension_hooks'] = [
             'phase_6_indicator_engine' => 'READY',
             'phase_6_get_closed_candles' => 'READY',
-            'phase_7_strategies' => 'PENDING',
+            'phase_7_strategies' => 'READY',
         ];
 
         return $data;

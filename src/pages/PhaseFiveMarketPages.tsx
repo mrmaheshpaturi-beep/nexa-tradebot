@@ -140,7 +140,7 @@ export function PhaseFiveMarketWatch() {
           <QuoteQualityTable quotes={quotes} />
         )}
       </Panel>
-      <Panel title="Phase 6 / 7 extension hooks" subtitle="Indicator engine READY · strategies PENDING">
+      <Panel title="Phase 6 / 7 extension hooks" subtitle="Indicator engine READY · strategies READY">
         <div className="settings-list">
           <div><span>Indicator engine</span><strong>{snapshot.summary.extension_hooks.phase_6_indicator_engine}</strong></div>
           <div><span>get_closed_candles</span><strong>{snapshot.summary.extension_hooks.phase_6_get_closed_candles ?? 'READY'}</strong></div>

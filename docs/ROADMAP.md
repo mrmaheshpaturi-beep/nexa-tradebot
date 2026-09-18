@@ -71,13 +71,26 @@ Implemented on `cursor/phase-6-indicator-engine-56f9`:
 - Providers: SMA, EMA, RSI, MACD, ATR, Bollinger Bands;
 - Laravel catalog/compute/series/batch APIs with quality gate + cache;
 - React chart overlays and indicator panel with source/freshness;
-- Phase 7 strategies remain PENDING.
+- Phase 7 strategies consume indicator/technical adapters.
 
 See `PHASE_6_REPORT.md`, `PHASE_6_ARCHITECTURE.md`, and `INDICATOR_ENGINE.md`.
 
+## Phase 7 — Strategy Engine + Signals + Confluence (delivered)
+
+Implemented on `cursor/phase-7-strategy-engine-56f9`:
+
+- Built-in TradingStrategy plugins (12) + StrategyRegistry;
+- TechnicalAnalysisEngine adapter + MTF/structure/S-R snapshots;
+- SignalEngine + ConfluenceEngine with transparent 0–100 scoring;
+- Gates, fingerprint/cooldown/expiry, performance stats (no fake win rates);
+- Signals / Strategies UI (not “AI”), scanner, matrix, health;
+- ANALYSIS AND SIGNALS ONLY — no broker execution / AutoTrading.
+
+See `PHASE_7_REPORT.md`, `STRATEGY_ENGINE.md`, `SIGNAL_ENGINE.md`, `CONFLUENCE_ENGINE.md`.
+
 ## Later phases requiring separate approval
 
-1. Strategy/scanner engines (Phase 7).
+1. Phase 8 signal → intent pipeline (contract stub only: `PHASE_8_SIGNAL_PIPELINE_CONTRACT.md`).
 2. Authoritative portfolio risk engine.
 3. MT5 DEMO write adapter with durable delivery and reconciliation.
 4. AI analysis behind the risk boundary.

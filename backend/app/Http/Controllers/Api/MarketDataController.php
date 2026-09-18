@@ -219,9 +219,9 @@ class MarketDataController extends Controller
                     'note' => 'Phase 6 attaches indicator series to closed candles without broker writes.',
                 ],
                 'phase_7_strategies' => [
-                    'status' => 'PENDING',
+                    'status' => 'READY',
                     'consumes' => ['market_snapshot', 'data_quality_gate', 'phase_6_indicators'],
-                    'note' => 'Phase 7 strategies remain gated behind SIMULATION execution controls and quality gate.',
+                    'note' => 'Phase 7 strategy engine is analysis/signals only; SIMULATION execution controls and quality gate still apply.',
                 ],
                 'execution' => [
                     'read_only' => true,

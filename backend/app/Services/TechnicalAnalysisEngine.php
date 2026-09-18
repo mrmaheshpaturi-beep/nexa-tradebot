@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Technical\MultiTimeframeTechnicalSnapshot;
 use App\Technical\TechnicalSnapshot;
-use Illuminate\Support\Carbon;
 
 /**
  * Phase 7 Technical Analysis adapter.

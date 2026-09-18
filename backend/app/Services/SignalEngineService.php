@@ -12,7 +12,6 @@ use App\Models\TradingInstrument;
 use App\Models\TradingStrategy;
 use App\Models\User;
 use App\Strategies\StrategyEvaluation;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 /**

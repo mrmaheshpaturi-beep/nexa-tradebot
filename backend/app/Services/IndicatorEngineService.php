@@ -217,7 +217,7 @@ class IndicatorEngineService
                 'live' => false,
             ],
             'extension_hooks' => [
-                'phase_7_strategies' => 'PENDING',
+                'phase_7_strategies' => 'READY',
             ],
         ];
     }
