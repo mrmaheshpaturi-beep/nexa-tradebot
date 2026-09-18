@@ -117,11 +117,30 @@ Session/CSRF, active-user checks, route permissions, ownership, server-assigned 
 
 ## 24. Verification
 
-Final full-suite gate results are recorded in the completion commit after code/documentation reconciliation. The regression suite explicitly covers valid/invalid BUY and SELL protection, backend quote exposure, mark-to-market accounting and same-second snapshot ordering in addition to the complete lifecycle/RBAC/health suite.
+Verified September 18, 2026:
+
+| Gate | Result |
+|---|---|
+| confirmed `local` SQLite target | `/workspace/backend/database/database.sqlite` |
+| `migrate:fresh --seed --force` + migration status | Pass; six migrations ran; prior development login hash preserved |
+| backend tests | Pass: 59 tests, 380 assertions |
+| Pint | Pass |
+| Composer locked audit | No advisories |
+| TypeScript + ESLint | Pass |
+| Vitest | Pass: 4 files, 15 tests |
+| production build | Pass: 2,487 modules |
+| npm audit | 0 vulnerabilities |
+| tracked secret-pattern search | No credential assignment found; only `.env.example` tracked |
+| MT5/broker-adapter search | No adapter/connect/execute implementation; only metadata/status references |
+| local frontend/backend | HTTP 200 on ports 43127/43128 |
+
+The build retains one advisory: `TradingCharts` is 539.86 kB minified (160.73 kB gzip), above Vite's 500 kB recommendation. Tests cover valid/invalid BUY and SELL protection, exact backend quote exposure, complete MARKET lifecycle, pending cancellation, signal conversion, SL/TP changes, partial/full close, mark-to-market snapshots, idempotency, failures, health and RBAC.
 
 ## 25. Deployment assessment
 
-The existing Hostinger site is known to be frontend-only. Phase 3 React depends on Laravel `/api` and `/sanctum`; the single-file frontend does not include them. Deployment is authorized only if PHP/Laravel document root, environment, database, migrations, writable directories, HTTPS session cookies, CSRF/stateful domains and same-origin routing can all be verified without replacing/breaking the current site. Otherwise production remains unchanged.
+Production was deliberately left unchanged. `https://nexasoftwaresolutions.in/` returns the existing frontend, but `https://nexasoftwaresolutions.in/api/v1/system/status` and `/sanctum/csrf-cookie` both return 404. The prior FTP listing contains only static `index.html`, icons, an empty assets directory and Hostinger's default PHP file—no Laravel application/public bootstrap.
+
+Therefore the prerequisites cannot be verified: Laravel document root/runtime configuration, production `.env`/APP key, persistent database and credentials, migrations/backups, writable storage/cache, session driver, secure cookie/stateful-domain/proxy configuration and same-origin rewrites are absent or unknown. Uploading the Phase 3 frontend alone would break authentication and all persisted screens, so no files were uploaded.
 
 ## 26. Known limitations and Phase 4
 
@@ -131,4 +150,6 @@ No pending trigger/expiry scheduler, external heartbeat writer, top-level snapsh
 
 Updated: README, backend README, architecture, trading domain, database schema, security, authorization and roadmap. Created: lifecycle, execution, state-machine, market-data, MT5 read-only contract and this report.
 
-Remaining owner actions are limited to documented production prerequisites (if deployment is desired), password-reset delivery, target database validation and future separately approved work. Never deploy the API-dependent Phase 3 frontend alone.
+For deployment, the owner must provision a supported Hostinger Laravel application/database (or provide SSH/control-panel access and production DB values), point the domain document root to Laravel `public/`, provide production secrets through Hostinger rather than source, configure HTTPS sessions/Sanctum and route `/api` plus `/sanctum`, authorize a backed-up production migration, and provide a staging URL for login/CSRF/safety smoke tests before DNS/live replacement.
+
+Other remaining actions are password-reset delivery, MySQL/PostgreSQL target validation and future separately approved work. Never deploy the API-dependent Phase 3 frontend alone.
