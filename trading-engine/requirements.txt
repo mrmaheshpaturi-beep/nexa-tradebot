@@ -1,0 +1,7 @@
+fastapi==0.141.1
+pydantic==2.13.5
+pydantic-settings==2.14.2
+uvicorn==0.41.0
+
+# Install the official package only on the controlled Windows terminal host.
+MetaTrader5==5.0.6147; sys_platform == "win32"

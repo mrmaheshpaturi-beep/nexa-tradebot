@@ -1,0 +1,48 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "nexa-mt5-readonly-bridge"
+version = "0.1.0"
+description = "Read-only MetaTrader 5 DEMO bridge for Nexa TradeBot"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi==0.141.1",
+  "pydantic==2.13.5",
+  "pydantic-settings==2.14.2",
+  "uvicorn==0.41.0",
+]
+
+[project.optional-dependencies]
+windows = ["MetaTrader5==5.0.6147; sys_platform == 'win32'"]
+dev = [
+  "httpx==0.28.1",
+  "mypy==1.18.2",
+  "pytest==8.4.2",
+  "pytest-asyncio==1.2.0",
+  "ruff==0.13.2",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nexa_mt5"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S"]
+ignore = ["S101"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["nexa_mt5"]
+exclude = ["tests"]
