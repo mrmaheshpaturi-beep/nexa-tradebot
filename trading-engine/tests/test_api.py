@@ -39,7 +39,8 @@ def test_health_terminal_account_symbols_and_heartbeat() -> None:
         health = api.get("/v1/health", headers=auth())
         assert health.status_code == 200
         assert health.json()["data"]["read_only"] is True
-        assert api.get("/v1/terminal", headers=auth()).json()["data"]["terminal"]["trade_allowed"] is False
+        terminal = api.get("/v1/terminal", headers=auth()).json()["data"]["terminal"]
+        assert terminal["trade_allowed"] is False
         account = api.get("/v1/account", headers=auth()).json()
         assert account["data"]["trade_mode"] == "DEMO"
         assert account["meta"]["environment"] == "DEMO"
@@ -63,8 +64,8 @@ def test_read_only_positions_orders_and_bounded_history() -> None:
     with client() as api:
         assert api.get("/v1/positions", headers=auth()).json()["data"][0]["ticket"] == 70001
         assert api.get("/v1/orders", headers=auth()).json()["data"][0]["ticket"] == 71001
-        start = (datetime.now(UTC) - timedelta(days=2)).isoformat()
-        end = datetime.now(UTC).isoformat()
+        start = (datetime.now(UTC) - timedelta(days=2)).strftime('%Y-%m-%dT%H:%M:%SZ')
+        end = datetime.now(UTC).strftime('%Y-%m-%dT%H:%M:%SZ')
         orders = api.get(
             f"/v1/history/orders?date_from={start}&date_to={end}&limit=999",
             headers=auth(),

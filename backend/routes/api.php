@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuditLogController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BrokerAccountController;
+use App\Http\Controllers\Api\Mt5BridgeController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PasswordResetController;
@@ -84,5 +85,28 @@ Route::prefix('v1')->middleware('web')->group(function (): void {
         Route::put('/positions/{position}/take-profit', [PositionController::class, 'modifyTakeProfit'])->middleware('permission:simulation_positions.manage');
         Route::put('/positions/{position}/protection', [PositionController::class, 'modifyProtection'])->middleware('permission:simulation_positions.manage');
         Route::get('/heartbeats', [ServiceHeartbeatController::class, 'index'])->middleware('permission:trading.read');
+
+        Route::get('/mt5/status', [Mt5BridgeController::class, 'status'])->middleware('permission:mt5.read');
+        Route::get('/mt5/bridge/health', [Mt5BridgeController::class, 'proxyHealth'])->middleware('permission:mt5.read');
+        Route::get('/mt5/bridge/terminal', [Mt5BridgeController::class, 'proxyTerminal'])->middleware('permission:mt5.read');
+        Route::get('/mt5/bridge/account', [Mt5BridgeController::class, 'proxyAccount'])->middleware('permission:mt5.read');
+        Route::get('/mt5/bridge/symbols', [Mt5BridgeController::class, 'proxySymbols'])->middleware('permission:mt5.read');
+        Route::get('/mt5/bridge/symbols/{symbol}', [Mt5BridgeController::class, 'proxySymbol'])->middleware('permission:mt5.read');
+        Route::get('/mt5/bridge/quotes/{symbol}', [Mt5BridgeController::class, 'proxyQuote'])->middleware('permission:mt5.read');
+        Route::get('/mt5/bridge/candles/{symbol}', [Mt5BridgeController::class, 'proxyCandles'])->middleware('permission:mt5.read');
+        Route::get('/mt5/bridge/positions', [Mt5BridgeController::class, 'proxyPositions'])->middleware('permission:mt5.read');
+        Route::get('/mt5/bridge/orders', [Mt5BridgeController::class, 'proxyOrders'])->middleware('permission:mt5.read');
+        Route::get('/mt5/bridge/history/orders', [Mt5BridgeController::class, 'proxyHistoryOrders'])->middleware('permission:mt5.read');
+        Route::get('/mt5/bridge/history/deals', [Mt5BridgeController::class, 'proxyHistoryDeals'])->middleware('permission:mt5.read');
+        Route::get('/mt5/connections', [Mt5BridgeController::class, 'connections'])->middleware('permission:mt5.read');
+        Route::post('/mt5/connections', [Mt5BridgeController::class, 'storeConnection'])->middleware('permission:mt5.connections.manage');
+        Route::post('/mt5/connections/{connection}/test', [Mt5BridgeController::class, 'testConnection'])->middleware('permission:mt5.connections.manage');
+        Route::post('/mt5/connections/{connection}/sync', [Mt5BridgeController::class, 'syncConnection'])->middleware('permission:mt5.sync');
+        Route::get('/mt5/mappings/{mapping}/positions', [Mt5BridgeController::class, 'mappingPositions'])->middleware('permission:mt5.read');
+        Route::get('/mt5/mappings/{mapping}/orders', [Mt5BridgeController::class, 'mappingOrders'])->middleware('permission:mt5.read');
+        Route::get('/mt5/mappings/{mapping}/deals', [Mt5BridgeController::class, 'mappingDeals'])->middleware('permission:mt5.read');
+        Route::post('/mt5/mappings/{mapping}/reconcile', [Mt5BridgeController::class, 'reconcileMapping'])->middleware('permission:mt5.reconcile');
+        Route::get('/mt5/reconciliation-runs', [Mt5BridgeController::class, 'reconciliationRuns'])->middleware('permission:mt5.read');
+        Route::get('/mt5/reconciliation-runs/{run}', [Mt5BridgeController::class, 'reconciliationRun'])->middleware('permission:mt5.read');
     });
 });

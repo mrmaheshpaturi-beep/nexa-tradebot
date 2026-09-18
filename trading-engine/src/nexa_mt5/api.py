@@ -1,6 +1,7 @@
 import hmac
 from contextlib import asynccontextmanager
 from datetime import UTC, datetime, timedelta
+from collections.abc import AsyncGenerator
 from typing import Any
 from uuid import uuid4
 
@@ -25,7 +26,7 @@ def create_app(settings: Settings | None = None, connector: MT5Connector | None 
     configure_logging()
 
     @asynccontextmanager
-    async def lifespan(_: FastAPI):
+    async def lifespan(_: FastAPI) -> AsyncGenerator[None, None]:
         yield
         service.shutdown()
 
@@ -47,7 +48,11 @@ def create_app(settings: Settings | None = None, connector: MT5Connector | None 
         credentials: HTTPAuthorizationCredentials | None = Depends(bearer),
     ) -> None:
         expected = resolved.service_token
-        presented = credentials.credentials if credentials and credentials.scheme.lower() == "bearer" else ""
+        presented = (
+            credentials.credentials
+            if credentials and credentials.scheme.lower() == "bearer"
+            else ""
+        )
         valid = bool(expected) and hmac.compare_digest(
             presented.encode("utf-8"), expected.encode("utf-8")
         )
@@ -144,7 +149,12 @@ def create_app(settings: Settings | None = None, connector: MT5Connector | None 
     ) -> tuple[datetime, datetime, int]:
         end = date_to or datetime.now(UTC)
         start = date_from or end - timedelta(days=7)
-        if start.tzinfo is None or end.tzinfo is None or start >= end or end - start > timedelta(days=90):
+        if (
+            start.tzinfo is None
+            or end.tzinfo is None
+            or start >= end
+            or end - start > timedelta(days=90)
+        ):
             raise BridgeError(
                 ErrorCode.INVALID_REQUEST,
                 "History requires an ordered timezone-aware range of at most 90 days.",

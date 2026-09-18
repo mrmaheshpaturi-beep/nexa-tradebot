@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from nexa_mt5.config import Settings
-from nexa_mt5.connectors import MT5Connector, MockMT5Connector, RealMT5Connector
+from nexa_mt5.connectors import MockMT5Connector, MT5Connector, RealMT5Connector
 from nexa_mt5.errors import BridgeError
 from nexa_mt5.service import MT5ReadService
 

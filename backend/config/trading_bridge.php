@@ -1,0 +1,15 @@
+<?php
+
+return [
+    'base_url' => env('TRADING_BRIDGE_URL', 'http://127.0.0.1:8765'),
+    'service_token' => env('TRADING_BRIDGE_SERVICE_TOKEN'),
+    'connect_timeout' => (float) env('TRADING_BRIDGE_CONNECT_TIMEOUT', 1.0),
+    'timeout' => (float) env('TRADING_BRIDGE_TIMEOUT', 3.0),
+    'read_retries' => (int) env('TRADING_BRIDGE_READ_RETRIES', 2),
+    'retry_delay_ms' => (int) env('TRADING_BRIDGE_RETRY_DELAY_MS', 100),
+    'circuit_failure_threshold' => (int) env('TRADING_BRIDGE_CIRCUIT_FAILURES', 3),
+    'circuit_open_seconds' => (int) env('TRADING_BRIDGE_CIRCUIT_OPEN_SECONDS', 30),
+    'cache_seconds' => (int) env('TRADING_BRIDGE_CACHE_SECONDS', 2),
+    'history_max_days' => (int) env('TRADING_BRIDGE_HISTORY_MAX_DAYS', 90),
+    'history_max_records' => (int) env('TRADING_BRIDGE_HISTORY_MAX_RECORDS', 500),
+];

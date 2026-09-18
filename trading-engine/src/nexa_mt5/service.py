@@ -6,7 +6,7 @@ from typing import Any, TypeVar
 from uuid import uuid4
 
 from .config import Settings
-from .connectors import MT5Connector, MockMT5Connector, RealMT5Connector
+from .connectors import MockMT5Connector, MT5Connector, RealMT5Connector
 from .errors import BridgeError, ErrorCode
 from .models import ConnectionState, SourceMetadata
 
@@ -37,7 +37,10 @@ class MT5ReadService:
                     self.state = ConnectionState.CONNECTED
                     self.last_success_at = datetime.now(UTC)
                     self.last_error_code = None
-                    logger.info("terminal_connected", extra={"context": {"mode": self.settings.mode}})
+                    logger.info(
+                        "terminal_connected",
+                        extra={"context": {"mode": self.settings.mode}},
+                    )
                     return
                 raise BridgeError(ErrorCode.CONNECTION_FAILED, "Unable to connect to the terminal.")
             except BridgeError as error:

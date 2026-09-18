@@ -46,6 +46,11 @@ class User extends Authenticatable
         return $this->hasMany(BrokerAccount::class);
     }
 
+    public function mt5BridgeConnections(): HasMany
+    {
+        return $this->hasMany(Mt5BridgeConnection::class);
+    }
+
     public function strategies(): HasMany
     {
         return $this->hasMany(TradingStrategy::class);

@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\TradingBridgeException;
 use App\Http\Middleware\EnsureActiveUser;
 use App\Http\Middleware\RequirePermission;
 use Illuminate\Foundation\Application;
@@ -26,4 +27,16 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
+        $exceptions->render(function (TradingBridgeException $exception, Request $request) {
+            if (! $request->is('api/*')) {
+                return null;
+            }
+
+            return response()->json([
+                'error' => [
+                    'code' => $exception->safeCode,
+                    'message' => $exception->getMessage(),
+                ],
+            ], $exception->httpStatus);
+        });
     })->create();

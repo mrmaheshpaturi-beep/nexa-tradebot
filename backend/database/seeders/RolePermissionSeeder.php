@@ -21,6 +21,7 @@ class RolePermissionSeeder extends Seeder
         'trading.read', 'signals.view', 'simulation_lifecycle.create',
         'simulation_lifecycle.evaluate', 'simulation_lifecycle.execute',
         'simulation_orders.cancel', 'simulation_positions.manage',
+        'mt5.read', 'mt5.sync', 'mt5.reconcile', 'mt5.connections.manage',
     ];
 
     public function run(): void
@@ -42,17 +43,18 @@ class RolePermissionSeeder extends Seeder
                 'trading.read', 'signals.view', 'simulation_lifecycle.create',
                 'simulation_lifecycle.evaluate', 'simulation_lifecycle.execute',
                 'simulation_orders.cancel', 'simulation_positions.manage',
+                'mt5.read', 'mt5.sync', 'mt5.reconcile',
             ],
             'ANALYST' => [
                 'dashboard.view', 'strategies.view', 'risk_profiles.view',
                 'broker_accounts.view', 'settings.view', 'preferences.view',
                 'preferences.update', 'notifications.view', 'notifications.update',
-                'trading.read', 'signals.view',
+                'trading.read', 'signals.view', 'mt5.read',
             ],
             'VIEWER' => [
                 'dashboard.view', 'strategies.view', 'settings.view',
                 'preferences.view', 'notifications.view',
-                'trading.read',
+                'trading.read', 'mt5.read',
             ],
         ];
 

@@ -7,14 +7,19 @@ use App\Models\AuditLog;
 use App\Models\ServiceHeartbeat;
 use App\Models\SystemEvent;
 use App\Services\SettingsService;
+use App\Services\TradingBridgeClient;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class SystemController extends Controller
 {
-    public function __construct(private readonly SettingsService $settings) {}
+    public function __construct(
+        private readonly SettingsService $settings,
+        private readonly TradingBridgeClient $bridge,
+    ) {}
 
     public function status(): JsonResponse
     {
@@ -30,6 +35,8 @@ class SystemController extends Controller
         $riskReady = ! $emergencyStop
             && $simulationEnabled;
         $heartbeat = ServiceHeartbeat::where('service', 'SIMULATION_ENGINE')->latest('observed_at')->first();
+        $bridgeConfigured = $this->bridge->configured();
+        $bridgeState = Cache::get('mt5_bridge:last_state', 'UNKNOWN');
 
         return response()->json(['data' => [
             'environment' => 'SIMULATION',
@@ -45,8 +52,23 @@ class SystemController extends Controller
                 'source' => 'SIMULATION ENGINE',
                 'last_heartbeat_at' => $heartbeat?->observed_at,
             ],
-            'terminal' => ['status' => 'OFFLINE', 'adapter' => 'SIMULATION'],
-            'broker' => ['status' => 'DISCONNECTED', 'connected' => false],
+            'terminal' => [
+                'status' => $bridgeConfigured && $bridgeState === 'CONNECTED' ? 'ONLINE' : 'OFFLINE',
+                'adapter' => $bridgeConfigured ? 'MT5_READ_ONLY' : 'SIMULATION',
+            ],
+            'broker' => [
+                'status' => $bridgeConfigured && $bridgeState === 'CONNECTED' ? 'READ_ONLY' : 'DISCONNECTED',
+                'connected' => $bridgeConfigured && $bridgeState === 'CONNECTED',
+                'mode' => 'READ_ONLY',
+                'environment' => 'DEMO',
+            ],
+            'mt5_bridge' => [
+                'configured' => $bridgeConfigured,
+                'mode' => 'READ_ONLY',
+                'environment' => 'DEMO',
+                'state' => $bridgeState,
+                'execution_available' => false,
+            ],
             'execution' => ['available' => $riskReady, 'environment' => 'SIMULATION', 'broker_transmission' => false],
             'simulation_execution_enabled' => $simulationEnabled,
             'allow_demo_execution' => false,
