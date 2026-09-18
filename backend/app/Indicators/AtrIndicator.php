@@ -45,6 +45,7 @@ class AtrIndicator extends AbstractIndicatorProvider
             $close = (string) $candle['close'];
             if ($index === 0) {
                 $trueRanges[] = $this->bc($high, '-', $low);
+
                 continue;
             }
             $prevClose = (string) $closedCandles[$index - 1]['close'];

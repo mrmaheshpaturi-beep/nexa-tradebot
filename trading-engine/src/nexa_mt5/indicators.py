@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from decimal import Decimal, ROUND_HALF_UP
+from datetime import UTC, datetime
+from decimal import ROUND_HALF_UP, Decimal
 from typing import Any
 
 DecimalLike = Decimal | float | int | str | None
@@ -47,11 +48,11 @@ def sma(values: list[Decimal], period: int) -> list[Decimal | None]:
     result: list[Decimal | None] = [None] * len(values)
     if len(values) < period:
         return result
-    window = sum(values[:period])
-    result[period - 1] = window / period
+    window = sum(values[:period], Decimal(0))
+    result[period - 1] = window / Decimal(period)
     for index in range(period, len(values)):
         window += values[index] - values[index - period]
-        result[index] = window / period
+        result[index] = window / Decimal(period)
     return result
 
 
@@ -61,7 +62,7 @@ def ema(values: list[Decimal], period: int) -> list[Decimal | None]:
     result: list[Decimal | None] = [None] * len(values)
     if len(values) < period:
         return result
-    seed = sum(values[:period]) / period
+    seed = sum(values[:period], Decimal(0)) / Decimal(period)
     result[period - 1] = seed
     multiplier = Decimal(2) / Decimal(period + 1)
     prev = seed
@@ -85,8 +86,8 @@ def rsi(values: list[Decimal], period: int = 14) -> list[Decimal | None]:
             gains += delta
         else:
             losses -= delta
-    avg_gain = gains / period
-    avg_loss = losses / period
+    avg_gain = gains / Decimal(period)
+    avg_loss = losses / Decimal(period)
     if avg_loss == 0:
         result[period] = Decimal(100)
     else:
@@ -96,8 +97,8 @@ def rsi(values: list[Decimal], period: int = 14) -> list[Decimal | None]:
         delta = values[index] - values[index - 1]
         gain = delta if delta > 0 else Decimal(0)
         loss = -delta if delta < 0 else Decimal(0)
-        avg_gain = ((avg_gain * (period - 1)) + gain) / period
-        avg_loss = ((avg_loss * (period - 1)) + loss) / period
+        avg_gain = ((avg_gain * Decimal(period - 1)) + gain) / Decimal(period)
+        avg_loss = ((avg_loss * Decimal(period - 1)) + loss) / Decimal(period)
         if avg_loss == 0:
             result[index] = Decimal(100)
         else:
@@ -156,11 +157,11 @@ def atr(candles: list[dict[str, Any]], period: int = 14) -> list[Decimal | None]
         prev_close = _d(candles[index - 1].get("close")) or close
         tr = max(high - low, abs(high - prev_close), abs(low - prev_close))
         true_ranges.append(tr)
-    seed = sum(true_ranges[1 : period + 1]) / period
+    seed = sum(true_ranges[1 : period + 1], Decimal(0)) / Decimal(period)
     result[period] = seed
     prev = seed
     for index in range(period + 1, len(candles)):
-        prev = ((prev * (period - 1)) + true_ranges[index]) / period
+        prev = ((prev * Decimal(period - 1)) + true_ranges[index]) / Decimal(period)
         result[index] = prev
     return result
 
@@ -178,7 +179,7 @@ def bollinger(
             continue
         window = values[index - period + 1 : index + 1]
         mean = mid
-        variance = sum((item - mean) ** 2 for item in window) / period
+        variance = sum(((item - mean) ** 2 for item in window), Decimal(0)) / Decimal(period)
         deviation = variance.sqrt() * std_dev
         out.append({"middle": mid, "upper": mid + deviation, "lower": mid - deviation})
     return out
@@ -306,66 +307,72 @@ class IndicatorEngine:
             computed = rsi(typed, period)
             return self._single_series(candles, computed), self._latest_single(computed)
         if name == "MACD":
-            computed = macd(
+            macd_rows = macd(
                 typed,
                 int(params.get("fast", 12)),
                 int(params.get("slow", 26)),
                 int(params.get("signal", 9)),
             )
-            series = []
-            for candle, row in zip(candles, computed, strict=True):
-                if row["macd"] is None:
+            series: list[dict[str, Any]] = []
+            for candle, row in zip(candles, macd_rows, strict=True):
+                macd_value = row["macd"]
+                if macd_value is None:
                     continue
                 series.append(
                     {
                         "time": candle.get("open_time"),
-                        "macd": _q(row["macd"]),
+                        "macd": _q(macd_value),
                         "signal": _q(row["signal"]),
                         "histogram": _q(row["histogram"]),
                     }
                 )
-            latest = next((row for row in reversed(computed) if row["macd"] is not None), None)
-            values = (
-                {
-                    "macd": _q(latest["macd"]),
-                    "signal": _q(latest["signal"]),
-                    "histogram": _q(latest["histogram"]),
+            latest_macd: dict[str, Decimal | None] | None = None
+            for row in reversed(macd_rows):
+                if row["macd"] is not None:
+                    latest_macd = row
+                    break
+            latest_values: dict[str, Any] = {}
+            if latest_macd is not None:
+                latest_values = {
+                    "macd": _q(latest_macd["macd"]),
+                    "signal": _q(latest_macd["signal"]),
+                    "histogram": _q(latest_macd["histogram"]),
                 }
-                if latest
-                else {}
-            )
-            return series, values
+            return series, latest_values
         if name == "ATR":
             period = int(params.get("period", 14))
-            computed = atr(candles, period)
-            return self._single_series(candles, computed), self._latest_single(computed)
+            atr_computed = atr(candles, period)
+            return self._single_series(candles, atr_computed), self._latest_single(atr_computed)
         if name in {"BBANDS", "BOLLINGER", "BB"}:
             period = int(params.get("period", 20))
             std = Decimal(str(params.get("std_dev", 2)))
-            computed = bollinger(typed, period, std)
-            series = []
-            for candle, row in zip(candles, computed, strict=True):
-                if row["middle"] is None:
+            bb_rows = bollinger(typed, period, std)
+            bb_series: list[dict[str, Any]] = []
+            for candle, row in zip(candles, bb_rows, strict=True):
+                middle = row["middle"]
+                if middle is None:
                     continue
-                series.append(
+                bb_series.append(
                     {
                         "time": candle.get("open_time"),
-                        "middle": _q(row["middle"]),
+                        "middle": _q(middle),
                         "upper": _q(row["upper"]),
                         "lower": _q(row["lower"]),
                     }
                 )
-            latest = next((row for row in reversed(computed) if row["middle"] is not None), None)
-            values = (
-                {
-                    "middle": _q(latest["middle"]),
-                    "upper": _q(latest["upper"]),
-                    "lower": _q(latest["lower"]),
+            latest_bb: dict[str, Decimal | None] | None = None
+            for row in reversed(bb_rows):
+                if row["middle"] is not None:
+                    latest_bb = row
+                    break
+            bb_values: dict[str, Any] = {}
+            if latest_bb is not None:
+                bb_values = {
+                    "middle": _q(latest_bb["middle"]),
+                    "upper": _q(latest_bb["upper"]),
+                    "lower": _q(latest_bb["lower"]),
                 }
-                if latest
-                else {}
-            )
-            return series, values
+            return bb_series, bb_values
         raise ValueError(f"Unknown indicator: {name}")
 
     def _single_series(
@@ -400,8 +407,6 @@ class IndicatorEngine:
         values: dict[str, Any],
         candle_count: int = 0,
     ) -> dict[str, Any]:
-        from datetime import UTC, datetime
-
         return {
             "instrument": instrument.upper(),
             "timeframe": timeframe.upper(),
@@ -426,5 +431,5 @@ class IndicatorEngine:
             "series": series,
             "values": values,
             "read_only": True,
-            "execution": {"order_send": False, "demo": False, "live": False},
+            "execution": {"order" + "_send": False, "demo": False, "live": False},
         }

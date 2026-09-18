@@ -6,7 +6,7 @@ Phase 6 delivers a production-oriented Indicator Engine on top of the Phase 5 Ma
 
 ## 2. Phase Status
 
-**PASS WITH WARNINGS** — Linux/mock verification green; Real MT5 indicator validation pending Windows DEMO host. (Final counts filled after quality gates.)
+**PASS WITH WARNINGS** — Linux/mock verification green; Real MT5 indicator validation pending Windows DEMO host.
 
 ## 3. Indicator Architecture
 
@@ -19,63 +19,130 @@ MarketDataEngine::getClosedCandles → IndicatorEngineService
 
 See `PHASE_6_ARCHITECTURE.md` and `INDICATOR_ENGINE.md`.
 
-## 4. Safety
+## 4. Provider Architecture
 
-- No `order_send`
-- DEMO/LIVE execution blocked
-- Indicators never call MT5/bridge directly
-- React never talks to bridge
-- No silent mock fallback when MT5 DEMO / prefer=bridge selected
+- `IndicatorProvider` contract + SMA/EMA/RSI/MACD/ATR/BBANDS implementations
+- Python `nexa_mt5.indicators.IndicatorEngine` pure-math parity module
+- Never calls MT5 / `TradingBridgeClient`
 
-## 5. APIs
+## 5. Quality Gate
 
-- `GET /api/v1/indicators/catalog`
-- `GET /api/v1/indicators/health`
-- `POST /api/v1/indicators/compute`
-- `POST /api/v1/indicators/batch`
-- `GET /api/v1/indicators/{indicator}/series`
+- GOOD → READY
+- DEGRADED → DEGRADED (series returned)
+- BAD / UNAVAILABLE / blocked gate → REFUSED (empty series)
+
+## 6. Caching
+
+`IndicatorCache` (Illuminate Cache, ~30s TTL). No Redis required.
+
+## 7. APIs
+
+| Method | Path |
+|--------|------|
+| GET | `/api/v1/indicators/catalog` |
+| GET | `/api/v1/indicators/health` |
+| POST | `/api/v1/indicators/compute` |
+| POST | `/api/v1/indicators/batch` |
+| GET | `/api/v1/indicators/{indicator}/series` |
 
 Permission: `trading.read`.
 
-## 6. Quality Gate
+## 8. Frontend
 
-BAD / UNAVAILABLE / blocked analysis gate → indicator `status=REFUSED` with empty series. DEGRADED market data → `status=DEGRADED` with series.
+Live Charts: overlay toggles (SMA/EMA/BBANDS), oscillator panel (RSI/MACD/ATR) with source/freshness/quality/gate. Market Watch hooks show Indicator engine **READY**.
 
-## 7. Frontend
+## 9. Database Changes
 
-Live Charts: overlay toggles (SMA/EMA/BBANDS), panel (RSI/MACD/ATR), source/freshness/quality/gate columns.
+None required (cache-backed). Heartbeats written to existing `service_heartbeats`.
 
-## 8. Tests / gates
+## 10. Tests Executed
 
-Filled after verification pass in Section 100.
+Python pytest; Laravel full suite including PhaseSixIndicatorEngineTest; Vitest; tsc; eslint; production build; phase6 no-execution audit; ruff; mypy; pint.
 
-## 9. Known Limitations
+## 11. Tests Passed
 
-- Real MT5 DEMO validation pending Windows.
-- Polling-only (no WebSocket indicator push).
-- Indicator cache is process/cache-driver local (no Redis required).
-- Oscillator charts are tabular panel values (not separate pane charts).
+Python: 19. Laravel: 79. Vitest: 18.
 
-## 10. Phase 7 Input Contract
+## 12. Tests Failed
 
-- Consume `IndicatorEngineService::compute` / series APIs
-- Consult `data_quality_gate` / indicator `gate.allowed`
+None in the Phase 6 verification pass.
+
+## 13. TypeScript Result
+
+PASS (`npm run typecheck`)
+
+## 14. ESLint Result
+
+PASS (0 errors; optional react-refresh warning on store hook export)
+
+## 15. Production Build
+
+PASS (`npm run build`)
+
+## 16. Security Audit
+
+Bridge token remains server-side. React has no bridge credentials. Static audit: no `order_send(` usage. Indicator code does not import bridge client.
+
+## 17. MT5 Execution Safety Audit
+
+MT5 EXECUTION DISABLED. DEMO/LIVE execution blocked. SimulationExecutionAdapter SIMULATION-only. Indicator payloads advertise `order_send: false`.
+
+## 18. Real MT5 Validation Status
+
+**PENDING WINDOWS ENVIRONMENT**
+
+## 19. Known Limitations
+
+- Mock/bridge prices deterministic in Linux CI; not a live feed proof.
+- Oscillator panel is tabular (not separate chart panes).
+- Polling-only; no WebSocket indicator push.
+- Indicator cache is local cache-driver (no Redis).
+
+## 20. Manual Actions Required
+
+1. Windows host: validate indicators against live DEMO closed candles.
+2. Optional: confirm chart overlays under MT5 DEMO source (prefer=bridge).
+
+## 21. Phase 7 Input Contract
+
+- Consume `IndicatorEngineService::compute` / series / batch APIs
+- Consult indicator `gate.allowed` and market `data_quality_gate`
 - Do not call MT5 from strategy code
 - Execution remains SimulationExecutionAdapter / SIMULATION only until separately approved
 
+## 22. Artifacts
+
+- `/opt/cursor/artifacts/phase6_live_charts_indicators.png`
+- `/opt/cursor/artifacts/phase6_indicator_panel.png`
+- `/opt/cursor/artifacts/phase6_market_watch_hooks.png`
+- `/opt/cursor/artifacts/phase6_overlays_toggled.png`
+- `/opt/cursor/artifacts/phase6_indicators_walkthrough.webm`
+
+## 23. App URL
+
+[http://127.0.0.1:46280](http://127.0.0.1:46280) (Laravel API on [http://127.0.0.1:46281](http://127.0.0.1:46281))
+
 ## Section 100 summary (authoritative)
 
-PHASE 6 STATUS: PENDING VERIFICATION
+PHASE 6 STATUS: PASS WITH WARNINGS
 
-Indicator Engine: PENDING
-Market Data consumption: PENDING
-Quality Gate: PENDING
-Catalog API: PENDING
-Compute/Series API: PENDING
-Chart Overlays: PENDING
-Indicator Panel: PENDING
+Indicator Engine: PASS
+Market Data consumption (closed candles only): PASS
+Quality Gate: PASS
+Catalog API: PASS
+Compute/Series/Batch API: PASS
+Chart Overlays: PASS
+Indicator Panel: PASS
+Cache: PASS
 MT5 EXECUTION: DISABLED
 DEMO EXECUTION: DISABLED
 LIVE EXECUTION: DISABLED
 order_send usage: NONE
-REAL MT5 VALIDATION: PENDING WINDOWS ENVIRONMENT
+Tests: 116 passed / 0 failed (19 Python + 79 Laravel + 18 Vitest)
+Python Tests: PASS
+Laravel Tests: PASS
+TypeScript: PASS
+ESLint: PASS
+Production Build: PASS
+Security: PASS
+REAL MT5 INDICATOR VALIDATION: PENDING WINDOWS ENVIRONMENT

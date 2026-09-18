@@ -4,6 +4,12 @@ import { MemoryRouter } from 'react-router-dom'
 import { PhaseFiveLiveCharts } from '../pages/PhaseFiveMarketPages'
 import { TradingSourceProvider } from '../context/TradingSourceContext'
 
+vi.mock('../components/TradingCharts', () => ({
+  CandlestickTerminal: ({ label }: { label?: string }) => (
+    <div aria-label={label ?? 'chart'} data-testid="mock-candlestick" />
+  ),
+}))
+
 vi.mock('../api/services', () => ({
   marketApi: {
     snapshot: vi.fn(async () => ({
@@ -126,7 +132,8 @@ describe('Phase 6 indicator frontend', () => {
     await waitFor(() => expect(screen.getByText('Indicator overlays')).toBeInTheDocument())
     expect(screen.getByText('Indicator panel')).toBeInTheDocument()
     expect(screen.getByText(/Phase 6 indicators READY/)).toBeInTheDocument()
-    await waitFor(() => expect(screen.getByText('RSI')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('55.12')).toBeInTheDocument())
+    expect(screen.getByTestId('mock-candlestick')).toBeInTheDocument()
     expect(screen.getByLabelText(/market-data chart with indicators/)).toBeInTheDocument()
   })
 })
