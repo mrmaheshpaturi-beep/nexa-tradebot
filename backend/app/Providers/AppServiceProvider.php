@@ -10,6 +10,7 @@ use App\Repositories\InMemorySimulationRepository;
 use App\Services\MockMarketDataProvider;
 use App\Services\SimulationExecutionAdapter;
 use App\Services\SimulationPositionReconciliationService;
+use App\Strategies\StrategyRegistry;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -26,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(MarketDataProvider::class, MockMarketDataProvider::class);
         $this->app->bind(ExecutionAdapter::class, SimulationExecutionAdapter::class);
         $this->app->bind(PositionReconciliationService::class, SimulationPositionReconciliationService::class);
+        $this->app->singleton(StrategyRegistry::class);
     }
 
     /**

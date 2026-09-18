@@ -31,9 +31,14 @@ class Signal extends BaseModel
             'expires_at' => 'datetime',
             'consumed_at' => 'datetime',
             'metadata' => 'array',
+            'score_breakdown' => 'array',
+            'confluence' => 'array',
+            'auto_simulation' => 'boolean',
             'entry_reference' => 'decimal:8',
             'take_profit_1_reference' => 'decimal:8',
             'take_profit_2_reference' => 'decimal:8',
+            'score' => 'float',
+            'confluence_score' => 'float',
         ];
     }
 

@@ -14,8 +14,10 @@ class TradingStrategy extends BaseModel
             'timeframes' => 'array',
             'sessions' => 'array',
             'parameters' => 'array',
+            'higher_timeframes' => 'array',
             'enabled' => 'boolean',
             'auto_trading_enabled' => 'boolean',
+            'auto_simulation' => 'boolean',
         ];
     }
 

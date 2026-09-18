@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\SettingController;
 use App\Http\Controllers\Api\SignalController;
 use App\Http\Controllers\Api\SimulationOrderController;
 use App\Http\Controllers\Api\StrategyController;
+use App\Http\Controllers\Api\StrategyEngineController;
 use App\Http\Controllers\Api\SystemController;
 use App\Http\Controllers\Api\TradeIntentController;
 use App\Http\Controllers\Api\TradingInstrumentController;
@@ -44,7 +45,19 @@ Route::prefix('v1')->middleware('web')->group(function (): void {
 
         Route::get('/strategies', [StrategyController::class, 'index'])->middleware('permission:strategies.view');
         Route::post('/strategies', [StrategyController::class, 'store'])->middleware('permission:strategies.create');
+        Route::get('/strategies/{strategy}', [StrategyController::class, 'show'])->middleware('permission:strategies.view');
         Route::put('/strategies/{strategy}', [StrategyController::class, 'update'])->middleware('permission:strategies.update');
+        Route::post('/strategies/{strategy}/enable', [StrategyController::class, 'enable'])->middleware('permission:strategies.update');
+        Route::post('/strategies/{strategy}/disable', [StrategyController::class, 'disable'])->middleware('permission:strategies.update');
+        Route::post('/strategies/{strategy}/evaluate', [StrategyEngineController::class, 'evaluate'])->middleware('permission:strategies.view');
+        Route::get('/strategies/{strategy}/performance', [StrategyEngineController::class, 'performance'])->middleware('permission:strategies.view');
+
+        Route::get('/strategy-engine/catalog', [StrategyEngineController::class, 'catalog'])->middleware('permission:strategies.view');
+        Route::get('/strategy-engine/health', [StrategyEngineController::class, 'health'])->middleware('permission:trading.read');
+        Route::post('/strategy-engine/run', [StrategyEngineController::class, 'run'])->middleware('permission:strategies.update');
+        Route::post('/strategy-engine/scan', [StrategyEngineController::class, 'scan'])->middleware('permission:strategies.view');
+        Route::get('/strategy-engine/matrix', [StrategyEngineController::class, 'matrix'])->middleware('permission:strategies.view');
+        Route::post('/strategy-engine/confluence', [StrategyEngineController::class, 'confluence'])->middleware('permission:strategies.view');
 
         Route::get('/risk-profiles', [RiskProfileController::class, 'index'])->middleware('permission:risk_profiles.view');
         Route::post('/risk-profiles', [RiskProfileController::class, 'store'])->middleware('permission:risk_profiles.create');
@@ -67,8 +80,10 @@ Route::prefix('v1')->middleware('web')->group(function (): void {
         Route::get('/instruments', [TradingInstrumentController::class, 'index'])->middleware('permission:trading.read');
         Route::get('/instruments/{instrument}', [TradingInstrumentController::class, 'show'])->middleware('permission:trading.read');
         Route::get('/signals', [SignalController::class, 'index'])->middleware('permission:signals.view');
+        Route::post('/signals/expire-due', [SignalController::class, 'expireDue'])->middleware('permission:signals.view');
         Route::get('/signals/{signal}', [SignalController::class, 'show'])->middleware('permission:signals.view');
         Route::post('/signals/{signal}/trade-intent', [SignalController::class, 'createIntent'])->middleware('permission:simulation_lifecycle.create');
+        Route::post('/signals/{signal}/invalidate', [SignalController::class, 'invalidate'])->middleware('permission:signals.view');
 
         Route::get('/trade-intents', [TradeIntentController::class, 'index'])->middleware('permission:trading.read');
         Route::post('/trade-intents', [TradeIntentController::class, 'store'])->middleware('permission:simulation_lifecycle.create');

@@ -7,6 +7,7 @@ import type {
   Mt5BridgeStatus, Mt5BridgeConnection, Mt5BridgeEnvelope, Mt5ExternalPosition, Mt5ReconciliationRun,
   MarketSnapshot, MarketQuote, MarketCandleBar, MarketSymbolInfo, MarketExtensionHooks,
   IndicatorCatalogItem, IndicatorResult,
+  StrategyPluginCatalogItem, StrategyScanResult,
 } from './types'
 
 export const authApi = {
@@ -103,6 +104,31 @@ export const phaseThreeApi = {
 
 export function makePhaseThreeIdentity(scope: string) {
   return `${scope}:web:${crypto.randomUUID()}`
+}
+
+export const phaseSevenApi = {
+  catalog: () => apiRequest<{ phase: number; plugins: StrategyPluginCatalogItem[]; upload_allowed: false; execution: { order_send: false } }>('/api/v1/strategy-engine/catalog'),
+  health: () => apiRequest<Record<string, unknown>>('/api/v1/strategy-engine/health'),
+  scan: (symbol: string, timeframe = 'M5', prefer = 'simulation') =>
+    apiRequest<StrategyScanResult>('/api/v1/strategy-engine/scan', { method: 'POST', body: { symbol, timeframe, prefer } }),
+  confluence: (symbol: string, timeframe = 'M5', prefer = 'simulation') =>
+    apiRequest<Record<string, unknown>>('/api/v1/strategy-engine/confluence', { method: 'POST', body: { symbol, timeframe, prefer } }),
+  matrix: (prefer = 'simulation') =>
+    apiRequest<{ phase: number; matrix: Array<Record<string, unknown>>; execution: { order_send: false } }>(`/api/v1/strategy-engine/matrix?prefer=${encodeURIComponent(prefer)}`),
+  run: (prefer = 'simulation') =>
+    apiRequest<Record<string, unknown>>('/api/v1/strategy-engine/run', { method: 'POST', body: { prefer } }),
+  evaluate: (strategyId: number, body: { symbol?: string; timeframe?: string; prefer?: string; create_signal?: boolean } = {}) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/strategies/${strategyId}/evaluate`, { method: 'POST', body }),
+  performance: (strategyId: number) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/strategies/${strategyId}/performance`),
+  enable: (strategyId: number) =>
+    apiRequest<StrategyRecord>(`/api/v1/strategies/${strategyId}/enable`, { method: 'POST' }),
+  disable: (strategyId: number) =>
+    apiRequest<StrategyRecord>(`/api/v1/strategies/${strategyId}/disable`, { method: 'POST' }),
+  strategy: (strategyId: number) =>
+    apiRequest<StrategyRecord & { plugin?: StrategyPluginCatalogItem | null }>(`/api/v1/strategies/${strategyId}`),
+  signals: phaseThreeApi.signals,
+  signal: phaseThreeApi.signal,
 }
 
 export const mt5Api = {

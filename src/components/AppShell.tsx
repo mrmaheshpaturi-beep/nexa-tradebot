@@ -8,7 +8,7 @@ import { useTradingSource } from '../context/tradingSourceState'
 
 const navigation = [
   ['Dashboard', '/', LayoutDashboard], ['Market Watch', '/market-watch', CandlestickChart], ['Market Scanner', '/market-scanner', ScanSearch],
-  ['AI Signals', '/ai-signals', Sparkles], ['Live Charts', '/live-charts', BarChart3], ['Strategies', '/strategies', Bot],
+  ['Signals', '/ai-signals', Sparkles], ['Live Charts', '/live-charts', BarChart3], ['Strategies', '/strategies', Bot],
   ['Auto Trading', '/auto-trading', SlidersHorizontal], ['Manual Trading', '/manual-trading', CircleDollarSign], ['Open Positions', '/open-positions', BriefcaseBusiness],
   ['Pending Orders', '/pending-orders', ClipboardList], ['Trade History', '/trade-history', History], ['Risk Management', '/risk-management', ShieldAlert],
   ['Backtesting', '/backtesting', Target], ['Paper Trading', '/paper-trading', Activity], ['Analytics', '/analytics', Gauge],

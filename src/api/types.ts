@@ -63,6 +63,42 @@ export interface StrategyRecord {
   sessions: string[] | null
   enabled: boolean
   auto_trading_enabled: false
+  plugin_key?: string | null
+  auto_simulation?: boolean
+  evaluation_mode?: string
+  higher_timeframes?: string[] | null
+  parameters?: Record<string, unknown> | null
+}
+
+export interface StrategyPluginCatalogItem {
+  key: string
+  name: string
+  category: string
+  description: string
+  evidence_family: string
+  default_parameters: Record<string, unknown>
+  upload_allowed: false
+  execution: false
+}
+
+export interface StrategyScanResult {
+  phase: number
+  symbol: string
+  timeframe: string
+  candle_close_key: string
+  evaluations: Array<Record<string, unknown>>
+  confluence: {
+    direction: string
+    score: number
+    families: Array<Record<string, unknown>>
+    evidence: Array<Record<string, unknown>>
+    conflicts: Array<Record<string, unknown>>
+    supporting_plugins?: string[]
+    disclaimer?: string
+  }
+  technical_status?: string
+  execution: { order_send: false; demo_execution: false; live_execution: false; broker_auto_trading: false; mode: string }
+  disclaimer: string
 }
 export interface RiskProfileRecord {
   id: number
@@ -465,9 +501,12 @@ export interface Signal {
   entry_price: Numeric | null; entry_reference: Numeric | null; stop_loss: Numeric | null
   take_profit_1: Numeric | null; take_profit_1_reference: Numeric | null
   take_profit_2: Numeric | null; take_profit_2_reference: Numeric | null; risk_reward: Numeric | null
-  market_regime: string | null; status: SignalStatus; source: 'MOCK' | 'SIMULATION'
+  market_regime: string | null; status: SignalStatus; source: 'MOCK' | 'SIMULATION' | 'STRATEGY'
   explanation: string | null; environment: TradingEnvironment; generated_at: string
   expires_at: string | null; consumed_at: string | null; metadata: Record<string, unknown> | null
+  fingerprint?: string | null; plugin_key?: string | null; confluence_score?: Numeric | null
+  score_breakdown?: Record<string, unknown> | null; confluence?: Record<string, unknown> | null
+  auto_simulation?: boolean; candle_close_key?: string | null
   strategy?: StrategyRecord | null; instrument?: TradingInstrument | null; intent?: TradeIntent | null
 }
 

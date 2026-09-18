@@ -4,7 +4,7 @@ import { useTradingSource } from '../context/tradingSourceState'
 
 export function PageHeader({ title, description, actions }: { title: string; description: string; actions?: ReactNode }) {
   const { source } = useTradingSource()
-  const phase = source === 'MT5_DEMO' ? 'PHASE 4 / MT5 DEMO READ-ONLY' : 'PHASE 3 / SIMULATION'
+  const phase = source === 'MT5_DEMO' ? 'PHASE 4 / MT5 DEMO READ-ONLY' : 'PHASE 7 / STRATEGY ENGINE'
   return <header className="page-header"><div><div className="eyebrow">NEXA TRADEBOT / {phase}</div><h1>{title}</h1><p>{description}</p></div>{actions && <div className="header-actions">{actions}</div>}</header>
 }
 export function EnvironmentBadge() {
