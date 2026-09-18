@@ -55,7 +55,7 @@ describe('Phase 5 market data frontend', () => {
     await waitFor(() => expect(screen.getByText('Validated quotes')).toBeInTheDocument())
     expect(screen.getByText('EURUSD')).toBeInTheDocument()
     expect(screen.getAllByText('FRESH').length).toBeGreaterThan(0)
-    expect(screen.getByText(/EXCELLENT/)).toBeInTheDocument()
+    expect(screen.getAllByText(/EXCELLENT/).length).toBeGreaterThan(0)
     expect(screen.getByText(/Phase 6 \/ 7 extension hooks/)).toBeInTheDocument()
   })
 })

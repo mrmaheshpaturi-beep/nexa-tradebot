@@ -18,7 +18,8 @@ class SimulationSafetyTest extends TestCase
             ->assertJsonPath('data.execution.available', false)
             ->assertJsonPath('data.execution.broker_transmission', false)
             ->assertJsonPath('data.broker.connected', false)
-            ->assertJsonPath('data.market_data.source', 'MOCK MARKET DATA');
+            ->assertJsonPath('data.market_data.status', 'ENGINE_READY')
+            ->assertJsonPath('data.market_data.read_only', true);
     }
 
     public function test_order_endpoint_only_creates_simulation_record(): void

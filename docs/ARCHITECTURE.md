@@ -33,14 +33,22 @@ Phase 4 adds a Python FastAPI read-only bridge, Laravel `TradingBridgeClient`, M
 
 **Windows validation:** [`MT5_WINDOWS_SETUP.md`](MT5_WINDOWS_SETUP.md) — status **PENDING WINDOWS ENVIRONMENT**
 
+## Phase 5 system (summary)
+
+Phase 5 adds a Market Data Engine that normalizes bridge/mock quotes, candles, and symbols with freshness and quality metadata, persists snapshots, and powers Market Watch / Live Charts.
+
+**Full Phase 5 design:** [`PHASE_5_ARCHITECTURE.md`](PHASE_5_ARCHITECTURE.md)
+
+**Completion audit:** [`PHASE_5_REPORT.md`](PHASE_5_REPORT.md)
+
 ## Health truth model
 
-`/api/v1/system/status` separates simulation readiness from optional `mt5_bridge` metadata. Broker transmission and demo/live execution remain false.
+`/api/v1/system/status` separates simulation readiness from optional `mt5_bridge` metadata and reports `market_data_engine.status = READY`. Broker transmission and demo/live execution remain false.
 
 ## Deployment
 
-Phase 4 does not require public bridge exposure. See `PHASE_4_REPORT.md` for verification results and deployment boundaries.
+Phase 5 does not require public bridge exposure. See `PHASE_5_REPORT.md` for verification results and deployment boundaries.
 
 ## Nonexistent architecture
 
-No MT5 write adapter, broker order path, DEMO/LIVE execution enablement, queue worker for broker commands, or Phase 5 automation exists in this repository state.
+No MT5 write adapter, broker order path, DEMO/LIVE execution enablement, Phase 6 indicator engine, or Phase 7 strategy automation exists beyond declared PENDING hooks.

@@ -1,9 +1,10 @@
+from fastapi.testclient import TestClient
+
 from nexa_mt5.api import create_app
 from nexa_mt5.config import Settings
 from nexa_mt5.connectors import MockMT5Connector
 from nexa_mt5.market_data import MarketDataEngine
 from nexa_mt5.service import MT5ReadService
-from fastapi.testclient import TestClient
 
 TOKEN = "local-test-token"
 

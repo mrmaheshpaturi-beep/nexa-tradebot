@@ -46,6 +46,12 @@ def _parse_time(value: Any) -> datetime | None:
         return None
 
 
+
+
+def _opt_str(raw: dict[str, Any], key: str) -> str | None:
+    value = raw.get(key)
+    return str(value) if value is not None else None
+
 def _quality_label(score: int) -> str:
     if score >= 90:
         return QUALITY_EXCELLENT
@@ -67,7 +73,9 @@ class MarketDataEngine:
         self.service = service
         self.settings = settings
 
-    def freshness(self, source_time: datetime | None, received_at: datetime | None = None) -> dict[str, Any]:
+    def freshness(
+        self, source_time: datetime | None, received_at: datetime | None = None
+    ) -> dict[str, Any]:
         now = received_at or datetime.now(UTC)
         if source_time is None:
             return {
@@ -110,7 +118,9 @@ class MarketDataEngine:
             score -= 15
         return issues, max(0, score)
 
-    def normalize_quote(self, raw: dict[str, Any], *, correlation_id: str | None = None) -> dict[str, Any]:
+    def normalize_quote(
+        self, raw: dict[str, Any], *, correlation_id: str | None = None
+    ) -> dict[str, Any]:
         received_at = datetime.now(UTC)
         symbol = str(raw.get("symbol") or "").strip().upper()
         bid = _as_decimal(raw.get("bid"))
@@ -145,7 +155,11 @@ class MarketDataEngine:
                 "score": score,
                 "status": _quality_label(score),
                 "issues": issues,
-                "usable": score >= 50 and "INVERTED_SPREAD" not in issues and "MISSING_PRICE" not in issues,
+                "usable": (
+                    score >= 50
+                    and "INVERTED_SPREAD" not in issues
+                    and "MISSING_PRICE" not in issues
+                ),
             },
             "correlation_id": correlation_id or str(uuid4()),
         }
@@ -227,12 +241,12 @@ class MarketDataEngine:
             "symbol": symbol,
             "description": raw.get("description") or symbol,
             "digits": digits,
-            "point": str(raw.get("point")) if raw.get("point") is not None else None,
-            "trade_tick_size": str(raw.get("trade_tick_size")) if raw.get("trade_tick_size") is not None else None,
-            "trade_tick_value": str(raw.get("trade_tick_value")) if raw.get("trade_tick_value") is not None else None,
-            "volume_min": str(raw.get("volume_min")) if raw.get("volume_min") is not None else None,
-            "volume_max": str(raw.get("volume_max")) if raw.get("volume_max") is not None else None,
-            "volume_step": str(raw.get("volume_step")) if raw.get("volume_step") is not None else None,
+            "point": _opt_str(raw, "point"),
+            "trade_tick_size": _opt_str(raw, "trade_tick_size"),
+            "trade_tick_value": _opt_str(raw, "trade_tick_value"),
+            "volume_min": _opt_str(raw, "volume_min"),
+            "volume_max": _opt_str(raw, "volume_max"),
+            "volume_step": _opt_str(raw, "volume_step"),
             "source": "MT5" if self.settings.mode == "real" else "MOCK_MT5",
             "environment": "DEMO",
             "quality": {
@@ -256,7 +270,11 @@ class MarketDataEngine:
             requested = [s.strip().upper() for s in symbols if s.strip()]
         else:
             listed = self.service.read(self.service.connector.symbols)
-            requested = [str(item.get("symbol", "")).upper() for item in listed if item.get("symbol")]
+            requested = [
+                str(item.get("symbol", "")).upper()
+                for item in listed
+                if item.get("symbol")
+            ]
             if not requested:
                 requested = list(self.DEFAULT_SYMBOLS)
         results: list[dict[str, Any]] = []
@@ -281,7 +299,9 @@ class MarketDataEngine:
             lambda: self.service.connector.rates(symbol, timeframe, count)
         )
         return [
-            self.normalize_candle(bar, symbol=symbol, timeframe=timeframe, correlation_id=correlation_id)
+            self.normalize_candle(
+                bar, symbol=symbol, timeframe=timeframe, correlation_id=correlation_id
+            )
             for bar in raw_bars
         ]
 

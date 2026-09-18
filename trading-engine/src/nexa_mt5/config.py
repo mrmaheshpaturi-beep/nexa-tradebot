@@ -1,8 +1,14 @@
 from functools import lru_cache
-from typing import Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import Field
+from pydantic import BeforeValidator, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+def _empty_int(value: Any) -> int | None:
+    if value is None or value == "":
+        return None
+    return int(value)
 
 
 class Settings(BaseSettings):
@@ -17,7 +23,7 @@ class Settings(BaseSettings):
     port: int = Field(default=8765, ge=1024, le=65535)
     service_token: str = Field(default="", repr=False)
     terminal_path: str = Field(default="", repr=False)
-    login: int | None = Field(default=None, repr=False)
+    login: Annotated[int | None, BeforeValidator(_empty_int)] = Field(default=None, repr=False)
     password: str = Field(default="", repr=False)
     server: str = Field(default="", repr=False)
     stale_after_seconds: float = Field(default=15, gt=0, le=300)
