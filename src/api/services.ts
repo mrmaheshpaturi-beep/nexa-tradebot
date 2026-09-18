@@ -7,7 +7,7 @@ import type {
   Mt5BridgeStatus, Mt5BridgeConnection, Mt5BridgeEnvelope, Mt5ExternalPosition, Mt5ReconciliationRun,
   MarketSnapshot, MarketQuote, MarketCandleBar, MarketSymbolInfo, MarketExtensionHooks,
   IndicatorCatalogItem, IndicatorResult,
-  StrategyPluginCatalogItem, StrategyScanResult,
+  StrategyPluginCatalogItem, StrategyScanResult, ScannerBoard, SignalCandidate,
 } from './types'
 
 export const authApi = {
@@ -129,6 +129,56 @@ export const phaseSevenApi = {
     apiRequest<StrategyRecord & { plugin?: StrategyPluginCatalogItem | null }>(`/api/v1/strategies/${strategyId}`),
   signals: phaseThreeApi.signals,
   signal: phaseThreeApi.signal,
+}
+
+export const phaseEightApi = {
+  health: () => apiRequest<Record<string, unknown>>('/api/v1/scanner/health'),
+  universe: () => apiRequest<Record<string, unknown>>('/api/v1/scanner/universe'),
+  board: (params?: { status?: string; symbol?: string; timeframe?: string; direction?: string; limit?: number }) => {
+    const query = new URLSearchParams()
+    if (params?.status) query.set('status', params.status)
+    if (params?.symbol) query.set('symbol', params.symbol)
+    if (params?.timeframe) query.set('timeframe', params.timeframe)
+    if (params?.direction) query.set('direction', params.direction)
+    if (params?.limit !== undefined) query.set('limit', String(params.limit))
+    const suffix = query.toString() ? `?${query}` : ''
+    return apiRequest<ScannerBoard>(`/api/v1/scanner/board${suffix}`)
+  },
+  run: (body: {
+    trigger?: 'MANUAL' | 'ON_INTERVAL' | 'ON_CANDLE_CLOSE'
+    symbols?: string[]
+    timeframes?: string[]
+    prefer?: string
+    create_signals?: boolean
+    create_candidates?: boolean
+  } = {}) => apiRequest<Record<string, unknown>>('/api/v1/scanner/run', { method: 'POST', body }),
+  matrix: (prefer = 'simulation', symbols?: string[], timeframes?: string[]) => {
+    const query = new URLSearchParams({ prefer })
+    if (symbols?.length) query.set('symbols', symbols.join(','))
+    if (timeframes?.length) query.set('timeframes', timeframes.join(','))
+    return apiRequest<{ phase: number; matrix: Array<Record<string, unknown>>; execution: { order_send: false } }>(`/api/v1/scanner/matrix?${query}`)
+  },
+  queue: (params?: { status?: string; symbol?: string; limit?: number }) => {
+    const query = new URLSearchParams()
+    if (params?.status) query.set('status', params.status)
+    if (params?.symbol) query.set('symbol', params.symbol)
+    if (params?.limit !== undefined) query.set('limit', String(params.limit))
+    const suffix = query.toString() ? `?${query}` : ''
+    return apiRequest<{ phase: number; count: number; candidates: SignalCandidate[]; disclaimer: string; execution: { order_send: false } }>(`/api/v1/scanner/queue${suffix}`)
+  },
+  dismiss: (publicId: string) =>
+    apiRequest<SignalCandidate>(`/api/v1/scanner/candidates/${encodeURIComponent(publicId)}/dismiss`, { method: 'POST' }),
+  invalidate: (publicId: string, reason = 'MANUAL') =>
+    apiRequest<SignalCandidate>(`/api/v1/scanner/candidates/${encodeURIComponent(publicId)}/invalidate`, { method: 'POST', body: { reason } }),
+  markSimulate: (publicId: string) =>
+    apiRequest<{ candidate: SignalCandidate; simulate_target: string; mt5_execution: false; execution: { order_send: false } }>(
+      `/api/v1/scanner/candidates/${encodeURIComponent(publicId)}/mark-simulate`,
+      { method: 'POST' },
+    ),
+  alerts: () => apiRequest<{ phase: number; alerts: Array<Record<string, unknown>>; pipeline: Record<string, unknown> }>('/api/v1/scanner/alerts'),
+  configs: () => apiRequest<{ phase: number; configs: Array<Record<string, unknown>> }>('/api/v1/scanner/configs'),
+  upsertConfig: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/scanner/configs', { method: 'PUT', body }),
 }
 
 export const mt5Api = {

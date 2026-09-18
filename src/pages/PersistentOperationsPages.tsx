@@ -124,6 +124,9 @@ export function PersistentSystemHealth() {
     ['Simulation Adapter', 'AVAILABLE', status.terminal.adapter],
     ['Risk Simulator', 'AVAILABLE', status.risk_execution.mode],
     ['Market Data Engine', status.market_data_engine?.status ?? status.market_data.status, status.market_data.source],
+    ['Strategy Engine', status.strategy_engine?.status ?? 'READY', 'Phase 7 analysis/signals'],
+    ['Market Scanner', status.market_scanner?.status ?? 'READY', 'Phase 8 candidates only'],
+    ['Signal Orchestrator', status.signal_orchestrator?.status ?? 'READY', status.signal_orchestrator?.mode ?? 'CANDIDATES_ONLY'],
     ['Trading Engine', 'NOT IMPLEMENTED', 'No live trading engine'],
     ['MT5 Bridge', status.mt5_bridge?.configured ? status.mt5_bridge.state : 'NOT CONFIGURED', status.mt5_bridge?.mode ?? 'READ_ONLY'],
     ['Broker', status.broker?.status ?? 'DISCONNECTED', 'No broker execution'],
@@ -137,7 +140,7 @@ export function PersistentSystemHealth() {
   }
   const health = marketHealth.data as Record<string, unknown> | null
   return <>
-    <PageHeader title="System Health" description="Phase 5 capability boundary including Market Data Engine admin controls." actions={<StatusBadge tone={status.database.status === 'CONNECTED' ? 'good' : 'bad'}>PHASE 5</StatusBadge>} />
+    <PageHeader title="System Health" description="Capability boundary including Market Scanner and Signal Orchestrator (Phase 8)." actions={<StatusBadge tone={status.database.status === 'CONNECTED' ? 'good' : 'bad'}>PHASE 8</StatusBadge>} />
     <div className="health-meta"><div><span>Last simulation heartbeat</span><strong>{status.simulation_engine.last_heartbeat_at ? new Date(status.simulation_engine.last_heartbeat_at).toLocaleString() : 'NONE'}</strong></div><div><span>Environment</span><strong>SIMULATION</strong></div><div><span>Broker transmission</span><strong>FALSE</strong></div><div><span>Live execution</span><strong>DISABLED</strong></div></div>
     <div className="health-grid">{services.map(([name, state, detail]) => <article key={name}><div className={`health-icon ${String(state).toLowerCase().replaceAll(' ', '-')}`}><span /></div><p><strong>{name}</strong><span>{detail}</span></p><StatusBadge tone={['ONLINE', 'CONNECTED', 'VERIFIED', 'AVAILABLE', 'READY', 'ENGINE_READY'].includes(String(state)) ? 'good' : String(state) === 'MOCK' ? 'info' : String(state) === 'STOPPED' ? 'warning' : 'bad'}>{state}</StatusBadge></article>)}</div>
     <Panel title="Market Data Engine" subtitle="Read-only admin controls — no trading actions">

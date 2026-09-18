@@ -15,7 +15,7 @@ const page = (file: 'TradingPages' | 'OperationsPages', name: string) =>
 
 const Dashboard = lazy(() => import('./pages/PersistentTradingPages').then((module) => ({ default: module.PersistentDashboard })))
 const MarketWatch = lazy(() => import('./pages/PhaseFiveMarketPages').then((module) => ({ default: module.PhaseFiveMarketWatch })))
-const MarketScanner = page('TradingPages', 'MarketScanner')
+const MarketScanner = lazy(() => import('./pages/PhaseEightScannerPages').then((module) => ({ default: module.PhaseEightMarketScanner })))
 const AISignals = lazy(() => import('./pages/PhaseSevenStrategyPages').then((module) => ({ default: module.PhaseSevenSignals })))
 const LiveCharts = lazy(() => import('./pages/PhaseFiveMarketPages').then((module) => ({ default: module.PhaseFiveLiveCharts })))
 const Strategies = lazy(() => import('./pages/PhaseSevenStrategyPages').then((module) => ({ default: module.PhaseSevenStrategies })))

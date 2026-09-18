@@ -70,6 +70,45 @@ export interface StrategyRecord {
   parameters?: Record<string, unknown> | null
 }
 
+export interface SignalCandidate {
+  id: number
+  public_id: string
+  plugin_key: string | null
+  symbol: string
+  timeframe: string
+  direction: string
+  status: string
+  rank_score: number
+  priority: number
+  confluence_score: number | null
+  candle_close_key: string | null
+  fingerprint: string
+  conflict_group: string | null
+  conflict_flags: Array<{ code: string; detail?: string; peers?: string[] }> | null
+  marked_for_simulate: boolean
+  expires_at: string | null
+  metadata?: Record<string, unknown> | null
+  strategy?: { id: number; name: string; plugin_key?: string } | null
+}
+
+export interface ScannerBoard {
+  phase: number
+  config: Record<string, unknown>
+  last_run: Record<string, unknown> | null
+  matrix: Array<Record<string, unknown>>
+  queue: {
+    phase: number
+    count: number
+    candidates: SignalCandidate[]
+    disclaimer: string
+    execution: { order_send: false; broker_routing?: false }
+  }
+  health: Record<string, unknown>
+  universe: { symbols: string[]; timeframes: string[]; trigger_mode: string }
+  execution: { order_send: false; broker_routing?: false }
+  disclaimer: string
+}
+
 export interface StrategyPluginCatalogItem {
   key: string
   name: string
@@ -176,7 +215,48 @@ export interface SystemStatus {
     phase_7_strategies: string
   }
   trading_engine: { status: 'READY' | 'STOPPED'; mode: 'SIMULATION' }
-  signal_engine: { status: 'SIMULATION' }
+  signal_engine: { status: string; phase?: number; mode?: string }
+  strategy_engine?: {
+    phase: number
+    status: string
+    catalog_api?: string
+    plugins?: number
+    analysis_only?: boolean
+    auto_trading?: string
+    order_send?: boolean
+  }
+  market_scanner?: {
+    phase: number
+    status: string
+    board_api?: string
+    run_api?: string
+    analysis_only?: boolean
+    broker_routing?: boolean
+    order_send?: boolean
+    auto_trading?: string
+  }
+  signal_orchestrator?: {
+    phase: number
+    status: string
+    queue_api?: string
+    mode?: string
+    broker_routing?: boolean
+  }
+  alert_pipeline?: {
+    phase: number
+    status: string
+    channels?: string[]
+    email?: string
+    sms?: string
+  }
+  indicator_engine?: {
+    phase: number
+    status: string
+    catalog_api?: string
+    compute_api?: string
+    read_only?: boolean
+    phase_7_strategies?: string
+  }
   risk_execution: { status: 'READY' | 'STOPPED'; mode: 'SIMULATION_ONLY' }
   simulation_engine: { status: 'READY' | 'STOPPED'; source: 'SIMULATION ENGINE'; last_heartbeat_at: string | null }
   terminal: { status: 'OFFLINE' | 'ONLINE'; adapter: 'SIMULATION' | 'MT5_READ_ONLY' }

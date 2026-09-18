@@ -223,6 +223,17 @@ class MarketDataController extends Controller
                     'consumes' => ['market_snapshot', 'data_quality_gate', 'phase_6_indicators'],
                     'note' => 'Phase 7 strategy engine is analysis/signals only; SIMULATION execution controls and quality gate still apply.',
                 ],
+                'phase_8_scanner' => [
+                    'status' => 'READY',
+                    'consumes' => ['market_snapshot', 'strategy_engine', 'signal_engine', 'confluence_engine'],
+                    'apis' => [
+                        'board' => '/api/v1/scanner/board',
+                        'run' => 'POST /api/v1/scanner/run',
+                        'queue' => '/api/v1/scanner/queue',
+                        'health' => '/api/v1/scanner/health',
+                    ],
+                    'note' => 'Phase 8 Market Scanner + Signal Orchestrator produce candidates only; no broker routing.',
+                ],
                 'execution' => [
                     'read_only' => true,
                     'order_send' => false,

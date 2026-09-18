@@ -1,15 +1,22 @@
-# Phase 8 Signal Pipeline Contract (STUB — NOT IMPLEMENTED)
+# Phase 8 Signal Pipeline Contract (UPDATED)
 
-Phase 7 stops at Signal generation.
+Phase 8 delivers **Market Scanner + Signal Orchestration** ending at the **Candidate Queue**.
 
-Future Phase 8 may map:
+```
+Signal / Evaluation → Candidate (ranked opportunity)
+```
 
-`Signal → TradeIntent → RiskDecision → ExecutionCommand`
+## Explicitly out of scope for Phase 8
+
+Future phases (not this branch) may map:
+
+`Candidate → TradeIntent → RiskDecision → ExecutionCommand`
 
 Constraints that remain in force:
 
 - Simulation-first
 - ExecutionGate DEMO/LIVE reject until explicitly approved
-- No autonomous broker trading from this contract alone
+- No autonomous broker trading
+- Mark-for-SIMULATE is a flag / future simulation path only — never MT5
 
-**Do not implement Phase 8 in this branch.**
+**Do not implement Phase 9 (broker write / intent pipeline automation) in this branch.**

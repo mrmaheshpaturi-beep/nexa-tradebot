@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BrokerAccountController;
 use App\Http\Controllers\Api\IndicatorController;
 use App\Http\Controllers\Api\MarketDataController;
+use App\Http\Controllers\Api\MarketScannerController;
 use App\Http\Controllers\Api\Mt5BridgeController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OrderController;
@@ -58,6 +59,23 @@ Route::prefix('v1')->middleware('web')->group(function (): void {
         Route::post('/strategy-engine/scan', [StrategyEngineController::class, 'scan'])->middleware('permission:strategies.view');
         Route::get('/strategy-engine/matrix', [StrategyEngineController::class, 'matrix'])->middleware('permission:strategies.view');
         Route::post('/strategy-engine/confluence', [StrategyEngineController::class, 'confluence'])->middleware('permission:strategies.view');
+
+        Route::get('/scanner/health', [MarketScannerController::class, 'health'])->middleware('permission:trading.read');
+        Route::get('/scanner/universe', [MarketScannerController::class, 'universe'])->middleware('permission:strategies.view');
+        Route::get('/scanner/board', [MarketScannerController::class, 'board'])->middleware('permission:strategies.view');
+        Route::post('/scanner/run', [MarketScannerController::class, 'run'])->middleware('permission:strategies.update');
+        Route::get('/scanner/matrix', [MarketScannerController::class, 'matrix'])->middleware('permission:strategies.view');
+        Route::post('/scanner/matrix', [MarketScannerController::class, 'matrix'])->middleware('permission:strategies.view');
+        Route::get('/scanner/configs', [MarketScannerController::class, 'configs'])->middleware('permission:strategies.view');
+        Route::put('/scanner/configs', [MarketScannerController::class, 'upsertConfig'])->middleware('permission:strategies.update');
+        Route::get('/scanner/runs', [MarketScannerController::class, 'runs'])->middleware('permission:strategies.view');
+        Route::get('/scanner/queue', [MarketScannerController::class, 'queue'])->middleware('permission:signals.view');
+        Route::get('/scanner/candidates/{candidate}', [MarketScannerController::class, 'showCandidate'])->middleware('permission:signals.view');
+        Route::post('/scanner/candidates/{candidate}/dismiss', [MarketScannerController::class, 'dismiss'])->middleware('permission:signals.view');
+        Route::post('/scanner/candidates/{candidate}/invalidate', [MarketScannerController::class, 'invalidate'])->middleware('permission:signals.view');
+        Route::post('/scanner/candidates/{candidate}/mark-simulate', [MarketScannerController::class, 'markSimulate'])->middleware('permission:simulation_lifecycle.create');
+        Route::get('/scanner/alerts', [MarketScannerController::class, 'alerts'])->middleware('permission:notifications.view');
+        Route::post('/scanner/expire-due', [MarketScannerController::class, 'expireDue'])->middleware('permission:signals.view');
 
         Route::get('/risk-profiles', [RiskProfileController::class, 'index'])->middleware('permission:risk_profiles.view');
         Route::post('/risk-profiles', [RiskProfileController::class, 'store'])->middleware('permission:risk_profiles.create');

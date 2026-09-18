@@ -88,9 +88,21 @@ Implemented on `cursor/phase-7-strategy-engine-56f9`:
 
 See `PHASE_7_REPORT.md`, `STRATEGY_ENGINE.md`, `SIGNAL_ENGINE.md`, `CONFLUENCE_ENGINE.md`.
 
+## Phase 8 — Market Scanner + Signal Orchestration (delivered)
+
+Implemented on `cursor/phase-8-market-scanner-56f9`:
+
+- MarketScannerEngine — multi-symbol/MTF/strategy universe scans with MANUAL / ON_INTERVAL / ON_CANDLE_CLOSE;
+- SignalOrchestrator — candidate ranking, conflict detection, lifecycle, mark-for-SIMULATE;
+- Candidate Queue + live Scanner board UI;
+- Alert pipeline foundation (in-app + hook placeholder);
+- System health + APIs; no broker routing / order_send.
+
+See `PHASE_8_REPORT.md`, `SCANNER_ENGINE.md`, `SIGNAL_ORCHESTRATOR.md`, `PHASE_8_ARCHITECTURE.md`.
+
 ## Later phases requiring separate approval
 
-1. Phase 8 signal → intent pipeline (contract stub only: `PHASE_8_SIGNAL_PIPELINE_CONTRACT.md`).
+1. Phase 9 candidate → intent / DEMO write path (not started; contract remains simulation-first).
 2. Authoritative portfolio risk engine.
 3. MT5 DEMO write adapter with durable delivery and reconciliation.
 4. AI analysis behind the risk boundary.

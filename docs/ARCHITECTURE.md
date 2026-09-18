@@ -12,8 +12,9 @@ Nexa TradeBot is a React 19/TypeScript/Vite client with a Laravel 13/Sanctum API
 | Phase 5 | Market Data Engine (freshness/validation/quality + snapshot for UI) |
 | Phase 6 | Indicator Engine (closed-candle indicators; no broker writes) |
 | Phase 7 | Strategy Engine + Signal/Confluence (analysis only; no broker writes) |
+| Phase 8 | Market Scanner + Signal Orchestrator (candidates only; no broker writes) |
 
-Phase 3 execution remains `SIMULATION` only. Phase 4–7 add external read models, market snapshots, indicators, and strategy signals without enabling DEMO/LIVE execution.
+Phase 3 execution remains `SIMULATION` only. Phase 4–8 add external read models, market snapshots, indicators, strategy signals, and candidate queues without enabling DEMO/LIVE execution.
 
 ## Phase 3 system (summary)
 
