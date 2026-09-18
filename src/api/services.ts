@@ -155,11 +155,31 @@ export const marketApi = {
     if (symbols) query.set('symbols', symbols)
     return apiRequest<MarketQuote[]>(`/api/v1/market/quotes?${query}`)
   },
-  candles: (symbol: string, timeframe = 'M5', count = 100, prefer: 'auto' | 'bridge' | 'simulation' = 'auto') =>
+  quote: (symbol: string, prefer: 'auto' | 'bridge' | 'simulation' = 'auto') =>
+    apiRequest<MarketQuote>(`/api/v1/market/quotes/${encodeURIComponent(symbol)}?prefer=${prefer}`),
+  candles: (symbol: string, timeframe = 'M5', count = 100, prefer: 'auto' | 'bridge' | 'simulation' = 'auto', closedOnly = false) =>
     apiRequest<MarketCandleBar[]>(
-      `/api/v1/market/candles/${encodeURIComponent(symbol)}?timeframe=${timeframe}&count=${count}&prefer=${prefer}`,
+      `/api/v1/market/candles/${encodeURIComponent(symbol)}?timeframe=${timeframe}&count=${count}&prefer=${prefer}&closed_only=${closedOnly ? '1' : '0'}`,
+    ),
+  closedCandles: (symbol: string, timeframe = 'M5', count = 100, prefer: 'auto' | 'bridge' | 'simulation' = 'auto') =>
+    apiRequest<MarketCandleBar[]>(
+      `/api/v1/market/candles/${encodeURIComponent(symbol)}/closed?timeframe=${timeframe}&count=${count}&prefer=${prefer}`,
     ),
   symbols: (prefer: 'auto' | 'bridge' | 'simulation' = 'auto') =>
     apiRequest<MarketSymbolInfo[]>(`/api/v1/market/symbols?prefer=${prefer}`),
+  sessions: () => apiRequest<Record<string, unknown>>('/api/v1/market/sessions'),
+  health: () => apiRequest<Record<string, unknown>>('/api/v1/market/health'),
+  qualityCheck: (prefer: 'auto' | 'bridge' | 'simulation' = 'auto') =>
+    apiRequest<Record<string, unknown>>('/api/v1/market/quality-check', { method: 'POST', body: { prefer } }),
+  syncSymbols: (prefer: 'auto' | 'bridge' | 'simulation' = 'auto') =>
+    apiRequest<Record<string, unknown>>('/api/v1/market/symbols/sync', { method: 'POST', body: { prefer } }),
+  backfill: (symbol: string, timeframe: string, count = 100, prefer: 'auto' | 'bridge' | 'simulation' = 'auto') =>
+    apiRequest<Record<string, unknown>>('/api/v1/market/backfill', {
+      method: 'POST',
+      body: { symbol, timeframe, count, prefer },
+    }),
+  monitored: () => apiRequest<{ symbols: string[] }>('/api/v1/market/monitored'),
+  setMonitored: (symbols: string[]) =>
+    apiRequest<{ symbols: string[] }>('/api/v1/market/monitored', { method: 'PUT', body: { symbols } }),
   extensionHooks: () => apiRequest<MarketExtensionHooks>('/api/v1/market/extension-hooks'),
 }

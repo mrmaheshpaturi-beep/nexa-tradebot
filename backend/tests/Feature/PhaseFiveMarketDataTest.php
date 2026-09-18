@@ -141,6 +141,66 @@ class PhaseFiveMarketDataTest extends TestCase
             ->assertJsonPath('data.execution.order_send', false);
     }
 
+    public function test_bridge_prefer_does_not_silently_fallback_to_mock(): void
+    {
+        config([
+            'trading_bridge.base_url' => 'http://127.0.0.1:8765',
+            'trading_bridge.service_token' => 'phase5-test-token',
+        ]);
+        Http::fake([
+            '127.0.0.1:8765/*' => Http::response(['error' => ['code' => 'BRIDGE_UNAVAILABLE', 'message' => 'down']], 503),
+        ]);
+
+        $this->actingAs($this->userWithRole('TRADER'))
+            ->getJson('/api/v1/market/snapshot?prefer=bridge')
+            ->assertStatus(503)
+            ->assertJsonPath('error.message', 'MT5 DATA UNAVAILABLE');
+    }
+
+    public function test_sessions_health_quality_and_closed_candles(): void
+    {
+        config(['trading_bridge.service_token' => null, 'trading_bridge.base_url' => '']);
+
+        $this->actingAs($this->userWithRole('ANALYST'))
+            ->getJson('/api/v1/market/sessions')
+            ->assertOk()
+            ->assertJsonStructure(['data' => ['sessions', 'active']]);
+
+        $this->actingAs($this->userWithRole('ANALYST'))
+            ->getJson('/api/v1/market/health')
+            ->assertOk()
+            ->assertJsonPath('data.engine', 'MARKET_DATA_ENGINE')
+            ->assertJsonPath('data.execution.order_send', false);
+
+        $this->actingAs($this->userWithRole('TRADER'))
+            ->postJson('/api/v1/market/quality-check', ['prefer' => 'simulation'])
+            ->assertOk()
+            ->assertJsonStructure(['data' => ['allowed', 'quality']]);
+
+        $this->actingAs($this->userWithRole('ANALYST'))
+            ->getJson('/api/v1/market/candles/EURUSD/closed?prefer=simulation&count=5')
+            ->assertOk();
+    }
+
+    public function test_backfill_and_symbol_sync_are_permission_scoped(): void
+    {
+        config(['trading_bridge.service_token' => null, 'trading_bridge.base_url' => '']);
+
+        $this->actingAs($this->userWithRole('VIEWER'))
+            ->postJson('/api/v1/market/backfill', ['symbol' => 'EURUSD', 'timeframe' => 'M5', 'count' => 10, 'prefer' => 'simulation'])
+            ->assertForbidden();
+
+        $this->actingAs($this->userWithRole('TRADER'))
+            ->postJson('/api/v1/market/backfill', ['symbol' => 'EURUSD', 'timeframe' => 'M5', 'count' => 10, 'prefer' => 'simulation'])
+            ->assertOk()
+            ->assertJsonPath('data.symbol', 'EURUSD');
+
+        $this->actingAs($this->userWithRole('TRADER'))
+            ->postJson('/api/v1/market/symbols/sync', ['prefer' => 'simulation'])
+            ->assertOk()
+            ->assertJsonPath('data.status', 'OK');
+    }
+
     public function test_unauthenticated_market_snapshot_is_rejected(): void
     {
         $this->getJson('/api/v1/market/snapshot')->assertUnauthorized();

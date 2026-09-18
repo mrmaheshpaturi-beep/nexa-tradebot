@@ -89,9 +89,19 @@ Route::prefix('v1')->middleware('web')->group(function (): void {
 
         Route::get('/market/snapshot', [MarketDataController::class, 'snapshot'])->middleware('permission:trading.read');
         Route::get('/market/quotes', [MarketDataController::class, 'quotes'])->middleware('permission:trading.read');
+        Route::get('/market/quotes/{symbol}', [MarketDataController::class, 'quote'])->middleware('permission:trading.read');
         Route::get('/market/candles/{symbol}', [MarketDataController::class, 'candles'])->middleware('permission:trading.read');
+        Route::get('/market/candles/{symbol}/closed', [MarketDataController::class, 'closedCandles'])->middleware('permission:trading.read');
         Route::get('/market/symbols', [MarketDataController::class, 'symbols'])->middleware('permission:trading.read');
+        Route::get('/market/sessions', [MarketDataController::class, 'sessions'])->middleware('permission:trading.read');
+        Route::get('/market/status/{symbol}', [MarketDataController::class, 'status'])->middleware('permission:trading.read');
+        Route::get('/market/health', [MarketDataController::class, 'health'])->middleware('permission:trading.read');
         Route::get('/market/snapshots/latest', [MarketDataController::class, 'latestPersisted'])->middleware('permission:trading.read');
+        Route::get('/market/monitored', [MarketDataController::class, 'monitored'])->middleware('permission:trading.read');
+        Route::put('/market/monitored', [MarketDataController::class, 'monitored'])->middleware('permission:market.configure');
+        Route::post('/market/symbols/sync', [MarketDataController::class, 'syncSymbols'])->middleware('permission:market.configure');
+        Route::post('/market/backfill', [MarketDataController::class, 'backfill'])->middleware('permission:market.configure');
+        Route::post('/market/quality-check', [MarketDataController::class, 'qualityCheck'])->middleware('permission:trading.read');
         Route::get('/market/extension-hooks', [MarketDataController::class, 'extensionHooks'])->middleware('permission:trading.read');
 
         Route::get('/mt5/status', [Mt5BridgeController::class, 'status'])->middleware('permission:mt5.read');

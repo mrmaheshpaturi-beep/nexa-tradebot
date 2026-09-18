@@ -18,8 +18,10 @@ QUALITY_POOR = "POOR"
 QUALITY_INVALID = "INVALID"
 
 FRESHNESS_FRESH = "FRESH"
+FRESHNESS_AGING = "AGING"
 FRESHNESS_STALE = "STALE"
 FRESHNESS_UNKNOWN = "UNKNOWN"
+FRESHNESS_UNAVAILABLE = "UNAVAILABLE"
 
 
 def _as_decimal(value: Any) -> Decimal | None:
@@ -86,8 +88,10 @@ class MarketDataEngine:
             }
         age = max(0.0, (now - source_time).total_seconds())
         stale = age > self.settings.stale_after_seconds
+        aging = (not stale) and age > max(1.0, self.settings.stale_after_seconds / 3)
+        status = FRESHNESS_STALE if stale else (FRESHNESS_AGING if aging else FRESHNESS_FRESH)
         return {
-            "status": FRESHNESS_STALE if stale else FRESHNESS_FRESH,
+            "status": status,
             "age_seconds": round(age, 3),
             "stale_after_seconds": self.settings.stale_after_seconds,
             "is_stale": stale,
@@ -198,6 +202,7 @@ class MarketDataEngine:
         # mark bar-age separately without forcing STALE on history.
         historical = True
         source = "MT5" if self.settings.mode == "real" else "MOCK_MT5"
+        # Last bar is treated as forming; earlier bars closed.
         return {
             "symbol": symbol.upper(),
             "timeframe": timeframe,
@@ -211,6 +216,7 @@ class MarketDataEngine:
             "source": source,
             "environment": "DEMO",
             "historical": historical,
+            "is_closed": bool(raw.get("is_closed", True)),
             "freshness": {
                 "status": FRESHNESS_FRESH,
                 "age_seconds": freshness["age_seconds"],
@@ -298,12 +304,17 @@ class MarketDataEngine:
         raw_bars = self.service.read(
             lambda: self.service.connector.rates(symbol, timeframe, count)
         )
-        return [
+        normalized = [
             self.normalize_candle(
                 bar, symbol=symbol, timeframe=timeframe, correlation_id=correlation_id
             )
             for bar in raw_bars
         ]
+        if normalized:
+            for bar in normalized[:-1]:
+                bar["is_closed"] = True
+            normalized[-1]["is_closed"] = False
+        return normalized
 
     def symbols(self) -> list[dict[str, Any]]:
         raw = self.service.read(self.service.connector.symbols)

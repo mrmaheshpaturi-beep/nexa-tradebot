@@ -64,12 +64,14 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     data?: T
     message?: string
     errors?: ValidationErrors
+    error?: { code?: string; message?: string; detail_code?: string }
   }
 
   if (!response.ok) {
     if (response.status === 419 && options.csrf !== false) csrfReady = false
     if (response.status === 401) unauthorizedHandler?.()
-    throw new ApiError(payload.message ?? `Request failed (${response.status}).`, response.status, payload.errors)
+    const message = payload.error?.message ?? payload.message ?? `Request failed (${response.status}).`
+    throw new ApiError(message, response.status, payload.errors)
   }
   return (payload.data === undefined ? payload : payload.data) as T
 }

@@ -124,7 +124,21 @@ export interface SystemStatus {
   web_application: { status: 'ONLINE' }
   database: { status: 'CONNECTED' | 'UNAVAILABLE'; source: 'DATABASE' }
   authentication: { status: 'ONLINE' }
-  market_data: { status: 'MOCK'; source: 'MOCK MARKET DATA' }
+  market_data: {
+    status: string
+    source: string
+    engine?: string
+    freshness_validation?: boolean
+    quality_scoring?: boolean
+    read_only?: boolean
+  }
+  market_data_engine?: {
+    phase: number
+    status: string
+    snapshot_api: string
+    phase_6_indicator_engine: string
+    phase_7_strategies: string
+  }
   trading_engine: { status: 'READY' | 'STOPPED'; mode: 'SIMULATION' }
   signal_engine: { status: 'SIMULATION' }
   risk_execution: { status: 'READY' | 'STOPPED'; mode: 'SIMULATION_ONLY' }
@@ -231,7 +245,7 @@ export interface MarketQuality {
 }
 
 export interface MarketFreshness {
-  status: 'FRESH' | 'STALE' | 'UNKNOWN' | string
+  status: 'FRESH' | 'AGING' | 'STALE' | 'UNAVAILABLE' | 'UNKNOWN' | string
   age_seconds: number | null
   stale_after_seconds: number
   is_stale: boolean
@@ -242,6 +256,7 @@ export interface MarketQuote {
   bid: string | null
   ask: string | null
   spread: string | null
+  spread_points?: string | null
   last?: string | null
   volume?: string | null
   timestamp: string
@@ -250,6 +265,10 @@ export interface MarketQuote {
   environment: string
   freshness: MarketFreshness
   quality: MarketQuality
+  change_percent?: string | null
+  daily_high?: string | null
+  daily_low?: string | null
+  market?: { status: string; session: string | null; asset_class: string; reason: string }
 }
 
 export interface MarketCandleBar {
@@ -264,6 +283,7 @@ export interface MarketCandleBar {
   tick_volume: number
   source: string
   environment: string
+  is_closed?: boolean
   quality: MarketQuality
   freshness?: MarketFreshness
 }
@@ -292,7 +312,14 @@ export interface MarketSnapshot {
     symbol: string
     timeframe: string
     bars: MarketCandleBar[]
+    gaps?: Array<{ from: string; to: string; classification: string; missing_bars_estimate: number }>
+    closed_count?: number
+    forming_count?: number
   }
+  sessions?: Record<string, unknown>
+  data_quality?: { status: string; score: number; issues: string[]; usable_for_analysis: boolean }
+  data_quality_gate?: { allowed: boolean; reason: string | null }
+  metrics?: Record<string, unknown>
   summary: {
     symbol_count: number
     quote_count: number
@@ -301,8 +328,10 @@ export interface MarketSnapshot {
     candle_count: number
     overall_quality_score: number
     overall_quality_status: string
+    usable_for_analysis?: boolean
     extension_hooks: {
       phase_6_indicator_engine: string
+      phase_6_get_closed_candles?: string
       phase_7_strategies: string
     }
   }

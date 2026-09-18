@@ -4,6 +4,7 @@ import { AppShell } from './components/AppShell'
 import { LoadingState } from './components/ui'
 import { SimulationProvider } from './context/SimulationContext'
 import { TradingSourceProvider } from './context/TradingSourceContext'
+import { MarketDataStoreProvider } from './context/MarketDataContext'
 import { AuthProvider } from './auth/AuthContext'
 import { LoginPage } from './auth/LoginPage'
 import { ProtectedRoute } from './auth/ProtectedRoute'
@@ -41,7 +42,7 @@ const AuditLogs = lazy(() => import('./pages/PersistentOperationsPages').then((m
 const Settings = lazy(() => import('./pages/SettingsPage').then((module) => ({ default: module.PersistentSettings })))
 
 function ProtectedApp() {
-  return <TradingSourceProvider><SimulationProvider><AppShell /></SimulationProvider></TradingSourceProvider>
+  return <TradingSourceProvider><MarketDataStoreProvider><SimulationProvider><AppShell /></SimulationProvider></MarketDataStoreProvider></TradingSourceProvider>
 }
 
 export default function App() {

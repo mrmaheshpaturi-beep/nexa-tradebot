@@ -6,7 +6,7 @@ import { DataTable, EmptyState, ErrorState, LoadingState, PageHeader, Panel, Ris
 import { useSimulation } from '../context/simulationState'
 import { useService } from '../hooks/useService'
 import { persistentServices } from '../services/persistenceServices'
-import { phaseTwoApi } from '../api/services'
+import { phaseTwoApi, marketApi } from '../api/services'
 
 const num = (value: string | number) => Number(value)
 
@@ -108,7 +108,11 @@ export function PersistentNotifications() {
 }
 
 export function PersistentSystemHealth() {
+  const { can } = useAuth()
   const result = useService(useCallback(() => phaseTwoApi.status(), []))
+  const marketHealth = useService(useCallback(() => marketApi.health(), []))
+  const [busy, setBusy] = useState('')
+  const [actionMsg, setActionMsg] = useState('')
   if (result.loading) return <LoadingState />
   if (result.error || !result.data) return <ErrorState message={result.error ?? 'System status is unavailable.'} />
   const status = result.data
@@ -119,16 +123,45 @@ export function PersistentSystemHealth() {
     ['Trading Domain', 'ONLINE', 'Persistent Phase 3 lifecycle APIs'],
     ['Simulation Adapter', 'AVAILABLE', status.terminal.adapter],
     ['Risk Simulator', 'AVAILABLE', status.risk_execution.mode],
-    ['Market Data', status.market_data.status, status.market_data.source],
+    ['Market Data Engine', status.market_data_engine?.status ?? status.market_data.status, status.market_data.source],
     ['Trading Engine', 'NOT IMPLEMENTED', 'No live trading engine'],
-    ['MT5', 'NOT CONNECTED', status.terminal.status],
-    ['Broker', 'NOT CONNECTED', 'No broker adapter'],
+    ['MT5 Bridge', status.mt5_bridge?.configured ? status.mt5_bridge.state : 'NOT CONFIGURED', status.mt5_bridge?.mode ?? 'READ_ONLY'],
+    ['Broker', status.broker?.status ?? 'DISCONNECTED', 'No broker execution'],
     ['Live Execution', 'DISABLED', 'Broker transmission is false'],
   ]
+  const run = async (label: string, action: () => Promise<unknown>) => {
+    setBusy(label); setActionMsg('')
+    try { await action(); setActionMsg(`${label} completed`); marketHealth.reload() }
+    catch (error) { setActionMsg(error instanceof Error ? error.message : `${label} failed`) }
+    finally { setBusy('') }
+  }
+  const health = marketHealth.data as Record<string, unknown> | null
   return <>
-    <PageHeader title="System Health" description="Exact Phase 3 capability boundary from backend status." actions={<StatusBadge tone={status.database.status === 'CONNECTED' ? 'good' : 'bad'}>PHASE 3</StatusBadge>} />
+    <PageHeader title="System Health" description="Phase 5 capability boundary including Market Data Engine admin controls." actions={<StatusBadge tone={status.database.status === 'CONNECTED' ? 'good' : 'bad'}>PHASE 5</StatusBadge>} />
     <div className="health-meta"><div><span>Last simulation heartbeat</span><strong>{status.simulation_engine.last_heartbeat_at ? new Date(status.simulation_engine.last_heartbeat_at).toLocaleString() : 'NONE'}</strong></div><div><span>Environment</span><strong>SIMULATION</strong></div><div><span>Broker transmission</span><strong>FALSE</strong></div><div><span>Live execution</span><strong>DISABLED</strong></div></div>
-    <div className="health-grid">{services.map(([name, state, detail]) => <article key={name}><div className={`health-icon ${state.toLowerCase().replaceAll(' ', '-')}`}><span /></div><p><strong>{name}</strong><span>{detail}</span></p><StatusBadge tone={['ONLINE', 'CONNECTED', 'VERIFIED', 'AVAILABLE'].includes(state) ? 'good' : state === 'MOCK' ? 'info' : state === 'STOPPED' ? 'warning' : 'bad'}>{state}</StatusBadge></article>)}</div>
+    <div className="health-grid">{services.map(([name, state, detail]) => <article key={name}><div className={`health-icon ${String(state).toLowerCase().replaceAll(' ', '-')}`}><span /></div><p><strong>{name}</strong><span>{detail}</span></p><StatusBadge tone={['ONLINE', 'CONNECTED', 'VERIFIED', 'AVAILABLE', 'READY', 'ENGINE_READY'].includes(String(state)) ? 'good' : String(state) === 'MOCK' ? 'info' : String(state) === 'STOPPED' ? 'warning' : 'bad'}>{state}</StatusBadge></article>)}</div>
+    <Panel title="Market Data Engine" subtitle="Read-only admin controls — no trading actions">
+      {marketHealth.loading ? <LoadingState /> : marketHealth.error ? <ErrorState message={marketHealth.error} /> : (
+        <div className="settings-list">
+          <div><span>Provider configured</span><strong>{String(health?.provider_configured ?? '—')}</strong></div>
+          <div><span>Provider state</span><strong>{String(health?.provider_state ?? '—')}</strong></div>
+          <div><span>Fresh quotes</span><strong>{String(health?.fresh_quotes ?? '—')}</strong></div>
+          <div><span>Stale quotes</span><strong>{String(health?.stale_quotes ?? '—')}</strong></div>
+          <div><span>Last snapshot</span><strong>{String(health?.last_snapshot_at ?? '—')}</strong></div>
+          <div><span>Quality</span><strong>{String(health?.last_quality_status ?? '—')}</strong></div>
+          <div><span>Monitored</span><strong>{Array.isArray(health?.monitored_symbols) ? (health?.monitored_symbols as string[]).join(', ') : '—'}</strong></div>
+        </div>
+      )}
+      {actionMsg && <div className="info-banner">{actionMsg}</div>}
+      <div className="inline-controls">
+        <button className="btn ghost" disabled={!!busy} onClick={() => marketHealth.reload()}>REFRESH</button>
+        {can('market.configure') && <>
+          <button className="btn ghost" disabled={!!busy} onClick={() => run('Sync symbols', () => marketApi.syncSymbols('simulation'))}>SYNC SYMBOLS</button>
+          <button className="btn ghost" disabled={!!busy} onClick={() => run('Backfill', () => marketApi.backfill('EURUSD', 'M5', 50, 'simulation'))}>BACKFILL EURUSD M5</button>
+        </>}
+        <button className="btn ghost" disabled={!!busy} onClick={() => run('Quality check', () => marketApi.qualityCheck('simulation'))}>RUN QUALITY CHECK</button>
+      </div>
+    </Panel>
   </>
 }
 

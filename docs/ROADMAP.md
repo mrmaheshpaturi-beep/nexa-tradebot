@@ -50,7 +50,7 @@ SIMULATION remains the only executable environment. Real MT5 terminal validation
 
 See `PHASE_4_REPORT.md`, `PHASE_4_ARCHITECTURE.md`, `MT5_INTEGRATION_CONTRACT.md`, `MT5_BRIDGE_API.md`, and `MT5_WINDOWS_SETUP.md`.
 
-## Phase 5 — Market Data Engine (delivered)
+## Phase 5 — Market Data Engine (delivered — PASS WITH WARNINGS; Real MT5 PENDING WINDOWS)
 
 Implemented on `cursor/phase-5-market-data-56f9`:
 
