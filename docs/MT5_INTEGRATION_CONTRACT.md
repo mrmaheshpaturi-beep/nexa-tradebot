@@ -2,7 +2,7 @@
 
 ## Status
 
-Documentation only. Phase 3 contains no MT5 package, process, adapter, endpoint, credential, terminal connection, broker transport, or live execution. The health contract truthfully reports terminal `OFFLINE`, broker `DISCONNECTED`, and broker transmission false.
+Phase 4 implements the initial read-only contract in code on branch `cursor/phase-4-mt5-readonly-56f9`. SIMULATION execution is unchanged. MT5 DEMO is external read-only. Real terminal validation remains **PENDING WINDOWS ENVIRONMENT**. No write adapter, DEMO/LIVE execution, or broker order path exists.
 
 ## Initial Phase 4 scope: read-only
 

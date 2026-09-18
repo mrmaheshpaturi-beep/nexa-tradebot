@@ -1,10 +1,17 @@
 import type { ReactNode } from 'react'
 import { AlertTriangle, ChevronDown, LoaderCircle, Search } from 'lucide-react'
+import { useTradingSource } from '../context/tradingSourceState'
 
 export function PageHeader({ title, description, actions }: { title: string; description: string; actions?: ReactNode }) {
-  return <header className="page-header"><div><div className="eyebrow">NEXA TRADEBOT / PHASE 3</div><h1>{title}</h1><p>{description}</p></div>{actions && <div className="header-actions">{actions}</div>}</header>
+  const { source } = useTradingSource()
+  const phase = source === 'MT5_DEMO' ? 'PHASE 4 / MT5 DEMO READ-ONLY' : 'PHASE 3 / SIMULATION'
+  return <header className="page-header"><div><div className="eyebrow">NEXA TRADEBOT / {phase}</div><h1>{title}</h1><p>{description}</p></div>{actions && <div className="header-actions">{actions}</div>}</header>
 }
-export function EnvironmentBadge() { return <span className="badge simulation"><span className="pulse-dot" /> SIMULATION</span> }
+export function EnvironmentBadge() {
+  const { source } = useTradingSource()
+  if (source === 'MT5_DEMO') return <span className="badge info"><span className="pulse-dot" /> MT5 DEMO READ-ONLY</span>
+  return <span className="badge simulation"><span className="pulse-dot" /> SIMULATION</span>
+}
 export function StatusBadge({ children, tone = 'neutral' }: { children: ReactNode; tone?: 'good' | 'bad' | 'warning' | 'info' | 'purple' | 'neutral' }) { return <span className={`badge ${tone}`}>{children}</span> }
 export function DirectionBadge({ value }: { value: string }) { return <StatusBadge tone={value === 'BUY' ? 'good' : value === 'SELL' ? 'bad' : 'neutral'}>{value}</StatusBadge> }
 export function PnLDisplay({ value }: { value: number }) { return <span className={value >= 0 ? 'positive' : 'negative'}>{value >= 0 ? '+' : ''}${Math.abs(value).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span> }

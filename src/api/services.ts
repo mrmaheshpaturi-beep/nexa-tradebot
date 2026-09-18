@@ -4,6 +4,7 @@ import type {
   Paginated, Preference, RiskProfileRecord, SimulationOrderInput, SimulationOrderRecord, StrategyRecord,
   SystemStatus, UserRecord, TradingInstrument, Signal, TradeIntent, CreateTradeIntentInput,
   CreateSignalIntentInput, ExecutionCommand, Order, Position, ServiceHeartbeat,
+  Mt5BridgeStatus, Mt5BridgeConnection, Mt5BridgeEnvelope, Mt5ExternalPosition, Mt5ReconciliationRun,
 } from './types'
 
 export const authApi = {
@@ -100,4 +101,31 @@ export const phaseThreeApi = {
 
 export function makePhaseThreeIdentity(scope: string) {
   return `${scope}:web:${crypto.randomUUID()}`
+}
+
+export const mt5Api = {
+  status: () => apiRequest<Mt5BridgeStatus>('/api/v1/mt5/status'),
+  health: () => apiRequest<Mt5BridgeEnvelope<Record<string, unknown>>>('/api/v1/mt5/bridge/health'),
+  account: () => apiRequest<Mt5BridgeEnvelope<Record<string, unknown>>>('/api/v1/mt5/bridge/account'),
+  symbols: () => apiRequest<Mt5BridgeEnvelope<Array<Record<string, unknown>>>>('/api/v1/mt5/bridge/symbols'),
+  quote: (symbol: string) => apiRequest<Mt5BridgeEnvelope<Record<string, unknown>>>(`/api/v1/mt5/bridge/quotes/${encodeURIComponent(symbol)}`),
+  candles: (symbol: string, timeframe = 'M5', count = 100) =>
+    apiRequest<Mt5BridgeEnvelope<Array<Record<string, unknown>>>>(
+      `/api/v1/mt5/bridge/candles/${encodeURIComponent(symbol)}?timeframe=${timeframe}&count=${count}`,
+    ),
+  positions: () => apiRequest<Mt5BridgeEnvelope<Array<Record<string, unknown>>>>('/api/v1/mt5/bridge/positions'),
+  connections: () => apiRequest<Paginated<Mt5BridgeConnection>>('/api/v1/mt5/connections'),
+  createConnection: (name: string, isEnabled = false) =>
+    apiRequest<Mt5BridgeConnection>('/api/v1/mt5/connections', { method: 'POST', body: { name, is_enabled: isEnabled } }),
+  testConnection: (id: number) =>
+    apiRequest<{ connection: Mt5BridgeConnection; bridge: Mt5BridgeEnvelope<Record<string, unknown>> }>(
+      `/api/v1/mt5/connections/${id}/test`, { method: 'POST' },
+    ),
+  syncConnection: (id: number) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/mt5/connections/${id}/sync`, { method: 'POST' }),
+  mappingPositions: (mappingId: number) =>
+    apiRequest<Paginated<Mt5ExternalPosition>>(`/api/v1/mt5/mappings/${mappingId}/positions`),
+  reconcileMapping: (mappingId: number) =>
+    apiRequest<Mt5ReconciliationRun>(`/api/v1/mt5/mappings/${mappingId}/reconcile`, { method: 'POST' }),
+  reconciliationRuns: () => apiRequest<Paginated<Mt5ReconciliationRun>>('/api/v1/mt5/reconciliation-runs'),
 }

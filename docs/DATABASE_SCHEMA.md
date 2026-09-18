@@ -2,7 +2,7 @@
 
 ## Scope and verification
 
-Repository migrations declare 38 application/framework tables, plus Laravel's generated `migrations` ledger. Phase 3 is verified on local SQLite only. Migrations use Laravel Schema Builder and avoid vendor-specific SQL; MySQL/PostgreSQL remain untested portability targets.
+Repository migrations declare 47 application/framework tables, plus Laravel's generated `migrations` ledger. Phases 3–4 are verified on local SQLite only. Migrations use Laravel Schema Builder and avoid vendor-specific SQL; MySQL/PostgreSQL remain untested portability targets.
 
 ## Existing identity and framework tables
 
@@ -103,6 +103,36 @@ php artisan migrate:status
 ```
 
 `migrate:fresh` drops all tables and data. Never use it against a shared, hosted or production database. The seeder requires a 12+ character password supplied only in the process environment and creates an admin, roles/permissions, active simulation risk profile, enabled credential-free simulation account, initial snapshot, instruments, offline terminal/heartbeat and deterministic mock signal.
+
+## New Phase 4 tables
+
+### `mt5_bridge_connections`
+
+User-owned bridge metadata: public UUID, mode, DEMO environment, status, enablement, last tested/connected/stale timestamps, JSON metadata.
+
+### `mt5_account_mappings`
+
+Maps a bridge connection to a `broker_accounts` row and external account ID with sync timestamps.
+
+### `instrument_aliases`
+
+External symbol to optional `trading_instruments` link, normalized symbol, observed spec JSON/hash.
+
+### `mt5_external_positions`, `mt5_external_orders`, `mt5_external_deals`
+
+Account-mapping-scoped external observations with unique external IDs and JSON payloads.
+
+### `mt5_sync_cursors`
+
+Per-mapping resource cursors (`POSITIONS`, `ORDERS`, `DEALS`).
+
+### `mt5_reconciliation_runs`, `mt5_reconciliation_items`
+
+Report-only reconciliation sessions and per-resource comparison rows.
+
+### `account_snapshots` expansion
+
+Adds `source`, `environment`, and `external_snapshot_id` for idempotent MT5 snapshot ingestion.
 
 ## Portability limitations
 

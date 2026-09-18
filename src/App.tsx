@@ -3,6 +3,7 @@ import { HashRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AppShell } from './components/AppShell'
 import { LoadingState } from './components/ui'
 import { SimulationProvider } from './context/SimulationContext'
+import { TradingSourceProvider } from './context/TradingSourceContext'
 import { AuthProvider } from './auth/AuthContext'
 import { LoginPage } from './auth/LoginPage'
 import { ProtectedRoute } from './auth/ProtectedRoute'
@@ -28,14 +29,19 @@ const PaperTrading = page('OperationsPages', 'PaperTrading')
 const Analytics = page('OperationsPages', 'Analytics')
 const Reports = page('OperationsPages', 'Reports')
 const NewsCalendar = page('OperationsPages', 'NewsCalendar')
-const MT5Accounts = lazy(() => import('./pages/PersistentOperationsPages').then((module) => ({ default: module.PersistentAccounts })))
+const MT5Accounts = lazy(() => import('./pages/PhaseFourMt5Pages').then((module) => ({ default: module.Mt5AccountsPage })))
+const Mt5Dashboard = lazy(() => import('./pages/PhaseFourMt5Pages').then((module) => ({ default: module.Mt5Dashboard })))
+const Mt5Market = lazy(() => import('./pages/PhaseFourMt5Pages').then((module) => ({ default: module.Mt5MarketWatch })))
+const Mt5Charts = lazy(() => import('./pages/PhaseFourMt5Pages').then((module) => ({ default: module.Mt5LiveCharts })))
+const Mt5ReadModels = lazy(() => import('./pages/PhaseFourMt5Pages').then((module) => ({ default: module.Mt5ReadModels })))
+const Mt5Reconciliation = lazy(() => import('./pages/PhaseFourMt5Pages').then((module) => ({ default: module.Mt5ReconciliationPage })))
 const Notifications = lazy(() => import('./pages/PersistentOperationsPages').then((module) => ({ default: module.PersistentNotifications })))
 const SystemHealth = lazy(() => import('./pages/PersistentOperationsPages').then((module) => ({ default: module.PersistentSystemHealth })))
 const AuditLogs = lazy(() => import('./pages/PersistentOperationsPages').then((module) => ({ default: module.PersistentAuditLogs })))
 const Settings = lazy(() => import('./pages/SettingsPage').then((module) => ({ default: module.PersistentSettings })))
 
 function ProtectedApp() {
-  return <SimulationProvider><AppShell /></SimulationProvider>
+  return <TradingSourceProvider><SimulationProvider><AppShell /></SimulationProvider></TradingSourceProvider>
 }
 
 export default function App() {
@@ -48,6 +54,8 @@ export default function App() {
     <Route path="pending-orders" element={<PendingOrders />} /><Route path="trade-history" element={<TradeHistory />} /><Route path="risk-management" element={<RiskManagement />} />
     <Route path="backtesting" element={<Backtesting />} /><Route path="paper-trading" element={<PaperTrading />} /><Route path="analytics" element={<Analytics />} />
     <Route path="reports" element={<Reports />} /><Route path="news-calendar" element={<NewsCalendar />} /><Route path="mt5-accounts" element={<MT5Accounts />} />
+    <Route path="mt5-dashboard" element={<Mt5Dashboard />} /><Route path="mt5-market" element={<Mt5Market />} /><Route path="mt5-charts" element={<Mt5Charts />} />
+    <Route path="mt5-read-models" element={<Mt5ReadModels />} /><Route path="mt5-reconciliation" element={<Mt5Reconciliation />} />
     <Route path="notifications" element={<Notifications />} /><Route path="system-health" element={<SystemHealth />} /><Route path="audit-logs" element={<AuditLogs />} />
     <Route path="settings" element={<Settings />} />
     </Route></Route>

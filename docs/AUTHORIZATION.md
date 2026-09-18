@@ -63,8 +63,12 @@ There is no roles-discovery endpoint. The React user editor therefore contains t
 | `simulation_lifecycle.execute` | ✓ | ✓ | ✓ | — | — |
 | `simulation_orders.cancel` | ✓ | ✓ | ✓ | — | — |
 | `simulation_positions.manage` | ✓ | ✓ | ✓ | — | — |
+| `mt5.read` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `mt5.sync` | ✓ | ✓ | ✓ | — | — |
+| `mt5.reconcile` | ✓ | ✓ | ✓ | — | — |
+| `mt5.connections.manage` | ✓ | ✓ | — | — | — |
 
-`SUPER_ADMIN` receives all 30 permissions. `ADMIN` receives all except `emergency_stop.manage`.
+`SUPER_ADMIN` receives all 34 permissions. `ADMIN` receives all except `emergency_stop.manage`.
 
 ## Route enforcement
 
@@ -100,6 +104,10 @@ There is no roles-discovery endpoint. The React user editor therefore contains t
 | `POST /api/v1/trade-intents/{intent}/execute` | `simulation_lifecycle.execute` |
 | `POST /api/v1/orders/{order}/cancel` | `simulation_orders.cancel` |
 | Position close, partial-close and protection routes | `simulation_positions.manage` |
+| `GET /api/v1/mt5/status`, bridge proxies, mapping reads, reconciliation run reads | `mt5.read` |
+| `POST /api/v1/mt5/connections`, `/connections/{id}/test` | `mt5.connections.manage` |
+| `POST /api/v1/mt5/connections/{id}/sync` | `mt5.sync` |
+| `POST /api/v1/mt5/mappings/{id}/reconcile` | `mt5.reconcile` |
 
 Public routes are `POST /api/v1/auth/login`, `POST /api/v1/auth/password/request`, `POST /api/v1/auth/password/reset`, `GET /api/v1/system/status`, and compatibility alias `GET /api/v1/simulation/status`. `GET /api/v1/auth/me` and `POST /api/v1/auth/logout` require an active authenticated session but no additional named permission.
 

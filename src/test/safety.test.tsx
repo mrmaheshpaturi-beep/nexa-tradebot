@@ -1,11 +1,13 @@
 import { render, screen } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 import { EnvironmentBadge } from '../components/ui'
+import { TradingSourceProvider } from '../context/TradingSourceContext'
 import { MockOrderService } from '../services/mockServices'
 
 describe('Phase 1 safety controls', () => {
   it('renders the simulation environment prominently', () => {
-    render(<EnvironmentBadge />)
+    localStorage.setItem('nexa.trading-source', 'SIMULATION')
+    render(<TradingSourceProvider><EnvironmentBadge /></TradingSourceProvider>)
     expect(screen.getByText('SIMULATION')).toBeInTheDocument()
   })
 

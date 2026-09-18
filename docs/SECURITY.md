@@ -6,7 +6,7 @@
 - CSRF cookie and `X-XSRF-TOKEN` on writes; session regeneration on login and invalidation on logout.
 - Login and reset throttles; non-enumerating reset request response.
 - `ACTIVE` user enforcement followed by named backend permission middleware.
-- Five roles and 30 seeded permissions. React permission controls are UX only.
+- Five roles and 34 seeded permissions. React permission controls are UX only.
 - Current-user ownership checks for accounts, signals, intents, orders, positions and other user-scoped resources.
 
 See `AUTHORIZATION.md` for the exact matrix.
@@ -22,12 +22,12 @@ See `AUTHORIZATION.md` for the exact matrix.
 | `allow_demo_execution` | hard false |
 | `allow_live_execution` | hard false |
 | execution adapter | simulation only |
-| terminal / broker | offline / disconnected |
+| terminal / broker | simulation offline; optional read-only MT5 bridge metadata |
 | broker transmission | false |
 
 The execution gate requires SIMULATION environment, enabled simulation account, emergency stop false and the simulation switch true. Placement additionally requires a persisted approved risk decision. PAPER/DEMO/LIVE commands are rejected.
 
-Request contracts prohibit client-assigned environment and broker-transmission fields. Broker metadata requests prohibit password, token, API key, secret and execution/live fields. There is no credential vault, MT5 adapter, broker endpoint or network execution path.
+Request contracts prohibit client-assigned environment and broker-transmission fields. Broker metadata requests prohibit password, token, API key, secret and execution/live fields. Phase 4 adds a server-side read-only bridge client only; there is still no broker write path.
 
 ## Lifecycle integrity
 
@@ -67,6 +67,12 @@ The prior Hostinger deployment is a frontend-only simulation build. Phase 3 must
 
 Lifecycle mutations and controlled execution failures are audited, and position events preserve execution linkage and before/after state. Audit immutability is enforced by Eloquent hooks, not database triggers or append-only credentials. Reads are generally not audited.
 
-## Phase 4 prerequisite
+## Phase 4 read-only bridge controls
 
-Any initial MT5 work must be separately approved and read-only as defined in `MT5_INTEGRATION_CONTRACT.md`. Any DEMO write phase requires a new threat review, account allowlists, durable delivery/reconciliation, signed integration, credential controls and rollback. LIVE requires a separate governance decision.
+- Bridge service token remains server-side (`TRADING_BRIDGE_SERVICE_TOKEN`); React uses Laravel session APIs only.
+- Python bridge redacts passwords, terminal paths, and tokens from responses/logs.
+- Laravel circuit breaker limits abusive retry during bridge outages.
+- Static `scripts/phase4-no-execution-audit.sh` guards against `order_send` and execution endpoints in owned sources.
+- Real terminal validation is **PENDING WINDOWS ENVIRONMENT**; mock connector is not proof of broker readiness.
+
+Any DEMO write phase still requires a new threat review, account allowlists, durable delivery/reconciliation, signed integration, credential controls and rollback. LIVE requires a separate governance decision.

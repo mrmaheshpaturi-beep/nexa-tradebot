@@ -37,11 +37,18 @@ Phase 3 does not deploy and does not implement MT5, broker connectivity, real ma
 - No browser E2E/Lighthouse suite, deployment hardening, observability/recovery exercise or distributed execution reconciliation.
 - Standard build may retain the existing large chart-chunk advisory.
 
-## Phase 4 — proposed read-only MT5 integration
+## Phase 4 — read-only MT5 integration (delivered in code)
 
-Not implemented or approved by Phase 3. The first integration step must be read-only: terminal health, account/symbol/quote reads, snapshots and reconciliation. No place/modify/cancel/close capability. See `MT5_INTEGRATION_CONTRACT.md`.
+Implemented on `cursor/phase-4-mt5-readonly-56f9`:
 
-Required prerequisites include architecture/threat review, isolated adapter identity, credential/key design, Windows host controls, normalized decimal/freshness contracts, timeouts, rate limits, redaction, correlation/audit, failure tests and operator runbooks.
+- Python FastAPI read-only bridge with mock and Windows-only real connector abstraction;
+- Laravel bridge client, MT5 APIs, sync cursors, external read models, report-only reconciliation, RBAC;
+- React SIMULATION/MT5 DEMO source selector and read-only MT5 pages;
+- automated tests, static no-execution audit, and documentation.
+
+SIMULATION remains the only executable environment. Real MT5 terminal validation is **PENDING WINDOWS ENVIRONMENT**. No deployment, public bridge exposure, or Phase 5 work occurred.
+
+See `PHASE_4_REPORT.md`, `MT5_INTEGRATION_CONTRACT.md`, `MT5_SETUP.md`, and `MT5_API.md`.
 
 ## Later phases requiring separate approval
 

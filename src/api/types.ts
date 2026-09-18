@@ -129,14 +129,98 @@ export interface SystemStatus {
   signal_engine: { status: 'SIMULATION' }
   risk_execution: { status: 'READY' | 'STOPPED'; mode: 'SIMULATION_ONLY' }
   simulation_engine: { status: 'READY' | 'STOPPED'; source: 'SIMULATION ENGINE'; last_heartbeat_at: string | null }
-  terminal: { status: 'OFFLINE'; adapter: 'SIMULATION' }
-  broker: { status: 'DISCONNECTED'; connected: false }
+  terminal: { status: 'OFFLINE' | 'ONLINE'; adapter: 'SIMULATION' | 'MT5_READ_ONLY' }
+  broker: { status: 'DISCONNECTED' | 'READ_ONLY'; connected: boolean; mode?: 'READ_ONLY'; environment?: 'DEMO' }
+  mt5_bridge?: {
+    configured: boolean
+    mode: 'READ_ONLY'
+    environment: 'DEMO'
+    state: string
+    execution_available: false
+  }
   execution: { available: boolean; environment: 'SIMULATION'; broker_transmission: false }
   simulation_execution_enabled: boolean
   allow_demo_execution: false
   allow_live_execution: false
   emergency_stop: boolean
   trading_enabled: boolean
+}
+
+export interface Mt5BridgeStatus {
+  configured: boolean
+  mode: 'READ_ONLY'
+  environment: 'DEMO'
+  execution_available: false
+  broker_transmission: false
+  allow_demo_execution: false
+  allow_live_execution: false
+  circuit_state: string
+  connection: Mt5BridgeConnection | null
+}
+
+export interface Mt5BridgeConnection {
+  id: number
+  public_id: string
+  name: string
+  mode: string
+  environment: 'DEMO'
+  status: string
+  is_enabled: boolean
+  last_tested_at: string | null
+  last_connected_at: string | null
+  account_mappings?: Mt5AccountMapping[]
+}
+
+export interface Mt5AccountMapping {
+  id: number
+  external_account_id: string
+  broker_account_id: number
+  last_synced_at: string | null
+  broker_account?: BrokerAccountRecord
+}
+
+export interface Mt5BridgeEnvelope<T> {
+  data: T
+  meta: {
+    environment: 'DEMO'
+    source_timestamp: string
+    received_timestamp: string
+    freshness: 'FRESH' | 'STALE' | 'UNKNOWN'
+    adapter_version: string
+    correlation_id: string
+  }
+}
+
+export interface Mt5ExternalPosition {
+  id: number
+  external_id: string
+  symbol: string
+  side: string | null
+  volume: string | number
+  price_open: string | number | null
+  price_current: string | number | null
+  profit: string | number
+  status: string
+  source: 'MT5'
+  environment: 'DEMO'
+  last_seen_at: string
+}
+
+export interface Mt5ReconciliationRun {
+  id: number
+  public_id: string
+  status: string
+  matched_count: number
+  mismatch_count: number
+  started_at: string
+  completed_at: string | null
+  items?: Array<{
+    id: number
+    resource_type: string
+    external_id: string
+    status: string
+    reason_code: string | null
+  }>
 }
 export interface UserRecord extends CurrentUser { preference?: Preference }
 export interface SimulationOrderInput {

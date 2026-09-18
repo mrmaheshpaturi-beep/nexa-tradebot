@@ -8,6 +8,7 @@ import {
   ConfirmationDialog, DataTable, DirectionBadge, EmptyState, EnvironmentBadge, ErrorState,
   LoadingState, PageHeader, Panel, PnLDisplay, StatusBadge,
 } from '../components/ui'
+import { useTradingSource } from '../context/tradingSourceState'
 import { useService } from '../hooks/useService'
 
 const n = (value: string | number | null | undefined) => Number(value ?? 0)
@@ -69,6 +70,8 @@ export function PersistentManualTrading() {
     phaseThreeApi.accounts(), phaseThreeApi.instruments(),
   ]), []))
   const { can } = useAuth()
+  const { source } = useTradingSource()
+  const simulationOnly = source === 'SIMULATION'
   const [accountId, setAccountId] = useState('')
   const [instrumentId, setInstrumentId] = useState('')
   const [side, setSide] = useState<'BUY' | 'SELL'>('BUY')
@@ -143,6 +146,7 @@ export function PersistentManualTrading() {
   if (reference.error) return <ErrorState message={reference.error} />
   return <>
     <PageHeader title="Manual Trading Terminal" description="Explicit intent → deterministic risk → simulation execution flow. No broker transmission." actions={<EnvironmentBadge />} />
+    {!simulationOnly && <div className="warning-box"><AlertOctagon /><p><strong>Simulation-only controls</strong><span>Switch the global source selector back to SIMULATION to create intents or execute lifecycle mutations.</span></p></div>}
     {error && <div className="danger-banner" role="alert"><AlertOctagon />{error}</div>}
     {stages.length > 0 && <Panel title="Lifecycle result" subtitle="Every persisted stage remains SIMULATION">
       <div className="lifecycle-summary">{stages.map((stage) => <div key={stage.label}>
@@ -174,7 +178,7 @@ export function PersistentManualTrading() {
         <div><span>Quote source</span><strong>{quote.source} · {quote.environment}</strong></div>
       </div>}
       <p id="manual-protection-guidance" className="permission-note">{protectionGuidance}</p>
-      <button className={`btn ${side === 'BUY' ? 'buy' : 'sell'} persistence-submit`} disabled={!can('simulation_lifecycle.create') || !can('simulation_lifecycle.evaluate') || !can('simulation_lifecycle.execute') || !selectedAccount || !selectedInstrument || submitting || (orderType !== 'MARKET' && !entry)} onClick={() => setConfirm(true)}>
+      <button className={`btn ${side === 'BUY' ? 'buy' : 'sell'} persistence-submit`} disabled={!simulationOnly || !can('simulation_lifecycle.create') || !can('simulation_lifecycle.evaluate') || !can('simulation_lifecycle.execute') || !selectedAccount || !selectedInstrument || submitting || (orderType !== 'MARKET' && !entry)} onClick={() => setConfirm(true)}>
         <Play />{submitting ? 'SIMULATING…' : `SIMULATE ${side}`}
       </button>
       {!can('simulation_lifecycle.create') || !can('simulation_lifecycle.evaluate') || !can('simulation_lifecycle.execute')
