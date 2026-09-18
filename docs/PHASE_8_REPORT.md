@@ -70,8 +70,33 @@ Market Scanner page rebuilt as Phase 8 live board. System Health advertises scan
 
 No Phase 9. No Hostinger deploy. No broker AutoTrading. No MT5 write.
 
-## 18. Verification Summary (authoritative — filled after gates)
+## 18. Verification Summary (authoritative)
 
-PHASE 8 STATUS: _pending verification_
+PHASE 8 STATUS: **PASS WITH WARNINGS**
 
-See section 19 after quality gates.
+| Area | Result |
+|---|---|
+| Scanner Engine | PASS |
+| Orchestrator | PASS |
+| Candidate Queue | PASS |
+| Dashboard (Scanner UI) | PASS |
+| Alerts foundation | PASS |
+| Safety (order_send / DEMO/LIVE) | PASS |
+| Tests | PASS (103 PHPUnit: 102 pass, 1 skip; 20 Vitest) |
+| Build / Typecheck / Lint | PASS (0 ESLint errors; 1 pre-existing react-refresh warning) |
+| Security (no bridge token exposure) | PASS |
+| Real MT5 | PENDING WINDOWS ENVIRONMENT |
+
+### Evidence
+
+- Laravel: `http://127.0.0.1:48391`
+- Vite: `http://127.0.0.1:58317`
+- Walkthrough: `media/phase-8/market-scanner-board.png`, `media/phase-8/system-health-scanner.png`
+- Branch: `cursor/phase-8-market-scanner-56f9`
+- Worktree: `/tmp/nexa-phase8-56f9`
+
+### Remaining issues / manual actions
+
+- Real MT5 DEMO validation still requires a Windows terminal environment.
+- Alert email/SMS intentionally not implemented (foundation only).
+- Do not start Phase 9. Do not enable MT5 trading.

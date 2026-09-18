@@ -71,14 +71,28 @@ MarketSnapshot + TechnicalSnapshot/MTF adapters
 
 **Completion audit:** [`PHASE_7_REPORT.md`](PHASE_7_REPORT.md)
 
+## Phase 8 system (summary)
+
+```text
+MarketData + Technical adapters
+  → MarketScannerEngine (universe × TF × strategies)
+  → StrategyEngine / Signal / Confluence
+  → SignalOrchestrator → Candidate Queue
+  → Scanner board UI + Alert foundation
+```
+
+**Design:** [`SCANNER_ENGINE.md`](SCANNER_ENGINE.md) · [`SIGNAL_ORCHESTRATOR.md`](SIGNAL_ORCHESTRATOR.md) · [`PHASE_8_ARCHITECTURE.md`](PHASE_8_ARCHITECTURE.md)
+
+**Completion audit:** [`PHASE_8_REPORT.md`](PHASE_8_REPORT.md)
+
 ## Health truth model
 
-`/api/v1/system/status` separates simulation readiness from optional `mt5_bridge` metadata and reports `market_data_engine`, `indicator_engine`, and `strategy_engine` as READY. Broker transmission and demo/live execution remain false.
+`/api/v1/system/status` separates simulation readiness from optional `mt5_bridge` metadata and reports `market_data_engine`, `indicator_engine`, `strategy_engine`, `market_scanner`, and `signal_orchestrator` as READY. Broker transmission and demo/live execution remain false.
 
 ## Deployment
 
-Phase 6 does not require public bridge exposure. See `PHASE_6_REPORT.md` for verification results and deployment boundaries.
+Phase 8 does not require public bridge exposure. See `PHASE_8_REPORT.md` for verification results and deployment boundaries.
 
 ## Nonexistent architecture
 
-No MT5 write adapter, broker order path, or DEMO/LIVE execution enablement exists. Phase 7 strategy automation is analysis/signals only (no broker AutoTrading).
+No MT5 write adapter, broker order path, or DEMO/LIVE execution enablement exists. Phase 7–8 automation is analysis/signals/candidates only (no broker AutoTrading).

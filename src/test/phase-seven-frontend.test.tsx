@@ -3,7 +3,7 @@ import { phaseSevenApi } from '../api/services'
 
 describe('Phase 7 strategy frontend API', () => {
   it('exposes strategy engine endpoints without execution language', async () => {
-    const fetchMock = vi.fn(async (_input?: RequestInfo | URL, _init?: RequestInit) => new Response(JSON.stringify({
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({
       data: {
         phase: 7,
         plugins: [{ key: 'ema_trend', name: 'EMA Trend', category: 'TREND', description: '', evidence_family: 'TREND_EMA', default_parameters: {}, upload_allowed: false, execution: false }],

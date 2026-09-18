@@ -5,6 +5,9 @@ describe('phase eight scanner api client', () => {
   it('requests scanner board and run without broker fields', async () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
       const url = String(input)
+      if (url.includes('/sanctum/csrf-cookie')) {
+        return new Response(null, { status: 204 })
+      }
       if (url.includes('/scanner/board')) {
         return new Response(JSON.stringify({
           data: {

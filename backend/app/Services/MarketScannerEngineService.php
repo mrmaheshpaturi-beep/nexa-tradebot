@@ -17,9 +17,9 @@ use Illuminate\Support\Facades\Cache;
  */
 class MarketScannerEngineService
 {
-    public const DEFAULT_SYMBOLS = ['EURUSD', 'XAUUSD', 'GBPUSD', 'USDJPY'];
+    public const DEFAULT_SYMBOLS = ['EURUSD', 'XAUUSD'];
 
-    public const DEFAULT_TIMEFRAMES = ['M5', 'M15', 'H1'];
+    public const DEFAULT_TIMEFRAMES = ['M5', 'M15'];
 
     public function __construct(
         private readonly MarketDataEngineService $market,
@@ -198,7 +198,7 @@ class MarketScannerEngineService
                 $orch = $this->orchestrator->ingest($user, $run, $ingestRows);
             }
 
-            $run->status = $errors === [] ? 'COMPLETED' : 'COMPLETED';
+            $run->status = 'COMPLETED';
             $run->symbols_scanned = count($symbolsDone);
             $run->timeframes_scanned = count($tfsDone);
             $run->strategies_evaluated = $evaluated;
@@ -217,7 +217,8 @@ class MarketScannerEngineService
             $run->finished_at = Carbon::now('UTC');
             $run->save();
 
-            $this->touchHeartbeat(count($errors) === 0, [
+            // Heartbeat ONLINE when the run finished; DEGRADED only if every cell failed.
+            $this->touchHeartbeat($evaluated > 0 || $errors === [], [
                 'run_id' => $run->id,
                 'symbols' => $run->symbols_scanned,
                 'candidates' => $run->candidates_created,
