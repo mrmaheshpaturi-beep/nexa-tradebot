@@ -48,7 +48,7 @@ Implemented on `cursor/phase-4-mt5-readonly-56f9`:
 
 SIMULATION remains the only executable environment. Real MT5 terminal validation is **PENDING WINDOWS ENVIRONMENT**. No deployment, public bridge exposure, or Phase 5 work occurred.
 
-See `PHASE_4_REPORT.md`, `MT5_INTEGRATION_CONTRACT.md`, `MT5_SETUP.md`, and `MT5_API.md`.
+See `PHASE_4_REPORT.md`, `PHASE_4_ARCHITECTURE.md`, `MT5_INTEGRATION_CONTRACT.md`, `MT5_BRIDGE_API.md`, and `MT5_WINDOWS_SETUP.md`.
 
 ## Later phases requiring separate approval
 

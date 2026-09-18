@@ -20,6 +20,9 @@ Phase 4 delivers a read-only MT5 DEMO integration boundary across a Python FastA
 | No execution endpoints or broker writes | COMPLETE | static audit + contract tests |
 | DEMO/LIVE rejected by Phase 3 gate | COMPLETE | `ExecutionGate`, unchanged |
 | Documentation + 35-section report | COMPLETE | this report and linked docs |
+| `PHASE_4_ARCHITECTURE.md` | COMPLETE | Phase 4 system design and Linux mock dev |
+| `MT5_BRIDGE_API.md` | COMPLETE | Laravel + Python read API inventory |
+| `MT5_WINDOWS_SETUP.md` | COMPLETE | Windows real-terminal operator workflow |
 | Real MT5 terminal validation | PENDING WINDOWS ENVIRONMENT | mock/Linux verification only |
 | Deployment / DNS / firewall / Phase 5 | NOT PERFORMED | by instruction |
 
@@ -37,7 +40,7 @@ React (source selector)
   → MockMT5Connector (Linux/dev) or RealMT5Connector (Windows host only)
 ```
 
-See `ARCHITECTURE.md`, `MT5_API.md`, `MT5_SETUP.md`.
+See `PHASE_4_ARCHITECTURE.md`, `MT5_BRIDGE_API.md`, and `MT5_WINDOWS_SETUP.md` (repository overview in `ARCHITECTURE.md`).
 
 ## 5. Python bridge
 
@@ -65,7 +68,7 @@ Migration `2026_09_18_000001_create_phase_four_mt5_read_models` adds bridge conn
 
 ## 11. API inventory
 
-Authenticated MT5 routes: status, bridge proxies, connections CRUD/test, mapping reads, sync, reconcile, reconciliation run reads. See `MT5_API.md` and `routes/api.php`.
+Authenticated MT5 routes: status, bridge proxies, connections CRUD/test, mapping reads, sync, reconcile, reconciliation run reads. See `MT5_BRIDGE_API.md` and `routes/api.php`.
 
 ## 12. Authorization
 
@@ -144,7 +147,7 @@ Tracked sources contain only placeholder bridge env keys in `.env.example`. No c
 
 ## 27. REAL MT5 validation
 
-**PENDING WINDOWS ENVIRONMENT.** Linux/cloud verification used `MockMT5Connector` and Laravel HTTP fakes. Windows manual actions are listed in `MT5_SETUP.md`.
+**PENDING WINDOWS ENVIRONMENT.** Linux/cloud verification used `MockMT5Connector` and Laravel HTTP fakes. Windows manual actions are listed in `MT5_WINDOWS_SETUP.md`.
 
 ## 28. Deployment assessment
 
@@ -169,7 +172,7 @@ No bridge deployment, DNS, firewall, port publishing, or Hostinger changes were 
 
 ## 31. Deliverables
 
-Created: Python bridge, Laravel MT5 integration, React MT5 pages, tests, audit script, `PHASE_4_REPORT.md`, `MT5_SETUP.md`, `MT5_CREDENTIALS.md`, `MT5_API.md`, `RECONCILIATION.md`. Updated: architecture, authorization, database schema, security, roadmap, integration contract references.
+Created: Python bridge, Laravel MT5 integration, React MT5 pages, tests, audit script, `PHASE_4_REPORT.md`, `PHASE_4_ARCHITECTURE.md`, `MT5_BRIDGE_API.md`, `MT5_WINDOWS_SETUP.md`, `MT5_CREDENTIALS.md`, `RECONCILIATION.md`. Compatibility stubs: `MT5_SETUP.md`, `MT5_API.md` (redirect to canonical names). Updated: `ARCHITECTURE.md`, authorization, database schema, security, roadmap, integration contract references.
 
 ## 32. Branch and commits
 

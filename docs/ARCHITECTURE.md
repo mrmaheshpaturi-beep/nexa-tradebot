@@ -1,47 +1,45 @@
 # Architecture
 
-## Phase 4 system
+## Repository overview
 
-Nexa TradeBot is a React 19/TypeScript/Vite client and Laravel 13/Sanctum API with a read-only MT5 DEMO bridge. Phase 3 simulation execution remains the only executable path.
+Nexa TradeBot is a React 19/TypeScript/Vite client with a Laravel 13/Sanctum API.
+
+| Phase | Capability |
+|---|---|
+| Phase 1–2 | Simulation UI, session auth, RBAC, persistence foundation |
+| Phase 3 | Persistent simulation trading domain (only executable environment) |
+| Phase 4 | Read-only MT5 DEMO bridge (external observations; no broker writes) |
+
+Phase 3 execution remains `SIMULATION` only. Phase 4 adds external read models without enabling DEMO/LIVE execution.
+
+## Phase 3 system (summary)
 
 ```text
-Browser / React
-  ├─ TradingSourceProvider (SIMULATION | MT5_DEMO READ-ONLY)
-  ├─ session/CSRF API client
-  ├─ Phase 3 lifecycle pages (SIMULATION mutations only)
-  ├─ Phase 4 MT5 read-only pages (Laravel-only)
-  └─ retained mock analytical screens
-                 │ same-origin /api and /sanctum
-Laravel
-  ├─ web session + Sanctum + active user + permission middleware
-  ├─ TradeLifecycleService / SimulationExecutionAdapter (SIMULATION only)
-  ├─ TradingBridgeClient → circuit breaker / retry / cache
-  ├─ Mt5ReadModelService → sync + report-only reconciliation
-  └─ Eloquent → SQLite (confirmed locally)
-                 │ authenticated GET (server-side token)
-Python FastAPI bridge (trading-engine/)
-  ├─ MockMT5Connector (Linux/dev)
-  └─ RealMT5Connector (Windows host only, lazy MetaTrader5 import)
+React SPA → Laravel (session + permissions) → SimulationExecutionAdapter → SQLite
 ```
 
-The Vite dev server proxies `/api` and `/sanctum` to Laravel. React never calls the Python bridge directly and never receives bridge or terminal secrets.
+Canonical pipeline: `Signal? → TradeIntent → RiskDecision → ExecutionCommand → Order → Deal → Position`.
 
-## Trading-domain boundary
+See `TRADE_LIFECYCLE.md`, `EXECUTION_MODEL.md`, `STATE_MACHINES.md`, `MARKET_DATA_CONTRACT.md`, and `PHASE_3_REPORT.md`.
 
-Phase 3 pipeline remains `Signal? → TradeIntent → RiskDecision → ExecutionCommand → Order → Deal → Position`. MT5 external tables are observations for reconciliation and dashboards, not lifecycle replacements.
+## Phase 4 system (summary)
 
-## Phase 4 read boundary
+Phase 4 adds a Python FastAPI read-only bridge, Laravel `TradingBridgeClient`, MT5 read-model persistence, and React source selection (`SIMULATION` | `MT5 DEMO READ-ONLY`).
 
-Laravel exposes `/api/v1/mt5/*` read and read-model sync routes. The Python bridge exposes GET-only `/v1/*` endpoints with bearer authentication. No order placement, modification, cancellation, or execution endpoint exists in either layer.
+**Full Phase 4 design:** [`PHASE_4_ARCHITECTURE.md`](PHASE_4_ARCHITECTURE.md)
+
+**API reference:** [`MT5_BRIDGE_API.md`](MT5_BRIDGE_API.md)
+
+**Windows validation:** [`MT5_WINDOWS_SETUP.md`](MT5_WINDOWS_SETUP.md) — status **PENDING WINDOWS ENVIRONMENT**
 
 ## Health truth model
 
-`/system/status` reports simulation readiness separately from `mt5_bridge` configuration/state. Broker transmission and demo/live execution remain false. Terminal adapter becomes `MT5_READ_ONLY` only when a bridge is configured and the circuit is `CONNECTED`.
+`/api/v1/system/status` separates simulation readiness from optional `mt5_bridge` metadata. Broker transmission and demo/live execution remain false.
 
 ## Deployment
 
-Phase 4 does not require public bridge exposure. Windows terminal validation is manual and host-local. See `MT5_SETUP.md` and `PHASE_4_REPORT.md`.
+Phase 4 does not require public bridge exposure. See `PHASE_4_REPORT.md` for verification results and deployment boundaries.
 
 ## Nonexistent architecture
 
-There is no MT5 write adapter, broker order path, DEMO/LIVE execution enablement, queue worker for broker commands, or Phase 5 automation in this delivery.
+No MT5 write adapter, broker order path, DEMO/LIVE execution enablement, queue worker for broker commands, or Phase 5 automation exists in this repository state.
