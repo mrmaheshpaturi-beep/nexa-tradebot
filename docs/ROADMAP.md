@@ -57,23 +57,34 @@ Implemented on `cursor/phase-5-market-data-56f9`:
 - Python Market Data Engine with freshness, validation, and quality scoring;
 - Laravel snapshot APIs and persistence (`market_*` tables);
 - React Market Watch + Live Charts consuming the snapshot;
-- Phase 6/7 extension hooks only (PENDING).
+- Phase 6 input contract (`getClosedCandles`) ready.
 
 Still READ-ONLY for MT5. Real Windows terminal validation remains pending.
 
 See `PHASE_5_REPORT.md` and `PHASE_5_ARCHITECTURE.md`.
 
+## Phase 6 — Indicator Engine (delivered)
+
+Implemented on `cursor/phase-6-indicator-engine-56f9`:
+
+- IndicatorEngine consuming closed candles from MarketDataEngine only;
+- Providers: SMA, EMA, RSI, MACD, ATR, Bollinger Bands;
+- Laravel catalog/compute/series/batch APIs with quality gate + cache;
+- React chart overlays and indicator panel with source/freshness;
+- Phase 7 strategies remain PENDING.
+
+See `PHASE_6_REPORT.md`, `PHASE_6_ARCHITECTURE.md`, and `INDICATOR_ENGINE.md`.
+
 ## Later phases requiring separate approval
 
-1. Indicator computation engine (Phase 6).
-2. Strategy/scanner engines (Phase 7).
-3. Authoritative portfolio risk engine.
-4. MT5 DEMO write adapter with durable delivery and reconciliation.
-5. AI analysis behind the risk boundary.
-6. News/session intelligence.
-7. Historical backtesting and real-price paper trading.
-8. Persistent analytics/report exports and notification delivery.
-9. Security hardening, tamper-evident audit, observability and recovery.
-10. DEMO end-to-end validation and controlled deployment.
+1. Strategy/scanner engines (Phase 7).
+2. Authoritative portfolio risk engine.
+3. MT5 DEMO write adapter with durable delivery and reconciliation.
+4. AI analysis behind the risk boundary.
+5. News/session intelligence.
+6. Historical backtesting and real-price paper trading.
+7. Persistent analytics/report exports and notification delivery.
+8. Security hardening, tamper-evident audit, observability and recovery.
+9. DEMO end-to-end validation and controlled deployment.
 
 LIVE/real-money activation is not implied by any phase. It requires a separate governance, legal, security, operational and rollback decision after DEMO evidence.

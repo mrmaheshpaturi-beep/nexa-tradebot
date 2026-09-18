@@ -201,14 +201,22 @@ class MarketDataController extends Controller
     {
         return response()->json([
             'data' => [
-                'phase' => 5,
+                'phase' => 6,
                 'market_data_engine' => 'READY',
+                'indicator_engine' => 'READY',
                 'phase_6_indicator_engine' => [
-                    'status' => 'PENDING',
-                    'contract' => 'GET /api/v1/market/candles/{symbol}?closed_only=1',
-                    'helper' => 'MarketDataEngineService::getClosedCandles()',
-                    'consumes' => ['market_snapshot.quotes', 'market_snapshot.candles.closed'],
-                    'note' => 'Phase 6 will attach indicator series to closed candles without broker writes.',
+                    'status' => 'READY',
+                    'contract' => 'GET /api/v1/indicators/{indicator}/series?symbol=…',
+                    'helper' => 'IndicatorEngineService::compute()',
+                    'consumes' => ['MarketDataEngineService::getClosedCandles', 'data_quality_gate'],
+                    'apis' => [
+                        'catalog' => '/api/v1/indicators/catalog',
+                        'compute' => 'POST /api/v1/indicators/compute',
+                        'series' => '/api/v1/indicators/{indicator}/series',
+                        'batch' => 'POST /api/v1/indicators/batch',
+                        'health' => '/api/v1/indicators/health',
+                    ],
+                    'note' => 'Phase 6 attaches indicator series to closed candles without broker writes.',
                 ],
                 'phase_7_strategies' => [
                     'status' => 'PENDING',

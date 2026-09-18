@@ -39,7 +39,7 @@ def test_market_snapshot_includes_quality_and_freshness() -> None:
         assert quote["quality"]["usable"] is True
         assert quote["freshness"]["status"] == "FRESH"
         assert "spread" in quote
-        assert data["summary"]["extension_hooks"]["phase_6_indicator_engine"] == "PENDING"
+        assert data["summary"]["extension_hooks"]["phase_6_indicator_engine"] == "READY"
         assert len(data["candles"]["bars"]) == 5
         assert payload["meta"]["freshness"] in {"FRESH", "STALE"}
 

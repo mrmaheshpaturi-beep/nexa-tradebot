@@ -373,7 +373,7 @@ class MarketDataEngine:
                 "overall_quality_score": overall_score,
                 "overall_quality_status": _quality_label(overall_score),
                 "extension_hooks": {
-                    "phase_6_indicator_engine": "PENDING",
+                    "phase_6_indicator_engine": "READY",
                     "phase_7_strategies": "PENDING",
                 },
             },

@@ -182,7 +182,7 @@ class MarketDataEngineService
                 'live' => false,
             ],
             'extension_hooks' => [
-                'phase_6_indicator_engine' => 'PENDING',
+                'phase_6_indicator_engine' => 'READY',
                 'phase_7_strategies' => 'PENDING',
             ],
         ];
@@ -400,7 +400,8 @@ class MarketDataEngineService
                 'overall_quality_score' => $score,
                 'overall_quality_status' => $this->qualityLabel($score),
                 'extension_hooks' => [
-                    'phase_6_indicator_engine' => 'PENDING',
+                    'phase_6_indicator_engine' => 'READY',
+                    'phase_6_get_closed_candles' => 'READY',
                     'phase_7_strategies' => 'PENDING',
                 ],
             ],
@@ -462,7 +463,7 @@ class MarketDataEngineService
         $data['summary']['overall_quality_status'] = $evaluation['status'];
         $data['summary']['usable_for_analysis'] = $evaluation['usable_for_analysis'];
         $data['summary']['extension_hooks'] = [
-            'phase_6_indicator_engine' => 'PENDING',
+            'phase_6_indicator_engine' => 'READY',
             'phase_6_get_closed_candles' => 'READY',
             'phase_7_strategies' => 'PENDING',
         ];

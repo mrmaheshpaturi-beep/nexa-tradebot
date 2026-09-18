@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuditLogController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BrokerAccountController;
+use App\Http\Controllers\Api\IndicatorController;
 use App\Http\Controllers\Api\MarketDataController;
 use App\Http\Controllers\Api\Mt5BridgeController;
 use App\Http\Controllers\Api\NotificationController;
@@ -103,6 +104,12 @@ Route::prefix('v1')->middleware('web')->group(function (): void {
         Route::post('/market/backfill', [MarketDataController::class, 'backfill'])->middleware('permission:market.configure');
         Route::post('/market/quality-check', [MarketDataController::class, 'qualityCheck'])->middleware('permission:trading.read');
         Route::get('/market/extension-hooks', [MarketDataController::class, 'extensionHooks'])->middleware('permission:trading.read');
+
+        Route::get('/indicators/catalog', [IndicatorController::class, 'catalog'])->middleware('permission:trading.read');
+        Route::get('/indicators/health', [IndicatorController::class, 'health'])->middleware('permission:trading.read');
+        Route::post('/indicators/compute', [IndicatorController::class, 'compute'])->middleware('permission:trading.read');
+        Route::post('/indicators/batch', [IndicatorController::class, 'batch'])->middleware('permission:trading.read');
+        Route::get('/indicators/{indicator}/series', [IndicatorController::class, 'series'])->middleware('permission:trading.read');
 
         Route::get('/mt5/status', [Mt5BridgeController::class, 'status'])->middleware('permission:mt5.read');
         Route::get('/mt5/bridge/health', [Mt5BridgeController::class, 'proxyHealth'])->middleware('permission:mt5.read');

@@ -1,18 +1,19 @@
 # Nexa TradeBot
 
-Nexa TradeBot Phase 5 is an authenticated trading operations terminal with a **Market Data Engine** on top of the Phase 4 read-only MT5 DEMO bridge. Stack: React 19/TypeScript/Vite, Laravel 13/Sanctum, Python FastAPI bridge.
+Nexa TradeBot Phase 6 adds an **Indicator Engine** on top of the Phase 5 Market Data Engine. Stack: React 19/TypeScript/Vite, Laravel 13/Sanctum, Python FastAPI bridge.
 
-Implemented through Phase 5:
+Implemented through Phase 6:
 
 - Phase 3 simulation trade lifecycle (intent → risk → simulation execution)
 - Phase 4 read-only MT5 bridge (Mock + Windows Real connectors), Laravel sync/reconcile, MT5 UI
-- Phase 5 market data engine: quotes/candles/symbols normalization, freshness + validation + quality, market snapshot API, Market Watch + Charts
+- Phase 5 market data engine: quotes/candles/symbols, freshness + quality, Market Watch + Charts
+- Phase 6 indicator engine: SMA/EMA/RSI/MACD/ATR/Bollinger from closed candles, chart overlays + panels
 
-Not implemented: broker order execution, DEMO/LIVE trading, Phase 6 indicators, Phase 7 strategies, Hostinger production deploy.
+Not implemented: broker order execution, DEMO/LIVE trading, Phase 7 strategies, Hostinger production deploy.
 
 ## Local setup
 
-Requirements: Node.js 22+, PHP 8.3+, Composer 2, Python 3.12+.
+Requirements: Node.js 22+, PHP 8.3+ (bcmath), Composer 2, Python 3.12+.
 
 ### 1. Python market/bridge service (mock mode)
 
@@ -37,21 +38,21 @@ touch database/database.sqlite
 php artisan key:generate
 php artisan migrate
 DEV_SUPER_ADMIN_PASSWORD='choose-at-least-12-characters' php artisan db:seed
-php artisan serve --host=0.0.0.0 --port=45281
+php artisan serve --host=0.0.0.0 --port=46281
 ```
 
 ### 3. React UI
 
 ```bash
 npm install
-npm run dev -- --host=0.0.0.0 --port=45280
+npm run dev -- --host=0.0.0.0 --port=46280
 ```
 
-Sign in with `admin@nexa.local` and the seeded password. Vite proxies `/api` and `/sanctum` to Laravel.
+Sign in with `admin@nexa.local` and the seeded password. Vite proxies `/api` and `/sanctum` to Laravel on port 46281.
 
-Open [Nexa TradeBot](http://127.0.0.1:45280) → **Market Watch** / **Live Charts**.
+Open [Nexa TradeBot](http://127.0.0.1:46280) → **Live Charts** for indicator overlays.
 
-Without `TRADING_BRIDGE_SERVICE_TOKEN`, the engine serves simulation-enriched mock snapshots (`prefer=simulation`).
+Without `TRADING_BRIDGE_SERVICE_TOKEN`, use `prefer=simulation` / SIMULATION source. MT5 DEMO never silently falls back to mock.
 
 ## Validation
 
@@ -61,14 +62,16 @@ cd trading-engine && python3 -m pytest && python3 -m ruff check src tests && pyt
 cd backend && php artisan test && ./vendor/bin/pint --test
 
 npm run typecheck && npm run lint && npm test && npm run build
+
+bash scripts/phase6-no-execution-audit.sh
 ```
 
 ## Documentation
 
-- `docs/PHASE_5_REPORT.md`
-- `docs/PHASE_5_ARCHITECTURE.md`
-- `docs/MARKET_DATA_CONTRACT.md`
-- `docs/PHASE_4_REPORT.md` / `docs/MT5_BRIDGE_API.md` / `docs/MT5_WINDOWS_SETUP.md`
+- `docs/PHASE_6_REPORT.md`
+- `docs/PHASE_6_ARCHITECTURE.md`
+- `docs/INDICATOR_ENGINE.md`
+- `docs/PHASE_5_REPORT.md` / `docs/MARKET_DATA_ENGINE.md`
 - `docs/ARCHITECTURE.md`
 
 ## Warnings

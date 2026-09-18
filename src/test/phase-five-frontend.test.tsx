@@ -33,7 +33,7 @@ vi.mock('../api/services', () => ({
         candle_count: 0,
         overall_quality_score: 100,
         overall_quality_status: 'EXCELLENT',
-        extension_hooks: { phase_6_indicator_engine: 'PENDING', phase_7_strategies: 'PENDING' },
+        extension_hooks: { phase_6_indicator_engine: 'READY', phase_7_strategies: 'PENDING' },
       },
     })),
   },

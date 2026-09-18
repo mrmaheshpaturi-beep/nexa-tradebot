@@ -342,10 +342,65 @@ export interface MarketSnapshot {
 export interface MarketExtensionHooks {
   phase: number
   market_data_engine: string
-  phase_6_indicator_engine: { status: string; consumes: string[]; note: string }
+  indicator_engine?: string
+  phase_6_indicator_engine: {
+    status: string
+    consumes: string[]
+    note: string
+    apis?: Record<string, string>
+    helper?: string
+    contract?: string
+  }
   phase_7_strategies: { status: string; consumes: string[]; note: string }
   execution: { read_only: boolean; order_send: boolean; broker_transmission: boolean }
 }
+
+export interface IndicatorCatalogItem {
+  name: string
+  label: string
+  overlay: boolean
+  params: Record<string, string | number>
+  outputs: string[]
+  consumes: string
+  read_only: boolean
+}
+
+export interface IndicatorSeriesPoint {
+  time: string
+  value?: string | null
+  macd?: string | null
+  signal?: string | null
+  histogram?: string | null
+  middle?: string | null
+  upper?: string | null
+  lower?: string | null
+}
+
+export interface IndicatorResult {
+  instrument: string
+  timeframe: string
+  indicator: string
+  params: Record<string, string | number>
+  overlay?: boolean
+  outputs?: string[]
+  timestamps_aligned_to: string
+  source: string
+  environment: string
+  generated_at: string
+  status: 'READY' | 'DEGRADED' | 'REFUSED' | string
+  reason?: string | null
+  candle_count: number
+  point_count: number
+  cache_hit?: boolean
+  freshness: { status: string }
+  quality: { status: string; score?: number; issues?: string[]; usable_for_analysis?: boolean }
+  gate: { allowed: boolean; reason?: string | null; phase?: number; execution?: boolean }
+  series: IndicatorSeriesPoint[]
+  values: Record<string, string | null | undefined>
+  read_only: boolean
+  execution: { order_send: boolean; demo?: boolean; live?: boolean }
+}
+
 export interface UserRecord extends CurrentUser { preference?: Preference }
 export interface SimulationOrderInput {
   command_id: string

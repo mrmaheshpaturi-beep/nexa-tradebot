@@ -10,8 +10,9 @@ Nexa TradeBot is a React 19/TypeScript/Vite client with a Laravel 13/Sanctum API
 | Phase 3 | Persistent simulation trading domain (only executable environment) |
 | Phase 4 | Read-only MT5 DEMO bridge (external observations; no broker writes) |
 | Phase 5 | Market Data Engine (freshness/validation/quality + snapshot for UI) |
+| Phase 6 | Indicator Engine (closed-candle indicators; no broker writes) |
 
-Phase 3 execution remains `SIMULATION` only. Phase 4–5 add external read models and market snapshots without enabling DEMO/LIVE execution.
+Phase 3 execution remains `SIMULATION` only. Phase 4–6 add external read models, market snapshots, and indicators without enabling DEMO/LIVE execution.
 
 ## Phase 3 system (summary)
 
@@ -41,14 +42,27 @@ Phase 5 adds a Market Data Engine that normalizes bridge/mock quotes, candles, a
 
 **Completion audit:** [`PHASE_5_REPORT.md`](PHASE_5_REPORT.md)
 
+## Phase 6 system (summary)
+
+```text
+Closed candles (MarketDataEngine)
+  → IndicatorEngine (SMA/EMA/RSI/MACD/ATR/BBANDS)
+  → /api/v1/indicators/* → Live Charts overlays + panels
+  → Phase 7 strategies (PENDING)
+```
+
+**Design:** [`INDICATOR_ENGINE.md`](INDICATOR_ENGINE.md) · [`PHASE_6_ARCHITECTURE.md`](PHASE_6_ARCHITECTURE.md)
+
+**Completion audit:** [`PHASE_6_REPORT.md`](PHASE_6_REPORT.md)
+
 ## Health truth model
 
-`/api/v1/system/status` separates simulation readiness from optional `mt5_bridge` metadata and reports `market_data_engine.status = READY`. Broker transmission and demo/live execution remain false.
+`/api/v1/system/status` separates simulation readiness from optional `mt5_bridge` metadata and reports `market_data_engine.status = READY` and `indicator_engine.status = READY`. Broker transmission and demo/live execution remain false.
 
 ## Deployment
 
-Phase 5 does not require public bridge exposure. See `PHASE_5_REPORT.md` for verification results and deployment boundaries.
+Phase 6 does not require public bridge exposure. See `PHASE_6_REPORT.md` for verification results and deployment boundaries.
 
 ## Nonexistent architecture
 
-No MT5 write adapter, broker order path, DEMO/LIVE execution enablement, Phase 6 indicator engine, or Phase 7 strategy automation exists beyond declared PENDING hooks.
+No MT5 write adapter, broker order path, DEMO/LIVE execution enablement, or Phase 7 strategy automation exists beyond declared PENDING hooks.

@@ -29,7 +29,7 @@ class PhaseFiveMarketDataTest extends TestCase
             ->assertJsonPath('data.read_only', true)
             ->assertJsonPath('data.environment', 'SIMULATION')
             ->assertJsonPath('data.source', 'MOCK')
-            ->assertJsonPath('data.summary.extension_hooks.phase_6_indicator_engine', 'PENDING');
+            ->assertJsonPath('data.summary.extension_hooks.phase_6_indicator_engine', 'READY');
 
         $quotes = $response->json('data.quotes');
         $this->assertNotEmpty($quotes);

@@ -6,6 +6,7 @@ import type {
   CreateSignalIntentInput, ExecutionCommand, Order, Position, ServiceHeartbeat,
   Mt5BridgeStatus, Mt5BridgeConnection, Mt5BridgeEnvelope, Mt5ExternalPosition, Mt5ReconciliationRun,
   MarketSnapshot, MarketQuote, MarketCandleBar, MarketSymbolInfo, MarketExtensionHooks,
+  IndicatorCatalogItem, IndicatorResult,
 } from './types'
 
 export const authApi = {
@@ -182,4 +183,65 @@ export const marketApi = {
   setMonitored: (symbols: string[]) =>
     apiRequest<{ symbols: string[] }>('/api/v1/market/monitored', { method: 'PUT', body: { symbols } }),
   extensionHooks: () => apiRequest<MarketExtensionHooks>('/api/v1/market/extension-hooks'),
+}
+
+export const indicatorApi = {
+  catalog: () => apiRequest<{
+    phase: number
+    engine: string
+    read_only: boolean
+    indicators: IndicatorCatalogItem[]
+    execution: { order_send: boolean }
+  }>('/api/v1/indicators/catalog'),
+  health: () => apiRequest<Record<string, unknown>>('/api/v1/indicators/health'),
+  compute: (body: {
+    indicator: string
+    symbol: string
+    timeframe?: string
+    count?: number
+    prefer?: 'auto' | 'bridge' | 'simulation'
+    params?: Record<string, string | number>
+    cache?: boolean
+  }) => apiRequest<IndicatorResult>('/api/v1/indicators/compute', { method: 'POST', body }),
+  series: (
+    indicator: string,
+    params: {
+      symbol: string
+      timeframe?: string
+      count?: number
+      prefer?: 'auto' | 'bridge' | 'simulation'
+      period?: number
+      fast?: number
+      slow?: number
+      signal?: number
+      std_dev?: number
+      source?: string
+    },
+  ) => {
+    const query = new URLSearchParams()
+    query.set('symbol', params.symbol)
+    if (params.timeframe) query.set('timeframe', params.timeframe)
+    if (params.count !== undefined) query.set('count', String(params.count))
+    if (params.prefer) query.set('prefer', params.prefer)
+    if (params.period !== undefined) query.set('period', String(params.period))
+    if (params.fast !== undefined) query.set('fast', String(params.fast))
+    if (params.slow !== undefined) query.set('slow', String(params.slow))
+    if (params.signal !== undefined) query.set('signal', String(params.signal))
+    if (params.std_dev !== undefined) query.set('std_dev', String(params.std_dev))
+    if (params.source) query.set('source', params.source)
+    return apiRequest<IndicatorResult>(
+      `/api/v1/indicators/${encodeURIComponent(indicator)}/series?${query}`,
+    )
+  },
+  batch: (body: {
+    indicators: string[]
+    symbol: string
+    timeframe?: string
+    count?: number
+    prefer?: 'auto' | 'bridge' | 'simulation'
+    params?: Record<string, Record<string, string | number>>
+  }) => apiRequest<{ symbol: string; timeframe: string; results: IndicatorResult[]; read_only: boolean }>(
+    '/api/v1/indicators/batch',
+    { method: 'POST', body },
+  ),
 }

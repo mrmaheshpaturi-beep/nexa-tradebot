@@ -26,3 +26,5 @@ When source preference is `bridge` / MT5 DEMO, failures return `MT5 DATA UNAVAIL
 ## Phase 6 contract
 
 `MarketDataEngineService::getClosedCandles()` and `GET /api/v1/market/candles/{symbol}/closed`.
+
+Phase 6 Indicator Engine is **READY** — see `INDICATOR_ENGINE.md`.
