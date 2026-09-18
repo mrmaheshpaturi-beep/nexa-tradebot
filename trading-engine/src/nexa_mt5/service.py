@@ -100,7 +100,7 @@ class MT5ReadService:
             source_timestamp=timestamp,
             freshness="STALE" if stale else "FRESH",
             correlation_id=correlation_id or str(uuid4()),
-            adapter_version="0.1.0",
+            adapter_version="0.2.0",
         )
 
     def health(self) -> dict[str, Any]:

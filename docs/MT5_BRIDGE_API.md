@@ -94,6 +94,26 @@ Authenticated with `Authorization: Bearer <SERVICE_TOKEN>`. **GET only.** OpenAP
 | GET | `/v1/history/orders` | Bounded order history |
 | GET | `/v1/history/deals` | Bounded deal history |
 | GET | `/v1/heartbeat` | Health alias for heartbeat polling |
+| GET | `/v1/market/quotes` | Engine-normalized quotes (+ optional `symbols`) |
+| GET | `/v1/market/quotes/{symbol}` | Engine-normalized single quote |
+| GET | `/v1/market/candles/{symbol}` | Engine-normalized candles |
+| GET | `/v1/market/symbols` | Engine-normalized symbols |
+| GET | `/v1/market/snapshot` | Aggregated market snapshot |
+
+## Laravel market engine API (`/api/v1/market/*`)
+
+Requires `auth:sanctum` and `trading.read`. Prefer query: `prefer=auto|bridge|simulation`.
+
+| Method | Path | Purpose |
+|---|---|---|
+| GET | `/market/snapshot` | Aggregated snapshot (persists by default) |
+| GET | `/market/quotes` | Normalized quotes |
+| GET | `/market/candles/{symbol}` | Normalized candles |
+| GET | `/market/symbols` | Normalized symbols |
+| GET | `/market/snapshots/latest` | Latest persisted snapshot row |
+| GET | `/market/extension-hooks` | Phase 6/7 PENDING stubs |
+
+See `PHASE_5_ARCHITECTURE.md`.
 
 Implementation: `trading-engine/src/nexa_mt5/api.py`. Local mock startup: `trading-engine/README.md`.
 

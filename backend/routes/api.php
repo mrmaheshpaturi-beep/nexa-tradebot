@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuditLogController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\BrokerAccountController;
+use App\Http\Controllers\Api\MarketDataController;
 use App\Http\Controllers\Api\Mt5BridgeController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OrderController;
@@ -85,6 +86,13 @@ Route::prefix('v1')->middleware('web')->group(function (): void {
         Route::put('/positions/{position}/take-profit', [PositionController::class, 'modifyTakeProfit'])->middleware('permission:simulation_positions.manage');
         Route::put('/positions/{position}/protection', [PositionController::class, 'modifyProtection'])->middleware('permission:simulation_positions.manage');
         Route::get('/heartbeats', [ServiceHeartbeatController::class, 'index'])->middleware('permission:trading.read');
+
+        Route::get('/market/snapshot', [MarketDataController::class, 'snapshot'])->middleware('permission:trading.read');
+        Route::get('/market/quotes', [MarketDataController::class, 'quotes'])->middleware('permission:trading.read');
+        Route::get('/market/candles/{symbol}', [MarketDataController::class, 'candles'])->middleware('permission:trading.read');
+        Route::get('/market/symbols', [MarketDataController::class, 'symbols'])->middleware('permission:trading.read');
+        Route::get('/market/snapshots/latest', [MarketDataController::class, 'latestPersisted'])->middleware('permission:trading.read');
+        Route::get('/market/extension-hooks', [MarketDataController::class, 'extensionHooks'])->middleware('permission:trading.read');
 
         Route::get('/mt5/status', [Mt5BridgeController::class, 'status'])->middleware('permission:mt5.read');
         Route::get('/mt5/bridge/health', [Mt5BridgeController::class, 'proxyHealth'])->middleware('permission:mt5.read');

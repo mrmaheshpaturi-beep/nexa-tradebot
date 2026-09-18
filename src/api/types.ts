@@ -222,6 +222,101 @@ export interface Mt5ReconciliationRun {
     reason_code: string | null
   }>
 }
+
+export interface MarketQuality {
+  score: number
+  status: 'EXCELLENT' | 'GOOD' | 'DEGRADED' | 'POOR' | 'INVALID' | string
+  issues: string[]
+  usable: boolean
+}
+
+export interface MarketFreshness {
+  status: 'FRESH' | 'STALE' | 'UNKNOWN' | string
+  age_seconds: number | null
+  stale_after_seconds: number
+  is_stale: boolean
+}
+
+export interface MarketQuote {
+  symbol: string
+  bid: string | null
+  ask: string | null
+  spread: string | null
+  last?: string | null
+  volume?: string | null
+  timestamp: string
+  received_at?: string
+  source: string
+  environment: string
+  freshness: MarketFreshness
+  quality: MarketQuality
+}
+
+export interface MarketCandleBar {
+  symbol: string
+  timeframe: string
+  open_time: string
+  close_time?: string
+  open: string | null
+  high: string | null
+  low: string | null
+  close: string | null
+  tick_volume: number
+  source: string
+  environment: string
+  quality: MarketQuality
+  freshness?: MarketFreshness
+}
+
+export interface MarketSymbolInfo {
+  symbol: string
+  description?: string | null
+  digits?: number | null
+  volume_min?: string | null
+  volume_max?: string | null
+  quality: MarketQuality
+  source: string
+  environment: string
+}
+
+export interface MarketSnapshot {
+  generated_at: string
+  read_only: boolean
+  environment: string
+  source: string
+  ingestion?: string
+  bridge?: Record<string, unknown>
+  symbols: MarketSymbolInfo[]
+  quotes: MarketQuote[]
+  candles: {
+    symbol: string
+    timeframe: string
+    bars: MarketCandleBar[]
+  }
+  summary: {
+    symbol_count: number
+    quote_count: number
+    usable_quote_count: number
+    stale_quote_count: number
+    candle_count: number
+    overall_quality_score: number
+    overall_quality_status: string
+    extension_hooks: {
+      phase_6_indicator_engine: string
+      phase_7_strategies: string
+    }
+  }
+  correlation_id?: string
+  meta?: Record<string, unknown> | null
+}
+
+export interface MarketExtensionHooks {
+  phase: number
+  market_data_engine: string
+  phase_6_indicator_engine: { status: string; consumes: string[]; note: string }
+  phase_7_strategies: { status: string; consumes: string[]; note: string }
+  execution: { read_only: boolean; order_send: boolean; broker_transmission: boolean }
+}
 export interface UserRecord extends CurrentUser { preference?: Preference }
 export interface SimulationOrderInput {
   command_id: string

@@ -14,6 +14,7 @@ from .config import Settings, get_settings
 from .connectors import MT5Connector
 from .errors import BridgeError, ErrorCode
 from .logging import configure_logging
+from .market_data import MarketDataEngine
 from .models import Envelope, ErrorBody, ErrorEnvelope
 from .service import MT5ReadService
 
@@ -23,6 +24,7 @@ bearer = HTTPBearer(auto_error=False)
 def create_app(settings: Settings | None = None, connector: MT5Connector | None = None) -> FastAPI:
     resolved = settings or get_settings()
     service = MT5ReadService(resolved, connector)
+    market = MarketDataEngine(service, resolved)
     configure_logging()
 
     @asynccontextmanager
@@ -32,13 +34,14 @@ def create_app(settings: Settings | None = None, connector: MT5Connector | None 
 
     application = FastAPI(
         title="Nexa MT5 Read-Only Bridge",
-        version="0.1.0",
+        version="0.2.0",
         docs_url=None,
         redoc_url=None,
         openapi_url=None,
         lifespan=lifespan,
     )
     application.state.mt5_service = service
+    application.state.market_data = market
 
     def correlation(request: Request) -> str:
         supplied = request.headers.get("X-Correlation-ID", "")
@@ -195,6 +198,77 @@ def create_app(settings: Settings | None = None, connector: MT5Connector | None 
     @application.get("/v1/heartbeat", response_model=Envelope, dependencies=[Depends(authenticate)])
     def heartbeat(request: Request) -> Envelope:
         return envelope(request, service.health())
+
+    @application.get(
+        "/v1/market/quotes", response_model=Envelope, dependencies=[Depends(authenticate)]
+    )
+    def market_quotes(
+        request: Request,
+        symbols: str | None = Query(None, description="Comma-separated symbols"),
+    ) -> Envelope:
+        requested = [part.strip() for part in symbols.split(",")] if symbols else None
+        cid = correlation(request)
+        return envelope(request, market.quotes(requested, correlation_id=cid))
+
+    @application.get(
+        "/v1/market/quotes/{symbol}",
+        response_model=Envelope,
+        dependencies=[Depends(authenticate)],
+    )
+    def market_quote(request: Request, symbol: str) -> Envelope:
+        return envelope(
+            request,
+            market.quote(validate_symbol(symbol), correlation_id=correlation(request)),
+        )
+
+    @application.get(
+        "/v1/market/candles/{symbol}",
+        response_model=Envelope,
+        dependencies=[Depends(authenticate)],
+    )
+    def market_candles(
+        request: Request,
+        symbol: str,
+        timeframe: str = Query("M5", pattern="^(M1|M5|M15|M30|H1|H4|D1)$"),
+        count: int = Query(100, ge=1, le=1000),
+    ) -> Envelope:
+        return envelope(
+            request,
+            market.candles(
+                validate_symbol(symbol),
+                timeframe,
+                count,
+                correlation_id=correlation(request),
+            ),
+        )
+
+    @application.get(
+        "/v1/market/symbols", response_model=Envelope, dependencies=[Depends(authenticate)]
+    )
+    def market_symbols(request: Request) -> Envelope:
+        return envelope(request, market.symbols())
+
+    @application.get(
+        "/v1/market/snapshot", response_model=Envelope, dependencies=[Depends(authenticate)]
+    )
+    def market_snapshot(
+        request: Request,
+        symbols: str | None = Query(None),
+        candle_symbol: str = Query("EURUSD"),
+        timeframe: str = Query("M5", pattern="^(M1|M5|M15|M30|H1|H4|D1)$"),
+        candle_count: int = Query(60, ge=1, le=500),
+    ) -> Envelope:
+        requested = [part.strip() for part in symbols.split(",")] if symbols else None
+        return envelope(
+            request,
+            market.snapshot(
+                symbols=requested,
+                candle_symbol=validate_symbol(candle_symbol),
+                timeframe=timeframe,
+                candle_count=candle_count,
+                correlation_id=correlation(request),
+            ),
+        )
 
     return application
 

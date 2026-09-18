@@ -12,20 +12,30 @@ export function PerformanceChart() {
   const data = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'].map((name, i) => ({ name, profit: [820, -340, 1260, 640, 1842][i] }))
   return <div className="chart-box small"><ResponsiveContainer width="100%" height="100%"><BarChart data={data}><CartesianGrid stroke="#1d2a3b" vertical={false} /><XAxis dataKey="name" stroke="#64748b" fontSize={11} /><Tooltip contentStyle={tooltipStyle} /><Bar dataKey="profit" fill="#3794ff" radius={[3, 3, 0, 0]} /></BarChart></ResponsiveContainer></div>
 }
-export function CandlestickTerminal({ candles }: { candles: LegacyMockCandle[] }) {
+export function CandlestickTerminal({
+  candles,
+  showGuides = true,
+  label = 'XAUUSD simulated candlestick chart',
+}: {
+  candles: LegacyMockCandle[]
+  showGuides?: boolean
+  label?: string
+}) {
   const ref = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (!ref.current || !candles.length) return
     const chart: IChartApi = createChart(ref.current, { layout: { background: { type: ColorType.Solid, color: '#0b1320' }, textColor: '#788aa3' }, grid: { vertLines: { color: '#172334' }, horzLines: { color: '#172334' } }, crosshair: { mode: CrosshairMode.Normal }, rightPriceScale: { borderColor: '#24344a' }, timeScale: { borderColor: '#24344a', timeVisible: true }, width: ref.current.clientWidth, height: 430 })
     const series = chart.addSeries(CandlestickSeries, { upColor: '#27d7a1', downColor: '#ff5e6c', borderVisible: false, wickUpColor: '#27d7a1', wickDownColor: '#ff5e6c' })
     series.setData(candles.map((c) => ({ ...c, time: c.time as UTCTimestamp })) as CandlestickData[])
-    series.createPriceLine({ price: 2642.2, color: '#27d7a1', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: 'SIM ENTRY' })
-    series.createPriceLine({ price: 2631.4, color: '#ff5e6c', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: 'SL' })
-    series.createPriceLine({ price: 2658.4, color: '#3794ff', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: 'TP1' })
+    if (showGuides) {
+      series.createPriceLine({ price: 2642.2, color: '#27d7a1', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: 'SIM ENTRY' })
+      series.createPriceLine({ price: 2631.4, color: '#ff5e6c', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: 'SL' })
+      series.createPriceLine({ price: 2658.4, color: '#3794ff', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: 'TP1' })
+    }
     chart.timeScale().fitContent()
     const resize = () => ref.current && chart.applyOptions({ width: ref.current.clientWidth })
     window.addEventListener('resize', resize)
     return () => { window.removeEventListener('resize', resize); chart.remove() }
-  }, [candles])
-  return <div ref={ref} className="candlestick" aria-label="XAUUSD simulated candlestick chart" />
+  }, [candles, showGuides])
+  return <div ref={ref} className="candlestick" aria-label={label} />
 }

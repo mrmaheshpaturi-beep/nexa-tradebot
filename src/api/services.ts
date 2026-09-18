@@ -5,6 +5,7 @@ import type {
   SystemStatus, UserRecord, TradingInstrument, Signal, TradeIntent, CreateTradeIntentInput,
   CreateSignalIntentInput, ExecutionCommand, Order, Position, ServiceHeartbeat,
   Mt5BridgeStatus, Mt5BridgeConnection, Mt5BridgeEnvelope, Mt5ExternalPosition, Mt5ReconciliationRun,
+  MarketSnapshot, MarketQuote, MarketCandleBar, MarketSymbolInfo, MarketExtensionHooks,
 } from './types'
 
 export const authApi = {
@@ -128,4 +129,37 @@ export const mt5Api = {
   reconcileMapping: (mappingId: number) =>
     apiRequest<Mt5ReconciliationRun>(`/api/v1/mt5/mappings/${mappingId}/reconcile`, { method: 'POST' }),
   reconciliationRuns: () => apiRequest<Paginated<Mt5ReconciliationRun>>('/api/v1/mt5/reconciliation-runs'),
+}
+
+export const marketApi = {
+  snapshot: (params?: {
+    symbols?: string
+    candle_symbol?: string
+    timeframe?: string
+    candle_count?: number
+    prefer?: 'auto' | 'bridge' | 'simulation'
+    persist?: boolean
+  }) => {
+    const query = new URLSearchParams()
+    if (params?.symbols) query.set('symbols', params.symbols)
+    if (params?.candle_symbol) query.set('candle_symbol', params.candle_symbol)
+    if (params?.timeframe) query.set('timeframe', params.timeframe)
+    if (params?.candle_count !== undefined) query.set('candle_count', String(params.candle_count))
+    if (params?.prefer) query.set('prefer', params.prefer)
+    if (params?.persist !== undefined) query.set('persist', params.persist ? '1' : '0')
+    const suffix = query.toString() ? `?${query}` : ''
+    return apiRequest<MarketSnapshot>(`/api/v1/market/snapshot${suffix}`)
+  },
+  quotes: (symbols?: string, prefer: 'auto' | 'bridge' | 'simulation' = 'auto') => {
+    const query = new URLSearchParams({ prefer })
+    if (symbols) query.set('symbols', symbols)
+    return apiRequest<MarketQuote[]>(`/api/v1/market/quotes?${query}`)
+  },
+  candles: (symbol: string, timeframe = 'M5', count = 100, prefer: 'auto' | 'bridge' | 'simulation' = 'auto') =>
+    apiRequest<MarketCandleBar[]>(
+      `/api/v1/market/candles/${encodeURIComponent(symbol)}?timeframe=${timeframe}&count=${count}&prefer=${prefer}`,
+    ),
+  symbols: (prefer: 'auto' | 'bridge' | 'simulation' = 'auto') =>
+    apiRequest<MarketSymbolInfo[]>(`/api/v1/market/symbols?prefer=${prefer}`),
+  extensionHooks: () => apiRequest<MarketExtensionHooks>('/api/v1/market/extension-hooks'),
 }

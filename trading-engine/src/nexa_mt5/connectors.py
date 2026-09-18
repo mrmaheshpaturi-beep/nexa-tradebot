@@ -89,45 +89,96 @@ class MockMT5Connector:
             "trade_mode": "DEMO",
         }
 
+    MOCK_SPECS: dict[str, dict[str, Any]] = {
+        "EURUSD": {
+            "symbol": "EURUSD",
+            "description": "Euro / US Dollar",
+            "digits": 5,
+            "point": "0.00001",
+            "trade_tick_size": "0.00001",
+            "trade_tick_value": "1.0",
+            "volume_min": "0.01",
+            "volume_max": "100.0",
+            "volume_step": "0.01",
+        },
+        "GBPUSD": {
+            "symbol": "GBPUSD",
+            "description": "British Pound / US Dollar",
+            "digits": 5,
+            "point": "0.00001",
+            "trade_tick_size": "0.00001",
+            "trade_tick_value": "1.0",
+            "volume_min": "0.01",
+            "volume_max": "100.0",
+            "volume_step": "0.01",
+        },
+        "USDJPY": {
+            "symbol": "USDJPY",
+            "description": "US Dollar / Japanese Yen",
+            "digits": 3,
+            "point": "0.001",
+            "trade_tick_size": "0.001",
+            "trade_tick_value": "1.0",
+            "volume_min": "0.01",
+            "volume_max": "100.0",
+            "volume_step": "0.01",
+        },
+        "XAUUSD": {
+            "symbol": "XAUUSD",
+            "description": "Gold / US Dollar",
+            "digits": 2,
+            "point": "0.01",
+            "trade_tick_size": "0.01",
+            "trade_tick_value": "1.0",
+            "volume_min": "0.01",
+            "volume_max": "50.0",
+            "volume_step": "0.01",
+        },
+        "NAS100": {
+            "symbol": "NAS100",
+            "description": "Nasdaq 100 CFD",
+            "digits": 2,
+            "point": "0.01",
+            "trade_tick_size": "0.01",
+            "trade_tick_value": "1.0",
+            "volume_min": "0.01",
+            "volume_max": "50.0",
+            "volume_step": "0.01",
+        },
+        "BTCUSD": {
+            "symbol": "BTCUSD",
+            "description": "Bitcoin / US Dollar",
+            "digits": 2,
+            "point": "0.01",
+            "trade_tick_size": "0.01",
+            "trade_tick_value": "1.0",
+            "volume_min": "0.01",
+            "volume_max": "10.0",
+            "volume_step": "0.01",
+        },
+    }
+
+    MOCK_QUOTES: dict[str, tuple[str, str]] = {
+        "EURUSD": ("1.10000", "1.10020"),
+        "GBPUSD": ("1.27500", "1.27530"),
+        "USDJPY": ("145.100", "145.120"),
+        "XAUUSD": ("2350.10", "2350.30"),
+        "NAS100": ("19000.00", "19001.00"),
+        "BTCUSD": ("60000.00", "60010.00"),
+    }
+
     def symbols(self) -> list[dict[str, Any]]:
         self._require()
-        return [self.symbol_info(symbol) for symbol in ("EURUSD", "XAUUSD")]  # type: ignore[misc]
+        return [self.symbol_info(symbol) for symbol in self.MOCK_SPECS]  # type: ignore[misc]
 
     def symbol_info(self, symbol: str) -> dict[str, Any] | None:
         self._require()
-        specs = {
-            "EURUSD": {
-                "symbol": "EURUSD",
-                "description": "Euro / US Dollar",
-                "digits": 5,
-                "point": "0.00001",
-                "trade_tick_size": "0.00001",
-                "trade_tick_value": "1.0",
-                "volume_min": "0.01",
-                "volume_max": "100.0",
-                "volume_step": "0.01",
-            },
-            "XAUUSD": {
-                "symbol": "XAUUSD",
-                "description": "Gold / US Dollar",
-                "digits": 2,
-                "point": "0.01",
-                "trade_tick_size": "0.01",
-                "trade_tick_value": "1.0",
-                "volume_min": "0.01",
-                "volume_max": "50.0",
-                "volume_step": "0.01",
-            },
-        }
-        return specs.get(symbol.upper())
+        spec = self.MOCK_SPECS.get(symbol.upper())
+        return dict(spec) if spec else None
 
     def tick(self, symbol: str) -> dict[str, Any] | None:
         self._require()
-        quotes = {
-            "EURUSD": ("1.10000", "1.10020"),
-            "XAUUSD": ("2350.10", "2350.30"),
-        }
-        quote = quotes.get(symbol.upper())
+        quote = self.MOCK_QUOTES.get(symbol.upper())
         if quote is None:
             return None
         return {

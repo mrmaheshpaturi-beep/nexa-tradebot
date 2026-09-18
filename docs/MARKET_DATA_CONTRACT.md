@@ -44,6 +44,19 @@ The provider can return up to 500 deterministic candles for `M1`, `M5`, `M15`, `
 
 Timestamps are generated at request time, but prices are fixed. A fresh timestamp is not evidence of a live feed. Unsupported symbols fail validation. There are no subscriptions, sockets, gaps, trading-session calendars, market-open checks, stale thresholds, provider failover, or historical guarantees.
 
+## Phase 5 market data engine
+
+Phase 5 introduces a Market Data Engine above the Phase 4 bridge and the Phase 3 mock provider:
+
+- Quotes include bid/ask/spread plus **freshness** (`FRESH` / `STALE` / `UNKNOWN`) and **quality** (score, status, issues, usable).
+- Candles include OHLC validation (`OHLC_INCONSISTENT`, etc.) and quality metadata. Unusable bars must not be charted as trusted.
+- Symbols carry normalized metadata and quality.
+- Aggregated **Market Snapshot** is served at Laravel `GET /api/v1/market/snapshot` (and Python `GET /v1/market/snapshot`).
+- Prefer `prefer=auto|bridge|simulation`. Auto uses the bridge when configured, otherwise simulation enrichment.
+- Phase 6 indicator engine and Phase 7 strategies are declared as `PENDING` extension hooks only.
+
+See `PHASE_5_ARCHITECTURE.md` and `PHASE_5_REPORT.md`.
+
 ## Phase 4 boundary
 
-The initial Phase 4 contract may read adapter state and market data, but must not place, modify, cancel, or close anything. See `MT5_INTEGRATION_CONTRACT.md`.
+The Phase 4/5 contract may read adapter state and market data, but must not place, modify, cancel, or close anything. See `MT5_INTEGRATION_CONTRACT.md`.

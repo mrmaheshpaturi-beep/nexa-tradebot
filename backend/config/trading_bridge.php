@@ -12,4 +12,5 @@ return [
     'cache_seconds' => (int) env('TRADING_BRIDGE_CACHE_SECONDS', 2),
     'history_max_days' => (int) env('TRADING_BRIDGE_HISTORY_MAX_DAYS', 90),
     'history_max_records' => (int) env('TRADING_BRIDGE_HISTORY_MAX_RECORDS', 500),
+    'market_stale_after_seconds' => (float) env('TRADING_BRIDGE_MARKET_STALE_AFTER', 15),
 ];

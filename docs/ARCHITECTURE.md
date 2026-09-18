@@ -9,8 +9,9 @@ Nexa TradeBot is a React 19/TypeScript/Vite client with a Laravel 13/Sanctum API
 | Phase 1–2 | Simulation UI, session auth, RBAC, persistence foundation |
 | Phase 3 | Persistent simulation trading domain (only executable environment) |
 | Phase 4 | Read-only MT5 DEMO bridge (external observations; no broker writes) |
+| Phase 5 | Market Data Engine (freshness/validation/quality + snapshot for UI) |
 
-Phase 3 execution remains `SIMULATION` only. Phase 4 adds external read models without enabling DEMO/LIVE execution.
+Phase 3 execution remains `SIMULATION` only. Phase 4–5 add external read models and market snapshots without enabling DEMO/LIVE execution.
 
 ## Phase 3 system (summary)
 

@@ -50,10 +50,23 @@ SIMULATION remains the only executable environment. Real MT5 terminal validation
 
 See `PHASE_4_REPORT.md`, `PHASE_4_ARCHITECTURE.md`, `MT5_INTEGRATION_CONTRACT.md`, `MT5_BRIDGE_API.md`, and `MT5_WINDOWS_SETUP.md`.
 
+## Phase 5 — Market Data Engine (delivered)
+
+Implemented on `cursor/phase-5-market-data-56f9`:
+
+- Python Market Data Engine with freshness, validation, and quality scoring;
+- Laravel snapshot APIs and persistence (`market_*` tables);
+- React Market Watch + Live Charts consuming the snapshot;
+- Phase 6/7 extension hooks only (PENDING).
+
+Still READ-ONLY for MT5. Real Windows terminal validation remains pending.
+
+See `PHASE_5_REPORT.md` and `PHASE_5_ARCHITECTURE.md`.
+
 ## Later phases requiring separate approval
 
-1. Real market-data ingestion and freshness controls.
-2. Indicator computation and strategy/scanner engines.
+1. Indicator computation engine (Phase 6).
+2. Strategy/scanner engines (Phase 7).
 3. Authoritative portfolio risk engine.
 4. MT5 DEMO write adapter with durable delivery and reconciliation.
 5. AI analysis behind the risk boundary.

@@ -44,7 +44,7 @@ def test_health_terminal_account_symbols_and_heartbeat() -> None:
         account = api.get("/v1/account", headers=auth()).json()
         assert account["data"]["trade_mode"] == "DEMO"
         assert account["meta"]["environment"] == "DEMO"
-        assert len(api.get("/v1/symbols", headers=auth()).json()["data"]) == 2
+        assert len(api.get("/v1/symbols", headers=auth()).json()["data"]) == 6
         assert api.get("/v1/symbols/EURUSD", headers=auth()).status_code == 200
         assert api.get("/v1/heartbeat", headers=auth()).status_code == 200
 

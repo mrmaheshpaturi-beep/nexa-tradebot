@@ -13,10 +13,10 @@ const page = (file: 'TradingPages' | 'OperationsPages', name: string) =>
   lazy(() => import(`./pages/${file}.tsx`).then((module) => ({ default: module[name] })))
 
 const Dashboard = lazy(() => import('./pages/PersistentTradingPages').then((module) => ({ default: module.PersistentDashboard })))
-const MarketWatch = page('TradingPages', 'MarketWatch')
+const MarketWatch = lazy(() => import('./pages/PhaseFiveMarketPages').then((module) => ({ default: module.PhaseFiveMarketWatch })))
 const MarketScanner = page('TradingPages', 'MarketScanner')
 const AISignals = lazy(() => import('./pages/PhaseThreeTradingPages').then((module) => ({ default: module.PersistentSignals })))
-const LiveCharts = page('TradingPages', 'LiveCharts')
+const LiveCharts = lazy(() => import('./pages/PhaseFiveMarketPages').then((module) => ({ default: module.PhaseFiveLiveCharts })))
 const Strategies = lazy(() => import('./pages/PersistentTradingPages').then((module) => ({ default: module.PersistentStrategies })))
 const AutoTrading = page('TradingPages', 'AutoTrading')
 const ManualTrading = lazy(() => import('./pages/PhaseThreeTradingPages').then((module) => ({ default: module.PersistentManualTrading })))
