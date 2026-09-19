@@ -13,8 +13,9 @@ Nexa TradeBot is a React 19/TypeScript/Vite client with a Laravel 13/Sanctum API
 | Phase 6 | Indicator Engine (closed-candle indicators; no broker writes) |
 | Phase 7 | Strategy Engine + Signal/Confluence (analysis only; no broker writes) |
 | Phase 8 | Market Scanner + Signal Orchestrator (candidates only; no broker writes) |
+| Phase 9 | Authoritative RiskEngine (decisions/plans/locks; no broker writes) |
 
-Phase 3 execution remains `SIMULATION` only. Phase 4–8 add external read models, market snapshots, indicators, strategy signals, and candidate queues without enabling DEMO/LIVE execution.
+Phase 3 execution remains `SIMULATION` only. Phase 4–9 add external read models, market snapshots, indicators, strategy signals, candidate queues, and risk authority without enabling DEMO/LIVE execution.
 
 ## Phase 3 system (summary)
 
@@ -85,14 +86,30 @@ MarketData + Technical adapters
 
 **Completion audit:** [`PHASE_8_REPORT.md`](PHASE_8_REPORT.md)
 
+## Phase 9 system (summary)
+
+```text
+TradeIntent + MarketSnapshot/symbol specs + RiskProfile
+  → RiskEngine (versioned rule modules)
+  → RiskDecision + ProposedPlan (+ Reservation / Lock)
+  → /api/v1/risk-engine/* + Risk UI
+  → SIMULATION ExecutionCommand only after APPROVED (Phase 3 path)
+```
+
+**Design:** [`RISK_ENGINE.md`](RISK_ENGINE.md) · [`RISK_RULES.md`](RISK_RULES.md) · [`POSITION_SIZING.md`](POSITION_SIZING.md)
+
+**Phase 10 input (contract only):** [`PHASE_10_EXECUTION_CONTRACT.md`](PHASE_10_EXECUTION_CONTRACT.md)
+
+**Completion audit:** [`PHASE_9_REPORT.md`](PHASE_9_REPORT.md)
+
 ## Health truth model
 
-`/api/v1/system/status` separates simulation readiness from optional `mt5_bridge` metadata and reports `market_data_engine`, `indicator_engine`, `strategy_engine`, `market_scanner`, and `signal_orchestrator` as READY. Broker transmission and demo/live execution remain false.
+`/api/v1/system/status` separates simulation readiness from optional `mt5_bridge` metadata and reports `market_data_engine`, `indicator_engine`, `strategy_engine`, `market_scanner`, `signal_orchestrator`, and `risk_engine` as READY. Broker transmission and demo/live execution remain false.
 
 ## Deployment
 
-Phase 8 does not require public bridge exposure. See `PHASE_8_REPORT.md` for verification results and deployment boundaries.
+Phase 9 does not require public bridge exposure. See `PHASE_9_REPORT.md` for verification results and deployment boundaries.
 
 ## Nonexistent architecture
 
-No MT5 write adapter, broker order path, or DEMO/LIVE execution enablement exists. Phase 7–8 automation is analysis/signals/candidates only (no broker AutoTrading).
+No MT5 write adapter, broker order path, or DEMO/LIVE execution enablement exists. Phase 7–8 automation is analysis/signals/candidates only. Phase 9 risk proposals never auto-route to brokers.

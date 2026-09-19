@@ -42,7 +42,7 @@ These are application/database controls for one deployment. They are not distrib
 
 ## Risk limitations
 
-The Phase 3 risk evaluator is deterministic simulation code. It checks core account/instrument/volume/protection/risk/reward gates, but does not implement every enumerated institutional risk rule, market freshness, news/session limits, portfolio correlation, broker margin parity or real slippage. It must never be treated as authorization for live funds.
+Phase 9 RiskEngine is authoritative for SIMULATION intents and fail-closed on missing data, but it is not broker margin parity, live slippage, or authorization for real funds. DEMO/LIVE execution remain disabled.
 
 ## Market data safety
 

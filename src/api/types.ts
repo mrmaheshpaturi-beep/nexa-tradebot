@@ -144,6 +144,9 @@ export interface RiskProfileRecord {
   name: string
   status: string
   is_default: boolean
+  version?: number
+  rules_bundle_version?: string
+  config_hash?: string | null
   max_risk_per_trade: string | number
   max_lot_size: string | number
   max_daily_loss: string | number
@@ -151,12 +154,16 @@ export interface RiskProfileRecord {
   max_drawdown: string | number
   max_open_positions: number
   max_open_risk: string | number
+  max_correlated_exposure?: string | number
   max_trades_per_day: number
   max_consecutive_losses: number
   min_margin_level: string | number
   max_spread: string | number
   max_slippage: string | number
   min_reward_risk: string | number
+  require_stop_loss?: boolean
+  sizing_enabled?: boolean
+  session_allowlist?: string[] | null
 }
 export interface BrokerAccountRecord {
   id: number
@@ -241,6 +248,18 @@ export interface SystemStatus {
     queue_api?: string
     mode?: string
     broker_routing?: boolean
+  }
+  risk_engine?: {
+    phase: number
+    status: string
+    authoritative?: boolean
+    fail_closed?: boolean
+    engine_version?: string
+    dashboard_api?: string
+    order_send?: boolean
+    demo_execution?: boolean
+    live_execution?: boolean
+    broker_routable?: boolean
   }
   alert_pipeline?: {
     phase: number
@@ -556,7 +575,7 @@ export type OrderStatus = 'CREATED' | 'SUBMITTED' | 'ACCEPTED' | 'PARTIALLY_FILL
 export type PositionStatus = 'OPEN' | 'PARTIALLY_CLOSED' | 'CLOSED'
 export type PositionEventType = 'OPENED' | 'VOLUME_INCREASED' | 'PARTIALLY_CLOSED' | 'STOP_LOSS_MODIFIED' | 'TAKE_PROFIT_MODIFIED' | 'BREAK_EVEN_APPLIED' | 'TRAILING_STOP_UPDATED' | 'CLOSED' | 'RECONCILED'
 export type DealType = 'ENTRY' | 'EXIT' | 'PARTIAL_EXIT'
-export type RiskReasonCode = 'APPROVED' | 'DAILY_LOSS_LIMIT' | 'WEEKLY_LOSS_LIMIT' | 'DRAWDOWN_LIMIT' | 'MAX_POSITIONS' | 'MAX_EXPOSURE' | 'MAX_LOT' | 'SPREAD_LIMIT' | 'SLIPPAGE_LIMIT' | 'MARGIN_LIMIT' | 'CONSECUTIVE_LOSS_LIMIT' | 'MINIMUM_RR' | 'EMERGENCY_STOP' | 'TRADING_DISABLED' | 'SESSION_RESTRICTED' | 'NEWS_RESTRICTED' | 'CORRELATION_LIMIT' | 'VALIDATION_FAILURE' | 'SIMULATION_EXECUTION_DISABLED' | 'INVALID_ENVIRONMENT' | 'INVALID_ACCOUNT' | 'INVALID_INSTRUMENT' | 'INVALID_VOLUME' | 'INVALID_PROTECTION' | 'RISK_LIMIT' | 'REWARD_RISK' | 'MAX_OPEN_POSITIONS' | 'MISSING_ACCOUNT_SNAPSHOT'
+export type RiskReasonCode = 'APPROVED' | 'DAILY_LOSS_LIMIT' | 'WEEKLY_LOSS_LIMIT' | 'DRAWDOWN_LIMIT' | 'MAX_POSITIONS' | 'MAX_EXPOSURE' | 'MAX_LOT' | 'SPREAD_LIMIT' | 'SLIPPAGE_LIMIT' | 'MARGIN_LIMIT' | 'CONSECUTIVE_LOSS_LIMIT' | 'MINIMUM_RR' | 'EMERGENCY_STOP' | 'TRADING_DISABLED' | 'SESSION_RESTRICTED' | 'NEWS_RESTRICTED' | 'CORRELATION_LIMIT' | 'VALIDATION_FAILURE' | 'SIMULATION_EXECUTION_DISABLED' | 'INVALID_ENVIRONMENT' | 'INVALID_ACCOUNT' | 'INVALID_INSTRUMENT' | 'INVALID_VOLUME' | 'INVALID_PROTECTION' | 'RISK_LIMIT' | 'REWARD_RISK' | 'MAX_OPEN_POSITIONS' | 'MISSING_ACCOUNT_SNAPSHOT' | 'RISK_LOCK' | 'MISSING_SYMBOL_SPECS' | 'DATA_QUALITY' | 'STOP_DISTANCE' | 'RESERVATION_CONFLICT' | 'FAIL_CLOSED' | 'INSUFFICIENT_EQUITY'
 export type Numeric = string | number
 
 export interface BackendMockQuote {
@@ -610,7 +629,66 @@ export interface RiskDecision {
   approved_risk: Numeric | null; requested_volume: Numeric; approved_volume: Numeric | null
   reward_risk: Numeric | null; checks: Record<string, unknown>; evaluated_at: string
   created_at: string; updated_at: string
+  engine_version?: string | null
+  profile_version?: number | null
+  rules_bundle_version?: string | null
+  config_hash?: string | null
+  immutable?: boolean
+  rule_results?: Array<{ code: string; passed: boolean; reason?: string | null; evidence?: Record<string, unknown> }>
+  account_context?: Record<string, unknown> | null
+  symbol_context?: Record<string, unknown> | null
+  proposed_plan?: ProposedPlan | null
 }
+
+export interface ProposedPlan {
+  id: number
+  public_id: string
+  risk_decision_id: number
+  status: string
+  proposed_volume: Numeric
+  proposed_risk_amount: Numeric
+  proposed_risk_percent: Numeric | null
+  proposed_entry: Numeric | null
+  proposed_stop_loss: Numeric | null
+  proposed_take_profit: Numeric | null
+  proposed_reward_risk: Numeric | null
+  proposed_margin: Numeric | null
+  sizing_breakdown: Record<string, unknown>
+  symbol_specs: Record<string, unknown>
+  engine_version: string
+  profile_version: string | null
+  broker_routable: boolean
+}
+
+export interface RiskLockRecord {
+  id: number
+  public_id: string
+  lock_type: string
+  reason_code: string
+  message: string
+  is_active: boolean
+  locked_at: string
+  released_at: string | null
+  context?: Record<string, unknown> | null
+}
+
+export interface RiskEngineDashboard {
+  phase: number
+  engine: Record<string, unknown>
+  profile: RiskProfileRecord | null
+  account: BrokerAccountRecord | null
+  account_context: Record<string, unknown> | null
+  active_locks: RiskLockRecord[]
+  recent_decisions: RiskDecision[]
+  active_reservations: Array<Record<string, unknown>>
+  execution: {
+    order_send: false
+    demo_execution: false
+    live_execution: false
+    mt5_execution: string
+  }
+}
+
 
 export interface ExecutionCommand {
   id: number; public_id: string; user_id: number; broker_account_id: number

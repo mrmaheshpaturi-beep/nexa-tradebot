@@ -127,6 +127,7 @@ export function PersistentSystemHealth() {
     ['Strategy Engine', status.strategy_engine?.status ?? 'READY', 'Phase 7 analysis/signals'],
     ['Market Scanner', status.market_scanner?.status ?? 'READY', 'Phase 8 candidates only'],
     ['Signal Orchestrator', status.signal_orchestrator?.status ?? 'READY', status.signal_orchestrator?.mode ?? 'CANDIDATES_ONLY'],
+    ['Risk Engine', status.risk_engine?.status ?? 'READY', status.risk_engine?.engine_version ?? 'Phase 9 authoritative'],
     ['Trading Engine', 'NOT IMPLEMENTED', 'No live trading engine'],
     ['MT5 Bridge', status.mt5_bridge?.configured ? status.mt5_bridge.state : 'NOT CONFIGURED', status.mt5_bridge?.mode ?? 'READ_ONLY'],
     ['Broker', status.broker?.status ?? 'DISCONNECTED', 'No broker execution'],

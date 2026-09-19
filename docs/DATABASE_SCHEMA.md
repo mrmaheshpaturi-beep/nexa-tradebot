@@ -134,6 +134,34 @@ Report-only reconciliation sessions and per-resource comparison rows.
 
 Adds `source`, `environment`, and `external_snapshot_id` for idempotent MT5 snapshot ingestion.
 
+## New Phase 9 tables / columns
+
+Additive migration `2026_09_19_070000_create_phase_nine_risk_engine.php` (local/dev verified). Never run `migrate:fresh` against shared/hosted DBs.
+
+### `risk_profiles` expansions
+
+`version`, `rules_bundle_version`, `config_hash`, `rule_config`, `session_allowlist`, `max_correlated_exposure`, `atr_stop_multiplier`, `require_stop_loss`, `sizing_enabled`.
+
+### `risk_rule_definitions`
+
+Catalog of modular rule codes/versions/priorities.
+
+### `proposed_plans`
+
+One sizing proposal per risk decision; `broker_routable` defaults false; sizing facts immutable.
+
+### `risk_reservations`
+
+User-scoped idempotent margin/risk/exposure reservations with ACTIVE/RELEASED/EXPIRED/CONSUMED.
+
+### `risk_locks`
+
+Active locks that block new intents; release audited; anti-spam reuse of equivalent active locks.
+
+### `risk_decisions` expansions
+
+`engine_version`, `profile_version`, `rules_bundle_version`, `config_hash`, `proposed_plan_id`, `immutable`, `rule_results`, `account_context`, `symbol_context`.
+
 ## Portability limitations
 
 SQLite migration/rollback/test behavior is verified. Decimal behavior, JSON handling, index limits, FK alterations, `change()` operations and concurrent idempotency must be tested independently on each future MySQL/PostgreSQL target before deployment.

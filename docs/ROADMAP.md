@@ -100,16 +100,28 @@ Implemented on `cursor/phase-8-market-scanner-56f9`:
 
 See `PHASE_8_REPORT.md`, `SCANNER_ENGINE.md`, `SIGNAL_ORCHESTRATOR.md`, `PHASE_8_ARCHITECTURE.md`.
 
+## Phase 9 — Authoritative RiskEngine (delivered)
+
+Implemented on `cursor/phase-9-risk-engine-56f9`:
+
+- Authoritative `RiskEngineService` with modular versioned rules;
+- Symbol-aware position sizing + ProposedPlan (never broker orders);
+- Daily/weekly loss, drawdown, exposure, correlation, margin, spread, session, loss-streak, locks;
+- Reservations / concurrency protection; immutable decisions;
+- Risk APIs, RBAC, audit, events, health heartbeat, Risk UI;
+- Phase 10 execution contract stub only.
+
+See `PHASE_9_REPORT.md`, `RISK_ENGINE.md`, `PHASE_10_EXECUTION_CONTRACT.md`.
+
 ## Later phases requiring separate approval
 
-1. Phase 9 candidate → intent / DEMO write path (not started; contract remains simulation-first).
-2. Authoritative portfolio risk engine.
-3. MT5 DEMO write adapter with durable delivery and reconciliation.
-4. AI analysis behind the risk boundary.
-5. News/session intelligence.
-6. Historical backtesting and real-price paper trading.
-7. Persistent analytics/report exports and notification delivery.
-8. Security hardening, tamper-evident audit, observability and recovery.
-9. DEMO end-to-end validation and controlled deployment.
+1. Phase 10 execution adapter consuming RiskDecision/ProposedPlan (contract only today; not started).
+2. MT5 DEMO write adapter with durable delivery and reconciliation.
+3. AI analysis behind the risk boundary.
+4. News/session intelligence.
+5. Historical backtesting and real-price paper trading.
+6. Persistent analytics/report exports and notification delivery.
+7. Security hardening, tamper-evident audit, observability and recovery.
+8. DEMO end-to-end validation and controlled deployment.
 
 LIVE/real-money activation is not implied by any phase. It requires a separate governance, legal, security, operational and rollback decision after DEMO evidence.

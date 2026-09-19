@@ -8,7 +8,9 @@
 - **Strategy:** user-owned, versioned configuration. It may be linked to signals/intents but cannot execute.
 - **Signal:** analytical record with direction, score, timeframe, references, expiry and explicit MOCK/SIMULATION source. It can create one intent but cannot evaluate or execute itself.
 - **TradeIntent:** immutable request facts and lifecycle status. It is neither an order nor authorization to execute.
-- **RiskDecision:** one deterministic approval/rejection attached to one intent, with reason code, calculated risk/reward and check evidence.
+- **RiskDecision:** immutable Phase 9 approval/rejection with reason code, rule evidence, profile/engine versions, and optional ProposedPlan link.
+- **ProposedPlan:** symbol-aware sizing proposal only; never a broker order (`broker_routable=false`).
+- **RiskReservation / RiskLock:** concurrency margin/exposure reservation and breach locks that block new intents.
 - **ExecutionCommand:** idempotent instruction to the simulation adapter with timestamps and safe failure state.
 - **Order:** accepted/rejected/filled/cancelled instruction ledger. A MARKET fill creates a deal and position; a pending order does not.
 - **Deal:** discrete entry, partial-exit or exit fill.
@@ -35,9 +37,9 @@ The instrument API returns the exact backend mock quote and specification so the
 
 ## Risk semantics
 
-The evaluator checks environment, emergency stop, simulation switch, account/profile readiness, instrument/strategy eligibility, volume/profile lot limit, maximum open positions, required account snapshot, protection side, risk percentage and minimum reward/risk.
+Phase 9 `RiskEngineService` is authoritative. It evaluates versioned rule modules covering environment, locks, symbol specs/quality, volume/sizing, stops/R:R, daily/weekly loss, drawdown, loss streak, exposure/correlation, margin, spread, and session allowlists. Fail closed on insufficient data. UI never decides risk alone. See `RISK_ENGINE.md`.
 
-The current calculator uses stop distance × volume × contract size. It is deterministic simulation risk, not broker margin/risk parity. Several enumerated future reason codes have no Phase 3 evaluator branch.
+The calculator uses stop distance × volume × contract size plus symbol volume step constraints — still deterministic simulation risk, not broker margin parity.
 
 ## Financial semantics
 

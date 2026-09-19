@@ -8,6 +8,7 @@ import type {
   MarketSnapshot, MarketQuote, MarketCandleBar, MarketSymbolInfo, MarketExtensionHooks,
   IndicatorCatalogItem, IndicatorResult,
   StrategyPluginCatalogItem, StrategyScanResult, ScannerBoard, SignalCandidate,
+  RiskEngineDashboard, RiskDecision, RiskLockRecord, ProposedPlan,
 } from './types'
 
 export const authApi = {
@@ -179,6 +180,20 @@ export const phaseEightApi = {
   configs: () => apiRequest<{ phase: number; configs: Array<Record<string, unknown>> }>('/api/v1/scanner/configs'),
   upsertConfig: (body: Record<string, unknown>) =>
     apiRequest<Record<string, unknown>>('/api/v1/scanner/configs', { method: 'PUT', body }),
+}
+
+export const phaseNineApi = {
+  health: () => apiRequest<Record<string, unknown>>('/api/v1/risk-engine/health'),
+  catalog: () => apiRequest<{ phase: number; rules: Array<Record<string, unknown>>; execution: { order_send: false } }>('/api/v1/risk-engine/catalog'),
+  dashboard: () => apiRequest<RiskEngineDashboard>('/api/v1/risk-engine/dashboard'),
+  decisions: () => apiRequest<Paginated<RiskDecision>>('/api/v1/risk-engine/decisions'),
+  decision: (publicId: string) => apiRequest<RiskDecision>(`/api/v1/risk-engine/decisions/${encodeURIComponent(publicId)}`),
+  plan: (publicId: string) => apiRequest<ProposedPlan>(`/api/v1/risk-engine/plans/${encodeURIComponent(publicId)}`),
+  locks: () => apiRequest<Paginated<RiskLockRecord>>('/api/v1/risk-engine/locks'),
+  createLock: (body: { lock_type: string; reason_code: string; message: string; account_public_id?: string }) =>
+    apiRequest<RiskLockRecord>('/api/v1/risk-engine/locks', { method: 'POST', body }),
+  releaseLock: (publicId: string, note = 'Released from UI') =>
+    apiRequest<RiskLockRecord>(`/api/v1/risk-engine/locks/${encodeURIComponent(publicId)}/release`, { method: 'POST', body: { note } }),
 }
 
 export const mt5Api = {

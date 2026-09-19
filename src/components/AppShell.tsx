@@ -11,6 +11,7 @@ const navigation = [
   ['Signals', '/ai-signals', Sparkles], ['Live Charts', '/live-charts', BarChart3], ['Strategies', '/strategies', Bot],
   ['Auto Trading', '/auto-trading', SlidersHorizontal], ['Manual Trading', '/manual-trading', CircleDollarSign], ['Open Positions', '/open-positions', BriefcaseBusiness],
   ['Pending Orders', '/pending-orders', ClipboardList], ['Trade History', '/trade-history', History], ['Risk Management', '/risk-management', ShieldAlert],
+  ['Risk Settings', '/risk-settings', SlidersHorizontal],
   ['Backtesting', '/backtesting', Target], ['Paper Trading', '/paper-trading', Activity], ['Analytics', '/analytics', Gauge],
   ['Reports', '/reports', FileBarChart], ['News Calendar', '/news-calendar', CalendarDays], ['MT5 Accounts', '/mt5-accounts', Command],
   ['MT5 Dashboard', '/mt5-dashboard', LayoutDashboard], ['MT5 Market', '/mt5-market', CandlestickChart], ['MT5 Charts', '/mt5-charts', BarChart3],
@@ -38,7 +39,7 @@ export function AppShell() {
   const visibleNavigation = navigation.filter(([label]) => {
     if (label === 'Audit Logs') return can('audit_logs.view')
     if (label === 'Strategies') return can('strategies.view')
-    if (label === 'Risk Management') return can('risk_profiles.view')
+    if (label === 'Risk Management' || label === 'Risk Settings') return can('risk_profiles.view') || can('risk_engine.view')
     if (label === 'MT5 Accounts' || label.startsWith('MT5 ')) return can('mt5.read')
     if (label === 'Notifications') return can('notifications.view')
     return true
