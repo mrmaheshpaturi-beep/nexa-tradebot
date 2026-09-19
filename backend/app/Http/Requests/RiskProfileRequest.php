@@ -31,6 +31,14 @@ class RiskProfileRequest extends FormRequest
             'max_spread' => ['required', 'numeric', 'between:0,1000'],
             'max_slippage' => ['required', 'numeric', 'between:0,1000'],
             'min_reward_risk' => ['required', 'numeric', 'between:1,10'],
+            'max_correlated_exposure' => ['sometimes', 'numeric', 'between:0.01,100'],
+            'atr_stop_multiplier' => ['nullable', 'numeric', 'between:0.1,20'],
+            'require_stop_loss' => ['sometimes', 'boolean'],
+            'sizing_enabled' => ['sometimes', 'boolean'],
+            'session_allowlist' => ['sometimes', 'array'],
+            'session_allowlist.*' => ['string', 'max:40'],
+            'rule_config' => ['sometimes', 'array'],
+            'rules_bundle_version' => ['sometimes', 'string', 'max:32'],
         ];
     }
 }

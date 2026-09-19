@@ -32,4 +32,11 @@ enum RiskReasonCode: string
     case RewardRisk = 'REWARD_RISK';
     case MaxOpenPositions = 'MAX_OPEN_POSITIONS';
     case MissingSnapshot = 'MISSING_ACCOUNT_SNAPSHOT';
+    case RiskLock = 'RISK_LOCK';
+    case MissingSymbolSpecs = 'MISSING_SYMBOL_SPECS';
+    case DataQuality = 'DATA_QUALITY';
+    case StopDistance = 'STOP_DISTANCE';
+    case ReservationConflict = 'RESERVATION_CONFLICT';
+    case FailClosed = 'FAIL_CLOSED';
+    case InsufficientEquity = 'INSUFFICIENT_EQUITY';
 }

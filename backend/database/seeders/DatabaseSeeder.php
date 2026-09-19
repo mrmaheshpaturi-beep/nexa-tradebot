@@ -49,11 +49,16 @@ class DatabaseSeeder extends Seeder
 
         $risk = $user->riskProfiles()->updateOrCreate(['name' => 'Conservative Simulation'], [
             'status' => 'ACTIVE', 'is_default' => true, 'created_by' => $user->id, 'updated_by' => $user->id,
+            'version' => 1, 'rules_bundle_version' => 'risk-rules/v1',
             'max_risk_per_trade' => 1, 'max_lot_size' => 1, 'max_daily_loss' => 4, 'max_weekly_loss' => 8,
-            'max_drawdown' => 12, 'max_open_positions' => 8, 'max_open_risk' => 6, 'max_trades_per_day' => 20,
+            'max_drawdown' => 12, 'max_open_positions' => 8, 'max_open_risk' => 6, 'max_correlated_exposure' => 4,
+            'max_trades_per_day' => 20,
             'max_consecutive_losses' => 4, 'min_margin_level' => 300, 'max_spread' => 3,
             'max_slippage' => 1.5, 'min_reward_risk' => 1.5,
+            'require_stop_loss' => true, 'sizing_enabled' => true,
+            'session_allowlist' => null,
         ]);
+        app(\App\Services\RiskEngineService::class)->ensureRuleDefinitionsSeeded();
         $account = $user->brokerAccounts()->updateOrCreate(['name' => 'Development Simulation'], [
             'risk_profile_id' => $risk->id, 'broker' => 'No broker - metadata only', 'platform' => 'NONE',
             'environment' => 'SIMULATION', 'status' => 'CONFIGURED', 'is_enabled' => true,

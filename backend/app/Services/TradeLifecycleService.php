@@ -170,7 +170,7 @@ class TradeLifecycleService
         $this->audit->record('risk_decision.recorded', $decision, [], $decision->toArray(), $request);
         RiskDecisionRecorded::dispatch($decision);
 
-        return $intent->fresh(['riskDecision']);
+        return $intent->fresh(['riskDecision.proposedPlan']);
     }
 
     /** @return array{command:ExecutionCommand,replayed:bool} */

@@ -83,6 +83,11 @@ class TradeIntent extends BaseModel
         return $this->hasOne(RiskDecision::class);
     }
 
+    public function proposedPlan(): HasOne
+    {
+        return $this->hasOne(ProposedPlan::class);
+    }
+
     public function executionCommand(): HasOne
     {
         return $this->hasOne(ExecutionCommand::class);

@@ -92,6 +92,18 @@ class SystemController extends Controller
                 'mode' => 'CANDIDATES_ONLY',
                 'broker_routing' => false,
             ],
+            'risk_engine' => [
+                'phase' => 9,
+                'status' => 'READY',
+                'authoritative' => true,
+                'fail_closed' => true,
+                'engine_version' => 'RiskEngine/v1',
+                'dashboard_api' => '/api/v1/risk-engine/dashboard',
+                'order_send' => false,
+                'demo_execution' => false,
+                'live_execution' => false,
+                'broker_routable' => false,
+            ],
             'alert_pipeline' => [
                 'phase' => 8,
                 'status' => 'FOUNDATION_READY',

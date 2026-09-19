@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PasswordResetController;
 use App\Http\Controllers\Api\PositionController;
+use App\Http\Controllers\Api\RiskEngineController;
 use App\Http\Controllers\Api\RiskProfileController;
 use App\Http\Controllers\Api\ServiceHeartbeatController;
 use App\Http\Controllers\Api\SettingController;
@@ -80,6 +81,18 @@ Route::prefix('v1')->middleware('web')->group(function (): void {
         Route::get('/risk-profiles', [RiskProfileController::class, 'index'])->middleware('permission:risk_profiles.view');
         Route::post('/risk-profiles', [RiskProfileController::class, 'store'])->middleware('permission:risk_profiles.create');
         Route::put('/risk-profiles/{riskProfile}', [RiskProfileController::class, 'update'])->middleware('permission:risk_profiles.update');
+
+        Route::get('/risk-engine/health', [RiskEngineController::class, 'health'])->middleware('permission:trading.read');
+        Route::get('/risk-engine/catalog', [RiskEngineController::class, 'catalog'])->middleware('permission:risk_engine.view');
+        Route::get('/risk-engine/dashboard', [RiskEngineController::class, 'dashboard'])->middleware('permission:risk_engine.view');
+        Route::get('/risk-engine/decisions', [RiskEngineController::class, 'decisions'])->middleware('permission:risk_engine.view');
+        Route::get('/risk-engine/decisions/{riskDecision}', [RiskEngineController::class, 'showDecision'])->middleware('permission:risk_engine.view');
+        Route::get('/risk-engine/plans/{proposedPlan}', [RiskEngineController::class, 'showPlan'])->middleware('permission:risk_engine.view');
+        Route::post('/risk-engine/evaluate/{tradeIntent}', [RiskEngineController::class, 'evaluate'])->middleware('permission:risk_engine.evaluate');
+        Route::get('/risk-engine/locks', [RiskEngineController::class, 'locks'])->middleware('permission:risk_engine.view');
+        Route::post('/risk-engine/locks', [RiskEngineController::class, 'createLock'])->middleware('permission:risk_engine.lock');
+        Route::post('/risk-engine/locks/{riskLock}/release', [RiskEngineController::class, 'releaseLock'])->middleware('permission:risk_engine.lock');
+        Route::post('/risk-engine/assert-gate', [RiskEngineController::class, 'assertGate'])->middleware('permission:risk_engine.view');
 
         Route::get('/broker-accounts', [BrokerAccountController::class, 'index'])->middleware('permission:broker_accounts.view');
         Route::post('/broker-accounts', [BrokerAccountController::class, 'store'])->middleware('permission:broker_accounts.create');

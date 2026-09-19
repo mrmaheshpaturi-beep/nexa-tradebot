@@ -13,6 +13,7 @@ class RolePermissionSeeder extends Seeder
         'users.view', 'users.create', 'users.update', 'users.status',
         'strategies.view', 'strategies.create', 'strategies.update',
         'risk_profiles.view', 'risk_profiles.create', 'risk_profiles.update',
+        'risk_engine.view', 'risk_engine.evaluate', 'risk_engine.lock',
         'broker_accounts.view', 'broker_accounts.create', 'broker_accounts.update',
         'settings.view', 'settings.update', 'emergency_stop.manage',
         'preferences.view', 'preferences.update',
@@ -38,7 +39,8 @@ class RolePermissionSeeder extends Seeder
             'ADMIN' => array_values(array_diff(self::PERMISSIONS, ['emergency_stop.manage'])),
             'TRADER' => [
                 'dashboard.view', 'strategies.view', 'strategies.create', 'strategies.update',
-                'risk_profiles.view', 'broker_accounts.view', 'settings.view',
+                'risk_profiles.view', 'risk_engine.view', 'risk_engine.evaluate', 'risk_engine.lock',
+                'broker_accounts.view', 'settings.view',
                 'preferences.view', 'preferences.update', 'notifications.view',
                 'notifications.update', 'simulation_orders.create',
                 'trading.read', 'signals.view', 'simulation_lifecycle.create',
@@ -48,7 +50,7 @@ class RolePermissionSeeder extends Seeder
                 'market.configure',
             ],
             'ANALYST' => [
-                'dashboard.view', 'strategies.view', 'risk_profiles.view',
+                'dashboard.view', 'strategies.view', 'risk_profiles.view', 'risk_engine.view',
                 'broker_accounts.view', 'settings.view', 'preferences.view',
                 'preferences.update', 'notifications.view', 'notifications.update',
                 'trading.read', 'signals.view', 'mt5.read',
@@ -56,7 +58,7 @@ class RolePermissionSeeder extends Seeder
             'VIEWER' => [
                 'dashboard.view', 'strategies.view', 'settings.view',
                 'preferences.view', 'notifications.view',
-                'trading.read', 'mt5.read',
+                'trading.read', 'mt5.read', 'risk_engine.view',
             ],
         ];
 
