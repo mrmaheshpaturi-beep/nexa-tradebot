@@ -1,0 +1,45 @@
+<?php
+
+namespace App\Models;
+
+use App\Models\Concerns\HasSimulationPublicId;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class BrokerProvider extends BaseModel
+{
+    use HasSimulationPublicId;
+
+    public function getRouteKeyName(): string
+    {
+        return 'public_id';
+    }
+
+    protected static function simulationPublicIdPrefix(): string
+    {
+        return 'FLP-';
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'capabilities' => 'array',
+            'metadata' => 'array',
+        ];
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function connections(): HasMany
+    {
+        return $this->hasMany(BrokerConnection::class);
+    }
+
+    public function fleetAccounts(): HasMany
+    {
+        return $this->hasMany(FleetAccount::class);
+    }
+}

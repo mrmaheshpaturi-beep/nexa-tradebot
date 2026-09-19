@@ -236,3 +236,21 @@ Additive migration `2026_09_19_270000_create_phase_seventeen_advanced_intelligen
 - Additive columns on `intelligence_settings`: `advanced_enabled`, `orchestrator_version`, `ai_timeout_ms`, `cost_budget_tokens`
 
 Advisory/shadow only — no broker write tables. Extends Phase 13; does not replace it.
+
+## Phase 18 — Broker Fleet tables
+
+Additive migration `2026_09_19_280000_create_phase_eighteen_broker_fleet.php`:
+
+- `broker_providers`, `broker_connections` (secret refs only; no raw credentials)
+- `fleet_accounts`, `account_fingerprints`, `broker_capabilities`
+- `fleet_terminals` (isolation keys; supervisor state)
+- `canonical_instruments`, `broker_instruments`, `instrument_mappings`
+- `trading_portfolios`, `portfolio_memberships`, `allocation_plans`, `strategy_assignments`
+- `fleet_risk_locks` (ACCOUNT|PORTFOLIO|GLOBAL)
+- `execution_routes` (account-bound idempotency; copy_trading always false)
+- `fleet_reconciliation_runs`, `fleet_health_snapshots`, `fleet_emergency_controls`
+- `automation_account_scopes` (OFF|DRY_RUN|DEMO_AUTO — never LIVE_AUTO)
+- `fx_valuation_rates`, `trading_nodes`, `trading_node_leases`, `fleet_audit_events`
+- Additive `broker_accounts.fleet_provider_code`, `broker_accounts.fleet_safe_mode`
+
+Fleet routes into Phase 10 — does not add broker write tables beyond existing DEMO execution path.

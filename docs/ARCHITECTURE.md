@@ -216,6 +216,30 @@ Phase 13 TradeIntelligenceEngine (reused — not duplicated)
 
 **Design:** [`ADVANCED_MARKET_INTELLIGENCE.md`](ADVANCED_MARKET_INTELLIGENCE.md) · [`TRADE_INTELLIGENCE_ENGINE.md`](TRADE_INTELLIGENCE_ENGINE.md) · [`AI_ANALYSIS_SERVICE.md`](AI_ANALYSIS_SERVICE.md)
 
-**Phase 18 input (contract only):** [`PHASE_18_CONTRACT.md`](PHASE_18_CONTRACT.md)
+**Completion audit:** [`PHASE_17_REPORT.md`](PHASE_17_REPORT.md)
+
+## Phase 18 — Multi-Broker / Multi-Account Fleet
+
+```text
+BrokerProvider / FleetAccount / Fingerprint / Connection / Capability
+  → Mt5FleetAdapter (verify only; no order_send)
+  → Terminal registry / supervisor / isolation (SAFE_MODE on mismatch)
+  → Canonical + broker instruments + mapping freshness
+  → Trading portfolios / memberships / versioned allocation
+  → Phase 16 approved strategy assignments only
+  → Phase 9 account|portfolio|global risk locks
+  → Account-aware ExecutionRouter → Phase 10 only (account-bound idempotency)
+  → Phase 11 ticket+account management gate
+  → Per-account reconciliation / foreign-position safety / restart recovery
+  → Fleet health + account-scoped Phase 14 automation + emergency controls
+  → Trading-node leases (split-brain foundation)
+  → NEVER copy trading · NEVER LIVE_AUTO · AI cannot route/allocate/change risk
+```
+
+**Design:** [`BROKER_FLEET.md`](BROKER_FLEET.md) · [`PHASE_18_CONTRACT.md`](PHASE_18_CONTRACT.md)
+
+**Completion audit:** [`PHASE_18_REPORT.md`](PHASE_18_REPORT.md)
+
+**Phase 19 input (contract only):** [`PHASE_19_CONTRACT.md`](PHASE_19_CONTRACT.md)
 
 **Completion audit:** [`PHASE_17_REPORT.md`](PHASE_17_REPORT.md)

@@ -153,3 +153,15 @@ LIVE modification/partial/full close HARD BLOCKED at gate + verifier + adapter +
 - CI: MockAI / MockNews / MockCalendar only — no paid API calls
 - Audit: `scripts/phase17-advanced-intelligence-audit.sh`
 - Permissions: reuse `intelligence.view|analyze|manage`
+
+## Phase 18 broker fleet security
+
+- Independent account environment verification; LIVE/UNKNOWN hard-blocked for broker-changing actions
+- Fingerprint mismatch / foreign positions / split-brain leases → SAFE_MODE
+- AI cannot route, allocate, or change risk (403 probes)
+- Phase 10 remains sole execution authority; Phase 18 `order_send` sites = 0
+- Copy trading absent; LIVE_AUTO does not exist
+- Secret refs on connections only (no raw credential persistence); worker isolation metadata
+- IDOR: fleet resources user-scoped; cross-user verify returns 404
+- Audit: `scripts/phase18-broker-fleet-audit.sh`
+- Permissions: `fleet.view|manage|operate|risk|route|reconcile|emergency`

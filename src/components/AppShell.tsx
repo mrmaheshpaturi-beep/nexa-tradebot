@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { Activity, BarChart3, Bell, Bot, BriefcaseBusiness, CalendarDays, CandlestickChart, ChevronLeft, CircleDollarSign, ClipboardList, Command, FileBarChart, Gauge, HeartPulse, History, LayoutDashboard, LogOut, Menu, PanelLeftClose, ScanSearch, Search, Settings, ShieldAlert, ShieldCheck, SlidersHorizontal, Sparkles, Target, UserCircle, Radar } from 'lucide-react'
+import { Activity, BarChart3, Bell, Bot, BriefcaseBusiness, CalendarDays, CandlestickChart, ChevronLeft, CircleDollarSign, ClipboardList, Command, FileBarChart, Gauge, HeartPulse, History, LayoutDashboard, LogOut, Menu, Network, PanelLeftClose, ScanSearch, Search, Settings, ShieldAlert, ShieldCheck, SlidersHorizontal, Sparkles, Target, UserCircle, Radar } from 'lucide-react'
 import { mt5Api, phaseTwoApi } from '../api/services'
 import { EnvironmentBadge } from './ui'
 import { useAuth } from '../auth/authState'
@@ -15,7 +15,7 @@ const navigation = [
   ['DEMO Execution', '/demo-execution', CircleDollarSign],
   ['Trade Management', '/trade-management', ShieldAlert],
   ['Backtesting', '/backtesting', Target], ['Paper Trading', '/paper-trading', Activity], ['Analytics', '/analytics', Gauge],
-  ['Reports', '/reports', FileBarChart], ['AI Trade Desk', '/ai-trade-desk', Sparkles], ['Advanced Intelligence', '/advanced-intelligence', Radar], ['News Calendar', '/news-calendar', CalendarDays], ['MT5 Accounts', '/mt5-accounts', Command],
+  ['Reports', '/reports', FileBarChart], ['AI Trade Desk', '/ai-trade-desk', Sparkles], ['Advanced Intelligence', '/advanced-intelligence', Radar], ['Portfolio Command Center', '/portfolio-command-center', Network], ['News Calendar', '/news-calendar', CalendarDays], ['MT5 Accounts', '/mt5-accounts', Command],
   ['MT5 Dashboard', '/mt5-dashboard', LayoutDashboard], ['MT5 Market', '/mt5-market', CandlestickChart], ['MT5 Charts', '/mt5-charts', BarChart3],
   ['MT5 Read Models', '/mt5-read-models', ClipboardList], ['MT5 Reconciliation', '/mt5-reconciliation', ShieldAlert],
   ['Notifications', '/notifications', Bell], ['System Health', '/system-health', HeartPulse], ['System Operations', '/system-operations', Radar], ['Strategy Governance', '/strategy-governance', ShieldCheck], ['Audit Logs', '/audit-logs', ClipboardList], ['Settings', '/settings', Settings],
@@ -45,6 +45,7 @@ export function AppShell() {
     if (label === 'DEMO Execution') return can('execution.view') || can('execution.confirm') || can('execution.execute')
     if (label === 'MT5 Accounts' || label.startsWith('MT5 ')) return can('mt5.read')
     if (label === 'AI Trade Desk' || label === 'News Calendar' || label === 'Advanced Intelligence') return can('intelligence.view') || can('trading.read')
+    if (label === 'Portfolio Command Center') return can('fleet.view') || can('trading.read')
     if (label === 'Notifications') return can('notifications.view')
     if (label === 'System Operations') return can('observability.view') || can('trading.read')
     return true

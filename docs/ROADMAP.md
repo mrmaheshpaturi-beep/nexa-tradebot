@@ -213,9 +213,23 @@ Complete on branch `cursor/phase-17-advanced-intelligence-56f9`:
 
 See `PHASE_17_REPORT.md`, `ADVANCED_MARKET_INTELLIGENCE.md`, `PHASE_17_CONTRACT.md`, `PHASE_18_CONTRACT.md`.
 
+## Phase 18 — Multi-Broker / Multi-Account Fleet Architecture
+
+Complete on branch `cursor/phase-18-broker-fleet-56f9`:
+
+- `BrokerFleetService` — providers, accounts, fingerprints, connections, capabilities
+- MT5 adapter abstraction routes into Phase 10 (no execution duplicate / no new order_send)
+- Terminal registry/supervisor/isolation + SAFE_MODE on fingerprint mismatch
+- Portfolios, versioned allocation, Phase 16–approved assignments
+- Account/portfolio/global risk locks; account-aware ExecutionRouter; Phase 11 account gate
+- Per-account reconciliation, fleet health, account-scoped automation, node leases
+- Portfolio Command Center UI; Phase 19 contract stub only
+
+See `PHASE_18_REPORT.md`, `BROKER_FLEET.md`, `PHASE_18_CONTRACT.md`, `PHASE_19_CONTRACT.md`.
+
 ## Later phases requiring separate approval
 
-1. Phase 18 operational follow-ons (contract only — `PHASE_18_CONTRACT.md`).
+1. Phase 19 operational follow-ons (contract only — `PHASE_19_CONTRACT.md`).
 2. Durable outbox / exactly-once delivery beyond process-local nonce cache.
 3. Real Windows MT5 DEMO end-to-end automation validation and controlled deployment.
 

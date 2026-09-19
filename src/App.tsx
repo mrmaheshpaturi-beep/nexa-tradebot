@@ -37,6 +37,7 @@ const Reports = page('OperationsPages', 'Reports')
 const NewsCalendar = lazy(() => import('./pages/PhaseThirteenIntelligencePages').then((module) => ({ default: module.PhaseThirteenNewsCalendar })))
 const AiTradeDesk = lazy(() => import('./pages/PhaseThirteenIntelligencePages').then((module) => ({ default: module.PhaseThirteenIntelligenceDesk })))
 const AdvancedIntelligence = lazy(() => import('./pages/PhaseSeventeenIntelligencePages').then((module) => ({ default: module.PhaseSeventeenAdvancedDesk })))
+const PortfolioCommandCenter = lazy(() => import('./pages/PhaseEighteenFleetPages').then((module) => ({ default: module.PhaseEighteenFleetPages })))
 const MT5Accounts = lazy(() => import('./pages/PhaseFourMt5Pages').then((module) => ({ default: module.Mt5AccountsPage })))
 const Mt5Dashboard = lazy(() => import('./pages/PhaseFourMt5Pages').then((module) => ({ default: module.Mt5Dashboard })))
 const Mt5Market = lazy(() => import('./pages/PhaseFourMt5Pages').then((module) => ({ default: module.Mt5MarketWatch })))
@@ -64,7 +65,7 @@ export default function App() {
     <Route path="demo-execution" element={<DemoExecution />} />
     <Route path="trade-management" element={<TradeManagement />} />
     <Route path="backtesting" element={<Backtesting />} /><Route path="paper-trading" element={<PaperTrading />} /><Route path="analytics" element={<Analytics />} />
-    <Route path="reports" element={<Reports />} /><Route path="news-calendar" element={<NewsCalendar />} /><Route path="ai-trade-desk" element={<AiTradeDesk />} /><Route path="advanced-intelligence" element={<AdvancedIntelligence />} /><Route path="mt5-accounts" element={<MT5Accounts />} />
+    <Route path="reports" element={<Reports />} /><Route path="news-calendar" element={<NewsCalendar />} /><Route path="ai-trade-desk" element={<AiTradeDesk />} /><Route path="advanced-intelligence" element={<AdvancedIntelligence />} /><Route path="portfolio-command-center" element={<PortfolioCommandCenter />} /><Route path="broker-connections" element={<PortfolioCommandCenter />} /><Route path="account-wizard" element={<PortfolioCommandCenter />} /><Route path="mt5-accounts" element={<MT5Accounts />} />
     <Route path="mt5-dashboard" element={<Mt5Dashboard />} /><Route path="mt5-market" element={<Mt5Market />} /><Route path="mt5-charts" element={<Mt5Charts />} />
     <Route path="mt5-read-models" element={<Mt5ReadModels />} /><Route path="mt5-reconciliation" element={<Mt5Reconciliation />} />
     <Route path="notifications" element={<Notifications />} /><Route path="system-health" element={<SystemHealth />} /><Route path="system-operations" element={<SystemOperations />} /><Route path="validation-lab" element={<SystemOperations />} /><Route path="alert-center" element={<SystemOperations />} /><Route path="strategy-governance" element={<StrategyGovernance />} /><Route path="strategy-lab" element={<StrategyGovernance />} /><Route path="audit-logs" element={<AuditLogs />} />

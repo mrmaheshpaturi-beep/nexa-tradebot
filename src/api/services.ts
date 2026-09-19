@@ -667,3 +667,74 @@ export const phaseSixteenApi = {
   refuseAiApprove: () =>
     apiRequest<Record<string, unknown>>('/api/v1/governance/ai-approve', { method: 'POST', body: {} }),
 }
+
+export const phaseEighteenApi = {
+  health: () => apiRequest<Record<string, unknown>>('/api/v1/fleet/health'),
+  dashboard: () => apiRequest<Record<string, unknown>>('/api/v1/fleet/dashboard'),
+  registerProvider: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/fleet/providers', { method: 'POST', body }),
+  registerConnection: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/fleet/connections', { method: 'POST', body }),
+  registerAccount: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/fleet/accounts', { method: 'POST', body }),
+  verifyAccount: (id: string) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/fleet/accounts/${encodeURIComponent(id)}/verify`, { method: 'POST', body: {} }),
+  registerTerminal: (id: string, node_label: string) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/fleet/accounts/${encodeURIComponent(id)}/terminals`, {
+      method: 'POST', body: { node_label },
+    }),
+  mapInstrument: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/fleet/instruments/map', { method: 'POST', body }),
+  createPortfolio: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/fleet/portfolios', { method: 'POST', body }),
+  addMembership: (id: string, body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/fleet/portfolios/${encodeURIComponent(id)}/memberships`, {
+      method: 'POST', body,
+    }),
+  activateAllocation: (id: string, weights: Record<string, number>) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/fleet/portfolios/${encodeURIComponent(id)}/allocations`, {
+      method: 'POST', body: { weights },
+    }),
+  portfolioAnalytics: (id: string) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/fleet/portfolios/${encodeURIComponent(id)}/analytics`),
+  assignStrategy: (id: string, body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/fleet/accounts/${encodeURIComponent(id)}/assignments`, {
+      method: 'POST', body,
+    }),
+  createRiskLock: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/fleet/risk-locks', { method: 'POST', body }),
+  routeExecution: (id: string, body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/fleet/accounts/${encodeURIComponent(id)}/route`, {
+      method: 'POST', body,
+    }),
+  managementGate: (id: string, body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/fleet/accounts/${encodeURIComponent(id)}/management-gate`, {
+      method: 'POST', body,
+    }),
+  reconcile: (id: string, body: Record<string, unknown> = {}) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/fleet/accounts/${encodeURIComponent(id)}/reconcile`, {
+      method: 'POST', body,
+    }),
+  captureHealth: () =>
+    apiRequest<Record<string, unknown>>('/api/v1/fleet/health/capture', { method: 'POST', body: {} }),
+  automationScope: (id: string, mode: string) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/fleet/accounts/${encodeURIComponent(id)}/automation-scope`, {
+      method: 'POST', body: { mode },
+    }),
+  emergency: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/fleet/emergency', { method: 'POST', body }),
+  valuation: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/fleet/valuation', { method: 'POST', body }),
+  registerNode: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/fleet/nodes', { method: 'POST', body }),
+  acquireLease: (nodeId: string, body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/fleet/nodes/${encodeURIComponent(nodeId)}/leases`, {
+      method: 'POST', body,
+    }),
+  refuseAiRoute: () =>
+    apiRequest<Record<string, unknown>>('/api/v1/fleet/ai-route', { method: 'POST', body: {} }),
+  refuseLiveAuto: () =>
+    apiRequest<Record<string, unknown>>('/api/v1/fleet/live-auto', { method: 'POST', body: {} }),
+  refuseCopyTrading: () =>
+    apiRequest<Record<string, unknown>>('/api/v1/fleet/copy-trading', { method: 'POST', body: {} }),
+}

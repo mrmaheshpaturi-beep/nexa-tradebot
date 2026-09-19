@@ -173,3 +173,17 @@ LIVE_AUTO endpoints always 403. Browser never receives raw MT5 write payloads.
 | `governance.lab` | Strategy Lab experiments (never deploys) |
 
 AI approve/deploy endpoints always 403. LIVE deploy endpoints always 403. DEMO_AUTO promotion only after two-step human approval.
+
+## Phase 18 fleet permissions
+
+| Permission | Capability |
+|---|---|
+| `fleet.view` | Dashboard, health, analytics, valuation |
+| `fleet.manage` | Providers, connections, accounts, portfolios, allocations, assignments, nodes |
+| `fleet.operate` | Verify, supervise, automation scope, leases, spec refresh |
+| `fleet.risk` | Account/portfolio/global risk locks |
+| `fleet.route` | Account-aware ExecutionRouter into Phase 10 |
+| `fleet.reconcile` | Per-account reconciliation |
+| `fleet.emergency` | Per-account / fleet emergency controls |
+
+AI route/allocate endpoints always 403. LIVE_AUTO and copy-trading endpoints always 403. Cross-user fleet resource access returns 404 (IDOR).
