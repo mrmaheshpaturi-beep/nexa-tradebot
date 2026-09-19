@@ -1,0 +1,37 @@
+<!doctype html><html><head><meta charset=utf-8><title>Phase 10 Execution Proof</title>
+<style>
+body{margin:0;font-family:Georgia,serif;background:linear-gradient(160deg,#0f1a14,#1c2b22);color:#e8f6ee;padding:40px}
+.banner{border:1px solid #3d6b4f;background:#1a2a1f;padding:18px 22px;border-radius:10px;display:flex;gap:12px;align-items:center;margin-bottom:24px}
+.banner strong{color:#7dffb2}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.card{background:#132018;border:1px solid #2d4637;border-radius:10px;padding:16px}
+.card span{display:block;color:#8fb39a;font-size:12px;letter-spacing:.08em;text-transform:uppercase}
+.card strong{font-size:22px}
+pre{background:#0b140f;padding:16px;border-radius:10px;overflow:auto;font-size:12px;border:1px solid #2d4637}
+h1{font-size:34px;margin:0 0 8px}
+p{color:#b7d0c1}
+</style></head><body>
+<h1>DEMO Execution Engine</h1>
+<p>Phase 10 live preview proof — servers on 48410 / 58410</p>
+<div class="banner"><strong>DEMO ONLY</strong><span> — not live funds. Two-step confirmation required. Auto Demo is OFF. Sole order_send path is bridge-authorized.</span></div>
+<div class="grid">
+<div class="card"><span>DEMO execution</span><strong>DISABLED_AS_CONFIGURED</strong></div>
+<div class="card"><span>Auto Demo</span><strong>OFF</strong></div>
+<div class="card"><span>LIVE</span><strong>HARD_FAIL</strong></div>
+<div class="card"><span>order_send</span><strong>1 authorized path</strong></div>
+<div class="card"><span>Two-step confirm</span><strong>True</strong></div>
+<div class="card"><span>Phase</span><strong>10</strong></div>
+</div>
+<pre>{
+  "phase": 10,
+  "status": "READY",
+  "demo_execution": "DISABLED_AS_CONFIGURED",
+  "live_execution": "HARD_FAIL",
+  "auto_demo_execution": false,
+  "order_send": "AUTHORIZED_DEMO_PATH_ONLY",
+  "order_send_location": "trading-engine/src/nexa_mt5/execution.py::authorized_order_send",
+  "two_step_confirmation": true,
+  "dashboard_api": "/api/v1/execution/dashboard"
+}
+order_send_location: trading-engine/src/nexa_mt5/execution.py::authorized_order_send</pre>
+</body></html>
