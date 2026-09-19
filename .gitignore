@@ -33,3 +33,4 @@ terminals/
 *.njsproj
 *.sln
 *.sw?
+backend/vendor/

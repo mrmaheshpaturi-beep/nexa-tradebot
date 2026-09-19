@@ -24,7 +24,7 @@ final class StopAndRewardRiskRule implements RiskRule
 
     public function priority(): int
     {
-        return 40;
+        return 25;
     }
 
     public function evaluate(RiskEvaluationContext $context): void

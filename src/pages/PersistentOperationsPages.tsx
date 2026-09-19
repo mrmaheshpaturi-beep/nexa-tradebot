@@ -141,7 +141,7 @@ export function PersistentSystemHealth() {
   }
   const health = marketHealth.data as Record<string, unknown> | null
   return <>
-    <PageHeader title="System Health" description="Capability boundary including Market Scanner and Signal Orchestrator (Phase 8)." actions={<StatusBadge tone={status.database.status === 'CONNECTED' ? 'good' : 'bad'}>PHASE 8</StatusBadge>} />
+    <PageHeader title="System Health" description="Capability boundary including RiskEngine (Phase 9), Market Scanner and Signal Orchestrator (Phase 8)." actions={<StatusBadge tone={status.database.status === 'CONNECTED' ? 'good' : 'bad'}>PHASE 9</StatusBadge>} />
     <div className="health-meta"><div><span>Last simulation heartbeat</span><strong>{status.simulation_engine.last_heartbeat_at ? new Date(status.simulation_engine.last_heartbeat_at).toLocaleString() : 'NONE'}</strong></div><div><span>Environment</span><strong>SIMULATION</strong></div><div><span>Broker transmission</span><strong>FALSE</strong></div><div><span>Live execution</span><strong>DISABLED</strong></div></div>
     <div className="health-grid">{services.map(([name, state, detail]) => <article key={name}><div className={`health-icon ${String(state).toLowerCase().replaceAll(' ', '-')}`}><span /></div><p><strong>{name}</strong><span>{detail}</span></p><StatusBadge tone={['ONLINE', 'CONNECTED', 'VERIFIED', 'AVAILABLE', 'READY', 'ENGINE_READY'].includes(String(state)) ? 'good' : String(state) === 'MOCK' ? 'info' : String(state) === 'STOPPED' ? 'warning' : 'bad'}>{state}</StatusBadge></article>)}</div>
     <Panel title="Market Data Engine" subtitle="Read-only admin controls — no trading actions">

@@ -37,13 +37,28 @@ Phase 9 delivers the authoritative server-side RiskEngine on Phase 8 foundations
 
 ## Tests / quality gates
 
-Recorded in final status block after verification run.
+| Gate | Result |
+|---|---|
+| PHPUnit | 114 passed / 1 skipped / 0 failed |
+| Vitest | 22 passed |
+| TypeScript (`tsc -b`) | PASS |
+| ESLint | PASS (0 errors; 1 pre-existing react-refresh warning) |
+| Production build | PASS |
+| Phase 4 no-execution audit | PASS |
+| Python trading-engine pytest | PASS |
+
+## Demo
+
+- Laravel: `http://127.0.0.1:48407`
+- Vite: `http://127.0.0.1:58407`
+- Walkthrough: `media/phase-9/risk-engine-dashboard.png`, `media/phase-9/system-health-risk-engine.png`
 
 ## Remaining Phase 9 issues
 
 - Real MT5 PENDING WINDOWS (unchanged from prior phases)
 - Optional ATR stop requires ATR injection (field present; default null)
 - News restriction reason code reserved, not implemented as a calendar feed
+- System Health subtitle historically Phase 8; Risk Engine card added
 
 ## Manual actions required
 
