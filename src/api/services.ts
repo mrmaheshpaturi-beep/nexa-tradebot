@@ -508,6 +508,32 @@ export const phaseThirteenApi = {
     apiRequest<Record<string, unknown>>('/api/v1/intelligence/mutate', { method: 'POST', body: { action } }),
 }
 
+export const phaseSeventeenApi = {
+  health: () => apiRequest<Record<string, unknown>>('/api/v1/intelligence/advanced/health'),
+  desk: () => apiRequest<Record<string, unknown>>('/api/v1/intelligence/advanced/desk'),
+  assess: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/intelligence/advanced/assess', { method: 'POST', body }),
+  snapshots: () => apiRequest<Array<Record<string, unknown>>>('/api/v1/intelligence/advanced/snapshots'),
+  showSnapshot: (id: string) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/intelligence/advanced/snapshots/${encodeURIComponent(id)}`),
+  mtf: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/intelligence/advanced/mtf', { method: 'POST', body }),
+  features: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/intelligence/advanced/features', { method: 'POST', body }),
+  analogs: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/intelligence/advanced/analogs', { method: 'POST', body }),
+  suitability: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/intelligence/advanced/suitability', { method: 'POST', body }),
+  memory: () => apiRequest<Record<string, unknown>>('/api/v1/intelligence/advanced/memory'),
+  postTradeMemory: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/intelligence/advanced/memory/post-trade', { method: 'POST', body }),
+  evidence: () => apiRequest<Record<string, unknown>>('/api/v1/intelligence/advanced/evidence'),
+  chat: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/intelligence/advanced/chat', { method: 'POST', body }),
+  refuseMutate: (action: string) =>
+    apiRequest<Record<string, unknown>>('/api/v1/intelligence/advanced/mutate', { method: 'POST', body: { action } }),
+}
+
 export const phaseFourteenApi = {
   health: () => apiRequest<Record<string, unknown>>('/api/v1/automation/health'),
   controlCenter: () => apiRequest<Record<string, unknown>>('/api/v1/automation/control-center'),

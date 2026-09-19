@@ -49,6 +49,8 @@ class UsageMeter
             'news_calls' => 2000,
             'calendar_calls' => 2000,
             'assessments' => 2000,
+            'cost_tokens' => 100000,
+            'advanced_assessments' => 2000,
             default => 1000,
         };
     }

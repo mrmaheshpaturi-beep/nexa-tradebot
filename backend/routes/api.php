@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\AutomationController;
 use App\Http\Controllers\Api\ObservabilityController;
 use App\Http\Controllers\Api\GovernanceController;
 use App\Http\Controllers\Api\IntelligenceController;
+use App\Http\Controllers\Api\AdvancedIntelligenceController;
 use App\Http\Controllers\Api\BrokerAccountController;
 use App\Http\Controllers\Api\IndicatorController;
 use App\Http\Controllers\Api\MarketDataController;
@@ -275,6 +276,22 @@ Route::prefix('v1')->middleware('web')->group(function (): void {
         Route::get('/intelligence/queue', [IntelligenceController::class, 'queueStats'])->middleware('permission:intelligence.view');
         Route::post('/intelligence/queue/process', [IntelligenceController::class, 'processQueue'])->middleware('permission:intelligence.manage');
         Route::post('/intelligence/mutate', [IntelligenceController::class, 'refuseMutate'])->middleware('permission:intelligence.manage');
+
+        // Phase 17 — Advanced Market Intelligence (extends Phase 13; advisory/shadow only)
+        Route::get('/intelligence/advanced/health', [AdvancedIntelligenceController::class, 'health'])->middleware('permission:trading.read');
+        Route::get('/intelligence/advanced/desk', [AdvancedIntelligenceController::class, 'desk'])->middleware('permission:intelligence.view');
+        Route::post('/intelligence/advanced/assess', [AdvancedIntelligenceController::class, 'assess'])->middleware('permission:intelligence.analyze');
+        Route::get('/intelligence/advanced/snapshots', [AdvancedIntelligenceController::class, 'snapshots'])->middleware('permission:intelligence.view');
+        Route::get('/intelligence/advanced/snapshots/{snapshot}', [AdvancedIntelligenceController::class, 'showSnapshot'])->middleware('permission:intelligence.view');
+        Route::post('/intelligence/advanced/mtf', [AdvancedIntelligenceController::class, 'mtf'])->middleware('permission:intelligence.analyze');
+        Route::post('/intelligence/advanced/features', [AdvancedIntelligenceController::class, 'features'])->middleware('permission:intelligence.analyze');
+        Route::post('/intelligence/advanced/analogs', [AdvancedIntelligenceController::class, 'analogs'])->middleware('permission:intelligence.analyze');
+        Route::post('/intelligence/advanced/suitability', [AdvancedIntelligenceController::class, 'suitability'])->middleware('permission:intelligence.analyze');
+        Route::get('/intelligence/advanced/memory', [AdvancedIntelligenceController::class, 'memory'])->middleware('permission:intelligence.view');
+        Route::post('/intelligence/advanced/memory/post-trade', [AdvancedIntelligenceController::class, 'postTradeMemory'])->middleware('permission:intelligence.analyze');
+        Route::get('/intelligence/advanced/evidence', [AdvancedIntelligenceController::class, 'evidence'])->middleware('permission:intelligence.view');
+        Route::post('/intelligence/advanced/chat', [AdvancedIntelligenceController::class, 'chat'])->middleware('permission:intelligence.analyze');
+        Route::post('/intelligence/advanced/mutate', [AdvancedIntelligenceController::class, 'refuseMutate'])->middleware('permission:intelligence.manage');
 
         // Phase 14 — Automated DEMO Trading Orchestrator (OFF|DRY_RUN|DEMO_AUTO; no LIVE_AUTO)
         Route::get('/automation/health', [AutomationController::class, 'health'])->middleware('permission:trading.read');

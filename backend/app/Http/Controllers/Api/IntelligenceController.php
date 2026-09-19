@@ -32,10 +32,11 @@ class IntelligenceController extends Controller
 
     public function health(): JsonResponse
     {
-        return response()->json([
+            return response()->json([
             'data' => array_merge($this->engine->health(), [
                 'phase' => 13,
                 'label' => 'TRADE_INTELLIGENCE_ADVISORY',
+                'extended_by' => 'AdvancedIntelligence/v1',
             ]),
         ]);
     }

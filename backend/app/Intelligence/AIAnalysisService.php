@@ -19,15 +19,49 @@ use Illuminate\Support\Facades\Validator;
  */
 class AIAnalysisService
 {
+    public const DEFAULT_TIMEOUT_MS = 5000;
+
+    public const DEFAULT_CACHE_TTL = 120;
+
     private readonly AIProviderInterface $provider;
 
     public function __construct(
         private readonly UsageMeter $usage = new UsageMeter,
         private readonly AuditService $audit = new AuditService,
         private readonly ProviderResolver $resolver = new ProviderResolver,
+        private readonly IntelligenceJobQueue $queue = new IntelligenceJobQueue,
         ?AIProviderInterface $provider = null,
     ) {
         $this->provider = $provider ?? $this->resolver->ai();
+    }
+
+    public function timeoutMs(): int
+    {
+        return self::DEFAULT_TIMEOUT_MS;
+    }
+
+    public function cacheTtlSeconds(): int
+    {
+        return self::DEFAULT_CACHE_TTL;
+    }
+
+    /**
+     * Model / cost tracking metadata for observability.
+     *
+     * @return array<string, mixed>
+     */
+    public function providerMeta(): array
+    {
+        return [
+            'provider' => $this->provider->name(),
+            'model_version' => $this->provider->modelVersion(),
+            'prompt_version' => IntelligenceSafety::PROMPT_VERSION,
+            'prompt_version_advanced' => IntelligenceSafety::PROMPT_VERSION_V2,
+            'timeout_ms' => $this->timeoutMs(),
+            'cache_ttl_seconds' => $this->cacheTtlSeconds(),
+            'mutation_tools_available' => false,
+            'paid_calls_in_ci' => false,
+        ];
     }
 
     public function providerName(): string
@@ -75,28 +109,57 @@ class AIAnalysisService
             return $row;
         }
 
-        $result = $this->provider->analyze($input, IntelligenceSafety::PROMPT_VERSION);
+        $promptVersion = (string) ($input['prompt_version'] ?? IntelligenceSafety::PROMPT_VERSION);
+        $cacheKey = 'ai:'.hash('sha256', $promptVersion.'|'.$this->hashInput($input));
+        $cached = $this->queue->cacheGet($cacheKey);
+        if (is_array($cached) && isset($cached['public_id'])) {
+            $hit = IntelligenceAiAnalysis::query()->where('public_id', $cached['public_id'])->where('user_id', $user->id)->first();
+            if ($hit) {
+                return $hit;
+            }
+        }
+
+        $started = microtime(true);
+        $result = $this->provider->analyze($input, $promptVersion);
+        $elapsedMs = (int) round((microtime(true) - $started) * 1000);
+        $timedOut = $elapsedMs > $this->timeoutMs();
         $output = $result['structured_output'] ?? null;
-        $errors = $this->validateStructured($output);
+        $errors = $timedOut ? ['timeout' => 'AI provider exceeded timeout_ms'] : $this->validateStructured($output);
+
+        $tokensIn = (int) ($result['tokens_in'] ?? 0);
+        $tokensOut = (int) ($result['tokens_out'] ?? 0);
+        $this->usage->consume($user, 'cost_tokens', max(1, $tokensIn + $tokensOut));
+
+        $meta = array_merge($result['meta'] ?? [], [
+            'elapsed_ms' => $elapsedMs,
+            'timeout_ms' => $this->timeoutMs(),
+            'timed_out' => $timedOut,
+            'model_tracked' => true,
+            'cost_tokens' => $tokensIn + $tokensOut,
+        ]);
 
         $row = IntelligenceAiAnalysis::query()->create([
             'user_id' => $user->id,
             'intelligence_assessment_id' => $assessmentId,
             'provider' => $this->provider->name(),
             'model_version' => $this->provider->modelVersion(),
-            'prompt_version' => IntelligenceSafety::PROMPT_VERSION,
+            'prompt_version' => $promptVersion,
             'input_hash' => $this->hashInput($input),
-            'output_hash' => $output ? hash('sha256', json_encode($output, JSON_THROW_ON_ERROR)) : null,
-            'status' => $errors === [] ? ($result['status'] ?? 'COMPLETED') : 'FAILED',
+            'output_hash' => $output && $errors === [] ? hash('sha256', json_encode($output, JSON_THROW_ON_ERROR)) : null,
+            'status' => $errors === [] ? ($result['status'] ?? 'COMPLETED') : ($timedOut ? 'TIMEOUT' : 'FAILED'),
             'structured_output' => $errors === [] ? $output : null,
-            'raw_meta' => $result['meta'] ?? [],
+            'raw_meta' => $meta,
             'validation_errors' => $errors === [] ? null : $errors,
             'injection_blocked' => false,
             'mutation_tools_available' => false,
-            'tokens_in' => (int) ($result['tokens_in'] ?? 0),
-            'tokens_out' => (int) ($result['tokens_out'] ?? 0),
+            'tokens_in' => $tokensIn,
+            'tokens_out' => $tokensOut,
             'analyzed_at' => now(),
         ]);
+
+        if ($errors === []) {
+            $this->queue->cachePut($cacheKey, ['public_id' => $row->public_id], $this->cacheTtlSeconds());
+        }
 
         $this->audit->record('intelligence.ai_analyzed', $row, [], [
             'provider' => $row->provider,
