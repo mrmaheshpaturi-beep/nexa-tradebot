@@ -31,8 +31,8 @@ final class VolumeSafety
         }
         $residual = round($current - $vol, 4);
         if ($residual > 0 && $residual < $min) {
-            // Closing almost all would leave illegal residual — close full.
-            if ($requested >= $current - $min) {
+            // Closing almost all would leave illegal residual — close full when remaining would be untradeable.
+            if ($vol >= $current - $min || $requested >= $current - $min) {
                 return $current;
             }
             throw ValidationException::withMessages([

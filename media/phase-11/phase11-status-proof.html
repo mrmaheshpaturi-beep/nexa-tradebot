@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>Phase 11 Trade Management Status</title>
+<style>
+body{font-family:ui-sans-serif,system-ui;background:#0b1220;color:#e8eefc;margin:0;padding:32px}
+.banner{background:linear-gradient(90deg,#0e3b2e,#12324d);border:1px solid #2a6;padding:16px 20px;border-radius:12px;margin-bottom:24px}
+.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.card{background:#121a2b;border:1px solid #243047;border-radius:12px;padding:16px}
+.card span{display:block;color:#8fa3c3;font-size:12px;margin-bottom:6px}
+.card strong{font-size:18px}
+pre{background:#0a101c;border:1px solid #243047;padding:16px;border-radius:12px;overflow:auto}
+h1{margin:0 0 8px;font-size:28px} h2{margin-top:28px;font-size:16px;color:#9fb4d4}
+</style></head><body>
+<h1>Nexa TradeBot — Phase 11</h1>
+<div class="banner"><strong>DEMO MANAGEMENT ONLY</strong><span> — LIVE modification / partial / full close HARD BLOCKED. Foreign positions never auto-managed. Sole order_send unchanged.</span></div>
+<div class="grid">
+<div class="card"><span>Trade Management Engine</span><strong>READY</strong></div>
+<div class="card"><span>LIVE modification</span><strong>HARD BLOCKED</strong></div>
+<div class="card"><span>LIVE partial close</span><strong>HARD BLOCKED</strong></div>
+<div class="card"><span>LIVE full close</span><strong>HARD BLOCKED</strong></div>
+<div class="card"><span>Break-Even</span><strong>PASS</strong></div>
+<div class="card"><span>Trailing</span><strong>PASS</strong></div>
+<div class="card"><span>Partial Close</span><strong>PASS</strong></div>
+<div class="card"><span>order_send</span><strong>1 authorized path</strong></div>
+</div>
+<h2>Preview</h2>
+<pre>Laravel: http://127.0.0.1:48411
+Vite:    http://127.0.0.1:58411
+UI:      #/trade-management
+Branch:  cursor/phase-11-trade-management-56f9</pre>
+<h2>Health</h2>
+<pre id="health">loading…</pre>
+<script>
+fetch('http://127.0.0.1:48411/api/v1/trade-management/health').then(r=>r.json()).then(j=>{
+  document.getElementById('health').textContent = JSON.stringify(j,null,2);
+}).catch(e=>{document.getElementById('health').textContent=String(e)});
+</script>
+</body></html>

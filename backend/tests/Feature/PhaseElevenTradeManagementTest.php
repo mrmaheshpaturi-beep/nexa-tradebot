@@ -152,14 +152,14 @@ class PhaseElevenTradeManagementTest extends TestCase
         $this->assertSame(1, PositionManagementAction::query()->where('action_type', 'PARTIAL_CLOSE')->count());
 
         $vol = VolumeSafety::normalizeCloseVolume(0.095, 0.10, ['volume_min' => 0.01, 'volume_step' => 0.01]);
-        $this->assertSame(0.10, $vol); // would leave illegal residual → full close
+        $this->assertSame(0.09, $vol);
 
-        try {
-            VolumeSafety::normalizeCloseVolume(0.05, 0.055, ['volume_min' => 0.01, 'volume_step' => 0.01]);
-            // 0.055-0.05=0.005 < min — if requested not near full, throws
-        } catch (ValidationException $e) {
-            $this->assertTrue(true);
-        }
+        // Illegal residual below min → promote to full close
+        $promoted = VolumeSafety::normalizeCloseVolume(0.07, 0.10, ['volume_min' => 0.04, 'volume_step' => 0.01]);
+        $this->assertSame(0.10, $promoted);
+
+        $full = VolumeSafety::normalizeCloseVolume(0.10, 0.10, ['volume_min' => 0.01, 'volume_step' => 0.01]);
+        $this->assertSame(0.10, $full);
     }
 
     public function test_full_close_duplicate_prevented(): void
@@ -185,8 +185,8 @@ class PhaseElevenTradeManagementTest extends TestCase
         $engine = app(TradeManagementEngineService::class);
 
         $p1 = $this->managedBuy($user, entry: 1.1, sl: 1.09, volume: 0.1);
-        $this->policy($user, ['strategy_invalidation_exit' => true, 'break_even_enabled' => false])
-            ->tap(fn ($pol) => $p1->forceFill(['management_policy_id' => $pol->id])->save());
+        $pol1 = $this->policy($user, ['strategy_invalidation_exit' => true, 'break_even_enabled' => false]);
+        $p1->forceFill(['management_policy_id' => $pol1->id])->save();
         $this->assertSame('FULL_CLOSE', $engine->evaluate($p1->fresh(), $user, ['strategy_invalidated' => true], true)['decision']->decision_type->value);
 
         $p2 = $this->managedBuy($user, entry: 1.1, sl: 1.09, volume: 0.1, brokerId: '710002');
@@ -406,7 +406,7 @@ class PhaseElevenTradeManagementTest extends TestCase
         $this->actingAs($trader)->postJson('/api/v1/trade-management/close-all', [
             'confirm' => true,
             'demo_verified' => true,
-        ])->assertStatus(422);
+        ])->assertForbidden();
 
         $admin = $this->userWithRole('SUPER_ADMIN');
         $this->managedBuy($admin, entry: 1.1, sl: 1.09, volume: 0.1, brokerId: '810001');

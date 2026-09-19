@@ -87,7 +87,7 @@ export function PhaseElevenTradeManagementDashboard() {
   }
 
   if (dashboard.loading && !dashboard.data) return <LoadingState />
-  if (dashboard.error) return <ErrorState message={dashboard.error} onRetry={reload} />
+  if (dashboard.error) return <ErrorState message={dashboard.error} />
 
   const cards = dashboard.data?.cards ?? {}
   const positions = dashboard.data?.positions ?? []
@@ -97,7 +97,7 @@ export function PhaseElevenTradeManagementDashboard() {
     <div className="page-stack">
       <PageHeader
         title="Trade Management"
-        subtitle="DEMO-only managed positions — break-even, trail, partial, exits. LIVE hard-blocked."
+        description="DEMO-only managed positions — break-even, trail, partial, exits. LIVE hard-blocked."
         actions={(
           <button type="button" className="btn-secondary" onClick={reload} disabled={Boolean(busy)}>
             <RefreshCw size={16} /> Refresh
@@ -139,7 +139,7 @@ export function PhaseElevenTradeManagementDashboard() {
         ) : undefined}
       >
         {positions.length === 0 ? (
-          <EmptyState title="No managed DEMO positions" description="Positions opened via Phase 10 DEMO execution become managed here." />
+          <EmptyState title="No managed DEMO positions" detail="Positions opened via Phase 10 DEMO execution become managed here." />
         ) : (
           <DataTable
             columns={['Symbol', 'Side', 'Volume', 'SL', 'TP', 'R', 'Status', 'Why', 'Actions']}
@@ -208,7 +208,7 @@ export function PhaseElevenTradeManagementDashboard() {
 
       <Panel title="Recent management decisions">
         {decisions.length === 0 ? (
-          <EmptyState title="No decisions yet" description="Evaluate a managed position to produce HOLD / BE / TRAIL / CLOSE decisions." />
+          <EmptyState title="No decisions yet" detail="Evaluate a managed position to produce HOLD / BE / TRAIL / CLOSE decisions." />
         ) : (
           <DataTable
             columns={['Type', 'Rule', 'Status', 'Why', 'At']}
@@ -225,9 +225,9 @@ export function PhaseElevenTradeManagementDashboard() {
 
       <Panel title="Safety posture">
         <div className="inline-actions">
-          <StatusBadge tone="success">LIVE MODIFICATION HARD BLOCKED</StatusBadge>
-          <StatusBadge tone="success">LIVE PARTIAL CLOSE HARD BLOCKED</StatusBadge>
-          <StatusBadge tone="success">LIVE FULL CLOSE HARD BLOCKED</StatusBadge>
+          <StatusBadge tone="good">LIVE MODIFICATION HARD BLOCKED</StatusBadge>
+          <StatusBadge tone="good">LIVE PARTIAL CLOSE HARD BLOCKED</StatusBadge>
+          <StatusBadge tone="good">LIVE FULL CLOSE HARD BLOCKED</StatusBadge>
           <StatusBadge tone="info">{value(status.data?.order_send_location)}</StatusBadge>
         </div>
         <p className="muted" style={{ marginTop: 12 }}>

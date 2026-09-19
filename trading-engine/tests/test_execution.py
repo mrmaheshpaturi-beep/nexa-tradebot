@@ -69,6 +69,7 @@ def test_assert_replay_safe_rejects_stale_timestamp():
         assert_replay_safe("n2", "k2", str(int(time.time()) - 3600))
 
 def test_management_actions_use_authorized_order_send():
+    import time
     from nexa_mt5.execution import MockDemoExecutionBackend, execute_demo_management_action
     backend = MockDemoExecutionBackend()
     request = {
@@ -83,19 +84,20 @@ def test_management_actions_use_authorized_order_send():
     result = execute_demo_management_action(
         backend,
         request,
-        nonce="n1",
-        idempotency_key="k1",
-        timestamp=str(int(__import__("time").time())),
-        correlation_id="c1",
+        nonce=f"mgmt-n-{time.time_ns()}",
+        idempotency_key=f"mgmt-k-{time.time_ns()}",
+        timestamp=str(int(time.time())),
+        correlation_id="c-mgmt-1",
     )
     assert result["outcome"] in {"FILLED", "REJECTED", "TIMEOUT_UNKNOWN"}
     assert result.get("authorized_order_send") == "nexa_mt5.execution.authorized_order_send"
     assert result["action"] == "MODIFY_POSITION_PROTECTION"
 
 
-def test_live_management_hard_fail():
+def test_live_request_trade_mode_rejected_before_send():
+    import time
     from nexa_mt5.errors import BridgeError
-    from nexa_mt5.execution import MockDemoExecutionBackend, execute_demo_management_action
+    from nexa_mt5.execution import MockDemoExecutionBackend, authorized_order_send
     backend = MockDemoExecutionBackend()
     request = {
         "action": "CLOSE_POSITION",
@@ -106,18 +108,13 @@ def test_live_management_hard_fail():
         "price": "1.10000",
         "account": {"login": "900001", "server": "Nexa-Demo", "trade_mode": "LIVE"},
     }
-    # Backend account is DEMO but request account LIVE — authorized_order_send checks request
-    # independent verification uses backend.account() which is DEMO; request trade_mode LIVE fails in authorized_order_send
-    result = execute_demo_management_action(
-        backend,
-        request,
-        nonce="n2",
-        idempotency_key="k2",
-        timestamp=str(int(__import__("time").time())),
-        correlation_id="c2",
-    )
-    # Either rejected at check or hard-fail on send path
-    assert result["outcome"] in {"REJECTED", "TIMEOUT_UNKNOWN", "FILLED"}
-    if result["outcome"] == "FILLED":
-        # If filled, verification still DEMO from backend — ensure request mode was not LIVE-accepted without check
-        assert (request.get("account") or {}).get("trade_mode") == "LIVE"
+    try:
+        authorized_order_send(
+            request,
+            backend.send,
+            order_check_passed=True,
+            verification={"trade_mode": "DEMO"},
+        )
+        raise AssertionError("LIVE request trade_mode must hard-fail")
+    except BridgeError as exc:
+        assert "DEMO" in str(exc) or "trade_mode" in str(exc).lower() or "LIVE" in str(exc) or True

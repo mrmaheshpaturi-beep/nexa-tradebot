@@ -9,7 +9,7 @@ use App\Models\TradeIntent;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Centralized MT5 request builder for DEMO submissions.
+ * Centralized MT5 request builder for DEMO submissions and management actions.
  */
 class Mt5OrderRequestBuilder
 {
@@ -68,7 +68,6 @@ class Mt5OrderRequestBuilder
             'intent_public_id' => $intent->public_id,
         ];
     }
-}
 
     /**
      * @param  array<string,mixed>  $verification
@@ -159,4 +158,4 @@ class Mt5OrderRequestBuilder
             'action_public_id' => $actionPublicId,
         ];
     }
-
+}
