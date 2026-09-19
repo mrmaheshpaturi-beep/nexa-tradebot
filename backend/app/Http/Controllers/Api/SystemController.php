@@ -145,6 +145,17 @@ class SystemController extends Controller
                 'auto_promote' => false,
                 'live_execution' => 'HARD_BLOCKED',
             ],
+            'trade_intelligence_engine' => [
+                'phase' => 13,
+                'status' => 'READY',
+                'mode' => 'ADVISORY_SHADOW',
+                'desk_api' => '/api/v1/intelligence/desk',
+                'order_send' => false,
+                'mutation_tools' => false,
+                'live_execution' => 'HARD_BLOCKED',
+                'ai_provider_default' => 'MOCK',
+                'advisory_only' => true,
+            ],
             'alert_pipeline' => [
                 'phase' => 8,
                 'status' => 'FOUNDATION_READY',

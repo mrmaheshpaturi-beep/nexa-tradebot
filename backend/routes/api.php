@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuditLogController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AnalyticsBacktestController;
+use App\Http\Controllers\Api\IntelligenceController;
 use App\Http\Controllers\Api\BrokerAccountController;
 use App\Http\Controllers\Api\IndicatorController;
 use App\Http\Controllers\Api\MarketDataController;
@@ -241,5 +242,29 @@ Route::prefix('v1')->middleware('web')->group(function (): void {
         Route::get('/backtest/runs/{run}', [AnalyticsBacktestController::class, 'showRun'])->middleware('permission:backtest.view');
         Route::get('/backtest/runs/{run}/evaluation', [AnalyticsBacktestController::class, 'strategyEvaluation'])->middleware('permission:backtest.view');
         Route::get('/backtest/runs/{run}/export', [AnalyticsBacktestController::class, 'exportRun'])->middleware('permission:backtest.export');
+
+        // Phase 13 — Trade Intelligence (advisory/shadow only; zero broker writes)
+        Route::get('/intelligence/health', [IntelligenceController::class, 'health'])->middleware('permission:trading.read');
+        Route::get('/intelligence/desk', [IntelligenceController::class, 'desk'])->middleware('permission:intelligence.view');
+        Route::get('/intelligence/pulse', [IntelligenceController::class, 'pulse'])->middleware('permission:intelligence.view');
+        Route::get('/intelligence/heatmap', [IntelligenceController::class, 'heatmap'])->middleware('permission:intelligence.view');
+        Route::get('/intelligence/assessments', [IntelligenceController::class, 'assessments'])->middleware('permission:intelligence.view');
+        Route::post('/intelligence/assess', [IntelligenceController::class, 'assess'])->middleware('permission:intelligence.analyze');
+        Route::get('/intelligence/assessments/{assessment}', [IntelligenceController::class, 'showAssessment'])->middleware('permission:intelligence.view');
+        Route::get('/intelligence/opportunities', [IntelligenceController::class, 'opportunities'])->middleware('permission:intelligence.view');
+        Route::post('/intelligence/board', [IntelligenceController::class, 'board'])->middleware('permission:intelligence.analyze');
+        Route::get('/intelligence/calendar', [IntelligenceController::class, 'calendar'])->middleware('permission:intelligence.view');
+        Route::get('/intelligence/news', [IntelligenceController::class, 'news'])->middleware('permission:intelligence.view');
+        Route::post('/intelligence/analyze', [IntelligenceController::class, 'analyze'])->middleware('permission:intelligence.analyze');
+        Route::post('/intelligence/chat', [IntelligenceController::class, 'chat'])->middleware('permission:intelligence.analyze');
+        Route::get('/intelligence/calibration', [IntelligenceController::class, 'calibration'])->middleware('permission:intelligence.view');
+        Route::post('/intelligence/calibration/samples', [IntelligenceController::class, 'addCalibrationSample'])->middleware('permission:intelligence.manage');
+        Route::get('/intelligence/usage', [IntelligenceController::class, 'usage'])->middleware('permission:intelligence.view');
+        Route::get('/intelligence/research', [IntelligenceController::class, 'research'])->middleware('permission:intelligence.view');
+        Route::get('/intelligence/settings', [IntelligenceController::class, 'settings'])->middleware('permission:intelligence.view');
+        Route::put('/intelligence/settings', [IntelligenceController::class, 'updateSettings'])->middleware('permission:intelligence.manage');
+        Route::get('/intelligence/queue', [IntelligenceController::class, 'queueStats'])->middleware('permission:intelligence.view');
+        Route::post('/intelligence/queue/process', [IntelligenceController::class, 'processQueue'])->middleware('permission:intelligence.manage');
+        Route::post('/intelligence/mutate', [IntelligenceController::class, 'refuseMutate'])->middleware('permission:intelligence.manage');
     });
 });

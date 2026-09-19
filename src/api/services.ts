@@ -464,3 +464,46 @@ export const phaseTwelveApi = {
   processQueue: (limit = 3) =>
     apiRequest<Record<string, unknown>>('/api/v1/backtest/queue/process', { method: 'POST', body: { limit } }),
 }
+
+export const phaseThirteenApi = {
+  health: () => apiRequest<Record<string, unknown>>('/api/v1/intelligence/health'),
+  desk: () => apiRequest<Record<string, unknown>>('/api/v1/intelligence/desk'),
+  pulse: (symbols?: string) =>
+    apiRequest<Record<string, unknown>>(
+      `/api/v1/intelligence/pulse${symbols ? `?symbols=${encodeURIComponent(symbols)}` : ''}`,
+    ),
+  heatmap: () => apiRequest<Record<string, unknown>>('/api/v1/intelligence/heatmap'),
+  assessments: () => apiRequest<Array<Record<string, unknown>>>('/api/v1/intelligence/assessments'),
+  assess: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/intelligence/assess', { method: 'POST', body }),
+  showAssessment: (id: string) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/intelligence/assessments/${encodeURIComponent(id)}`),
+  opportunities: () => apiRequest<Array<Record<string, unknown>>>('/api/v1/intelligence/opportunities'),
+  board: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/intelligence/board', { method: 'POST', body }),
+  calendar: (provider?: string) =>
+    apiRequest<Record<string, unknown>>(
+      `/api/v1/intelligence/calendar${provider ? `?provider=${encodeURIComponent(provider)}` : ''}`,
+    ),
+  news: (symbol?: string) =>
+    apiRequest<Record<string, unknown>>(
+      `/api/v1/intelligence/news${symbol ? `?symbol=${encodeURIComponent(symbol)}` : ''}`,
+    ),
+  analyze: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/intelligence/analyze', { method: 'POST', body }),
+  chat: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/intelligence/chat', { method: 'POST', body }),
+  calibration: (evidence_label = 'DEMO') =>
+    apiRequest<Record<string, unknown>>(
+      `/api/v1/intelligence/calibration?evidence_label=${encodeURIComponent(evidence_label)}`,
+    ),
+  addCalibrationSample: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/intelligence/calibration/samples', { method: 'POST', body }),
+  usage: () => apiRequest<Record<string, unknown>>('/api/v1/intelligence/usage'),
+  research: () => apiRequest<Record<string, unknown>>('/api/v1/intelligence/research'),
+  settings: () => apiRequest<Record<string, unknown>>('/api/v1/intelligence/settings'),
+  updateSettings: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/intelligence/settings', { method: 'PUT', body }),
+  refuseMutate: (action: string) =>
+    apiRequest<Record<string, unknown>>('/api/v1/intelligence/mutate', { method: 'POST', body: { action } }),
+}
