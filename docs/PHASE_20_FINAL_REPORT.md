@@ -2,7 +2,7 @@
 
 **Release ID:** NEXA-TRADEBOT-RC1  
 **Branch:** `cursor/phase-20-demo-release-candidate-56f9`  
-**Git commit:** `9af91158dd90e5395db4522983e47dc6f9d9edf4`  
+**Git commit:**  (content )`9af91158dd90e5395db4522983e47dc6f9d9edf4`  
 **Worktree:** `/tmp/nexa-phase20-56f9`  
 **Base:** Phase 19 tip `29fa1bc`  
 **Preview:** Vite [http://127.0.0.1:58420](http://127.0.0.1:58420) · Laravel [http://127.0.0.1:48420](http://127.0.0.1:48420)  
