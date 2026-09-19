@@ -43,23 +43,31 @@ export function PhaseThirteenIntelligenceDesk() {
 
   const health = useService(useCallback(() => phaseThirteenApi.health(), []))
   const desk = useService(useCallback(() => phaseThirteenApi.desk(), []))
-  const pulse = useService(useCallback(() => phaseThirteenApi.pulse(), []))
-  const opportunities = useService(useCallback(() => phaseThirteenApi.opportunities(), []))
-  const heatmap = useService(useCallback(() => phaseThirteenApi.heatmap(), []))
-  const calendar = useService(useCallback(() => phaseThirteenApi.calendar(), []))
-  const news = useService(useCallback(() => phaseThirteenApi.news(), []))
-  const calibration = useService(useCallback(() => phaseThirteenApi.calibration('DEMO'), []))
-  const usage = useService(useCallback(() => phaseThirteenApi.usage(), []))
-  const research = useService(useCallback(() => phaseThirteenApi.research(), []))
+  // Tab-scoped loads avoid parallel session-cookie races on mount
+  const pulse = useService(useCallback(() => (tab === 'pulse' ? phaseThirteenApi.pulse() : Promise.resolve(null)), [tab]))
+  const opportunities = useService(useCallback(() => (tab === 'board' ? phaseThirteenApi.opportunities() : Promise.resolve(null)), [tab]))
+  const heatmap = useService(useCallback(() => (tab === 'heatmap' ? phaseThirteenApi.heatmap() : Promise.resolve(null)), [tab]))
+  const calendar = useService(useCallback(() => (tab === 'calendar' ? phaseThirteenApi.calendar() : Promise.resolve(null)), [tab]))
+  const news = useService(useCallback(() => (tab === 'news' ? phaseThirteenApi.news() : Promise.resolve(null)), [tab]))
+  const calibration = useService(useCallback(() => (tab === 'calibration' ? phaseThirteenApi.calibration('DEMO') : Promise.resolve(null)), [tab]))
+  const usage = useService(useCallback(() => (tab === 'usage' ? phaseThirteenApi.usage() : Promise.resolve(null)), [tab]))
+  const research = useService(useCallback(() => (tab === 'research' ? phaseThirteenApi.research() : Promise.resolve(null)), [tab]))
   const detail = useService(useCallback(
-    () => (selectedId ? phaseThirteenApi.showAssessment(selectedId) : Promise.resolve(null)),
-    [selectedId],
+    () => (tab === 'detail' && selectedId ? phaseThirteenApi.showAssessment(selectedId) : Promise.resolve(null)),
+    [tab, selectedId],
   ))
 
   const reload = () => {
-    health.reload(); desk.reload(); pulse.reload(); opportunities.reload()
-    heatmap.reload(); calendar.reload(); news.reload(); calibration.reload()
-    usage.reload(); research.reload(); detail.reload()
+    health.reload(); desk.reload()
+    if (tab === 'pulse') pulse.reload()
+    if (tab === 'board') opportunities.reload()
+    if (tab === 'heatmap') heatmap.reload()
+    if (tab === 'calendar') calendar.reload()
+    if (tab === 'news') news.reload()
+    if (tab === 'calibration') calibration.reload()
+    if (tab === 'usage') usage.reload()
+    if (tab === 'research') research.reload()
+    if (tab === 'detail') detail.reload()
   }
 
   const runAssess = async () => {

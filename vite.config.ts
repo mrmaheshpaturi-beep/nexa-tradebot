@@ -12,6 +12,9 @@ export default defineConfig({
     },
     port: 58413,
     strictPort: true,
+    watch: {
+      ignored: ['**/backend/**', '**/trading-engine/**', '**/media/**', '**/docs/**'],
+    },
   },
   plugins: [
     react(),
