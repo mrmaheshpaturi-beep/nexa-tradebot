@@ -312,9 +312,11 @@ class PhaseNineRiskEngineTest extends TestCase
             'environment' => 'DEMO',
         ])->assertStatus(422)->assertJsonPath('data.order_send', false);
 
-        $sources = shell_exec('rg -n "order_send" --glob "!vendor/**" --glob "!node_modules/**" /tmp/nexa-phase9-56f9/backend/app /tmp/nexa-phase9-56f9/trading-engine/src 2>/dev/null || true');
-        $this->assertStringNotContainsString('mt5.order_send', (string) $sources);
-        $this->assertStringNotContainsString('OrderSend', (string) $sources);
+        $root = dirname(__DIR__, 2);
+        $sources = shell_exec('rg -n "mt5\\.order_send|MetaTrader5\\.order_send" --glob "!vendor/**" --glob "!node_modules/**" '.$root.'/backend/app 2>/dev/null || true');
+        $this->assertSame('', trim((string) $sources));
+        $bridgeSources = shell_exec('rg -n "authorized_order_send|mt5\\.order_send" --glob "!vendor/**" '.$root.'/trading-engine/src/nexa_mt5/execution.py 2>/dev/null || true');
+        $this->assertStringContainsString('authorized_order_send', (string) $bridgeSources);
     }
 
     public function test_rbac_for_risk_engine_endpoints(): void

@@ -68,6 +68,10 @@ class TradeLifecycleService
 
             $account = $user->brokerAccounts()->where('public_id', $data['account_public_id'])->firstOrFail();
             $instrument = TradingInstrument::where('public_id', $data['instrument_public_id'])->firstOrFail();
+            if (! in_array($account->environment, [TradingEnvironment::Simulation, TradingEnvironment::Demo], true)
+                || $account->environment === TradingEnvironment::Live) {
+                throw ValidationException::withMessages(['account' => 'Only SIMULATION or DEMO accounts can create intents.']);
+            }
             $strategyId = null;
             if (! empty($data['strategy_id'])) {
                 $strategyId = $user->strategies()->whereKey($data['strategy_id'])->value('id');
@@ -94,7 +98,7 @@ class TradeLifecycleService
                 'comment' => $data['comment'] ?? null,
                 'risk_percent' => $data['risk_percent'] ?? null,
                 'created_by' => $user->id,
-                'environment' => TradingEnvironment::Simulation,
+                'environment' => $account->environment,
                 'status' => TradeIntentStatus::Draft,
                 'metadata' => $data['metadata'] ?? null,
             ]);
@@ -177,6 +181,11 @@ class TradeLifecycleService
     public function execute(TradeIntent $intent, string $idempotencyKey, Request $request): array
     {
         $this->assertOwned($intent, $request->user());
+        if ($intent->environment === TradingEnvironment::Demo) {
+            throw ValidationException::withMessages([
+                'intent' => 'DEMO intents must use the ExecutionEngine confirmation + submit APIs, not simulation execute.',
+            ]);
+        }
         $existing = ExecutionCommand::where('user_id', $request->user()->id)
             ->where('idempotency_key', $idempotencyKey)->first();
         if ($existing) {

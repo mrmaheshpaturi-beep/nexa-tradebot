@@ -261,6 +261,17 @@ export interface SystemStatus {
     live_execution?: boolean
     broker_routable?: boolean
   }
+  execution_engine?: {
+    phase: number
+    status: string
+    demo_execution?: string
+    live_execution?: string
+    auto_demo_execution?: boolean
+    order_send?: string
+    order_send_location?: string
+    two_step_confirmation?: boolean
+    dashboard_api?: string
+  }
   alert_pipeline?: {
     phase: number
     status: string
@@ -278,19 +289,20 @@ export interface SystemStatus {
   }
   risk_execution: { status: 'READY' | 'STOPPED'; mode: 'SIMULATION_ONLY' }
   simulation_engine: { status: 'READY' | 'STOPPED'; source: 'SIMULATION ENGINE'; last_heartbeat_at: string | null }
-  terminal: { status: 'OFFLINE' | 'ONLINE'; adapter: 'SIMULATION' | 'MT5_READ_ONLY' }
-  broker: { status: 'DISCONNECTED' | 'READ_ONLY'; connected: boolean; mode?: 'READ_ONLY'; environment?: 'DEMO' }
+  terminal: { status: 'OFFLINE' | 'ONLINE'; adapter: string }
+  broker: { status: string; connected: boolean; mode?: string; environment?: 'DEMO' }
   mt5_bridge?: {
     configured: boolean
-    mode: 'READ_ONLY'
+    mode: string
     environment: 'DEMO'
     state: string
-    execution_available: false
+    execution_available: boolean
   }
-  execution: { available: boolean; environment: 'SIMULATION'; broker_transmission: false }
+  execution: { available: boolean; environment: string; broker_transmission: boolean }
   simulation_execution_enabled: boolean
-  allow_demo_execution: false
-  allow_live_execution: false
+  allow_demo_execution: boolean
+  auto_demo_execution?: boolean
+  allow_live_execution: boolean
   emergency_stop: boolean
   trading_enabled: boolean
 }

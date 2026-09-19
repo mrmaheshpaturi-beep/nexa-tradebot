@@ -27,6 +27,14 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(MarketDataProvider::class, MockMarketDataProvider::class);
         $this->app->bind(ExecutionAdapter::class, SimulationExecutionAdapter::class);
         $this->app->bind(PositionReconciliationService::class, SimulationPositionReconciliationService::class);
+        $this->app->singleton(\App\Execution\FakeDemoBridgeClient::class);
+        $this->app->bind(\App\Contracts\DemoBridgeClient::class, function ($app) {
+            if (config('trading_bridge.demo_client') === 'http' && filled(config('trading_bridge.service_token'))) {
+                return $app->make(\App\Execution\TradingBridgeDemoClient::class);
+            }
+
+            return $app->make(\App\Execution\FakeDemoBridgeClient::class);
+        });
         $this->app->singleton(StrategyRegistry::class);
     }
 

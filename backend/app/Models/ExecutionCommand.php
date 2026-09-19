@@ -15,6 +15,11 @@ class ExecutionCommand extends BaseModel
 {
     use GuardsStateTransitions, HasSimulationPublicId;
 
+    public function getRouteKeyName(): string
+    {
+        return 'public_id';
+    }
+
     protected function casts(): array
     {
         return [
@@ -28,11 +33,14 @@ class ExecutionCommand extends BaseModel
             'acknowledged_at' => 'datetime',
             'completed_at' => 'datetime',
             'failed_at' => 'datetime',
+            'submitted_at' => 'datetime',
             'volume' => 'decimal:4',
             'price' => 'decimal:8',
             'stop_loss' => 'decimal:8',
             'take_profit' => 'decimal:8',
             'attempt_count' => 'integer',
+            'order_check_passed' => 'boolean',
+            'blind_retry_forbidden' => 'boolean',
         ];
     }
 
@@ -64,5 +72,10 @@ class ExecutionCommand extends BaseModel
     public function order(): HasOne
     {
         return $this->hasOne(Order::class);
+    }
+
+    public function executionResult(): HasOne
+    {
+        return $this->hasOne(ExecutionResult::class);
     }
 }

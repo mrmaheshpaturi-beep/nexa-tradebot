@@ -25,10 +25,20 @@ class BrokerAccountController extends Controller
         $account = DB::transaction(function () use ($request): BrokerAccount {
             $account = $request->user()->brokerAccounts()->create([
                 ...$request->validated(),
-                'environment' => 'SIMULATION',
+                'environment' => in_array($request->input('environment'), ['SIMULATION', 'DEMO'], true)
+                    ? $request->input('environment')
+                    : 'SIMULATION',
                 'status' => 'DISCONNECTED',
+                'broker_login' => $request->input('broker_login'),
+                'broker_server' => $request->input('broker_server'),
                 'created_by' => $request->user()->id,
             ]);
+            $env = $account->environment instanceof \App\Enums\TradingEnvironment
+                ? $account->environment->value
+                : (string) $account->environment;
+            if ($env === 'LIVE') {
+                abort(422, 'LIVE accounts cannot be created.');
+            }
             $this->audit->record('broker_account.created', $account, [], $account->toArray(), $request);
 
             return $account;

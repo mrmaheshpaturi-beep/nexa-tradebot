@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PasswordResetController;
 use App\Http\Controllers\Api\PositionController;
 use App\Http\Controllers\Api\RiskEngineController;
+use App\Http\Controllers\Api\ExecutionEngineController;
 use App\Http\Controllers\Api\RiskProfileController;
 use App\Http\Controllers\Api\ServiceHeartbeatController;
 use App\Http\Controllers\Api\SettingController;
@@ -179,5 +180,16 @@ Route::prefix('v1')->middleware('web')->group(function (): void {
         Route::post('/mt5/mappings/{mapping}/reconcile', [Mt5BridgeController::class, 'reconcileMapping'])->middleware('permission:mt5.reconcile');
         Route::get('/mt5/reconciliation-runs', [Mt5BridgeController::class, 'reconciliationRuns'])->middleware('permission:mt5.read');
         Route::get('/mt5/reconciliation-runs/{run}', [Mt5BridgeController::class, 'reconciliationRun'])->middleware('permission:mt5.read');
+
+        Route::get('/execution/health', [ExecutionEngineController::class, 'health'])->middleware('permission:trading.read');
+        Route::get('/execution/dashboard', [ExecutionEngineController::class, 'dashboard'])->middleware('permission:execution.view');
+        Route::get('/execution/metrics', [ExecutionEngineController::class, 'metrics'])->middleware('permission:execution.view');
+        Route::post('/execution/accounts/{brokerAccount}/verify', [ExecutionEngineController::class, 'verifyAccount'])->middleware('permission:execution.confirm');
+        Route::post('/execution/intents/{tradeIntent}/confirmations', [ExecutionEngineController::class, 'startConfirmation'])->middleware('permission:execution.confirm');
+        Route::post('/execution/confirmations/{confirmation}/step2', [ExecutionEngineController::class, 'completeConfirmation'])->middleware('permission:execution.confirm');
+        Route::post('/execution/demo/submit', [ExecutionEngineController::class, 'submit'])->middleware('permission:execution.execute');
+        Route::get('/execution/commands/{executionCommand}', [ExecutionEngineController::class, 'showCommand'])->middleware('permission:execution.view');
+        Route::post('/execution/commands/{executionCommand}/recover', [ExecutionEngineController::class, 'recover'])->middleware('permission:execution.recover');
+        Route::post('/execution/reconcile', [ExecutionEngineController::class, 'reconcile'])->middleware('permission:execution.reconcile');
     });
 });

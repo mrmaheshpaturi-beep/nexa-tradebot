@@ -13,6 +13,7 @@ class SettingsService
         'trading_enabled' => false,
         'simulation_execution_enabled' => false,
         'auto_trading_enabled' => false,
+        'auto_demo_execution' => false,
         'emergency_stop' => true,
         'allow_demo_execution' => false,
         'allow_live_execution' => false,
@@ -30,7 +31,8 @@ class SettingsService
         'simulation_engine' => 'SIMULATION ENGINE',
     ];
 
-    public const LOCKED_FALSE = ['auto_trading_enabled', 'allow_demo_execution', 'allow_live_execution'];
+    /** allow_demo_execution is unlockable (default false). LIVE + auto paths stay hard-false. */
+    public const LOCKED_FALSE = ['auto_trading_enabled', 'auto_demo_execution', 'allow_live_execution'];
 
     public function __construct(private readonly AuditService $audit) {}
 

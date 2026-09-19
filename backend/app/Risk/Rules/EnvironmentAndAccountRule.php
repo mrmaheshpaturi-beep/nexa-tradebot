@@ -33,8 +33,22 @@ final class EnvironmentAndAccountRule implements RiskRule
         $account = $intent->brokerAccount;
         $profile = $context->profile;
 
-        if ($intent->environment !== TradingEnvironment::Simulation || $account->environment !== TradingEnvironment::Simulation) {
-            $context->fail(RiskReasonCode::InvalidEnvironment, 'Only SIMULATION intents can be approved.', [
+        if ($intent->environment === TradingEnvironment::Live || $account->environment === TradingEnvironment::Live) {
+            $context->fail(RiskReasonCode::InvalidEnvironment, 'LIVE intents are hard-rejected.', [
+                'intent_environment' => $intent->environment->value,
+                'account_environment' => $account->environment->value,
+            ], $this->code());
+
+            return;
+        }
+
+        $isSimulation = $intent->environment === TradingEnvironment::Simulation
+            && $account->environment === TradingEnvironment::Simulation;
+        $isDemo = $intent->environment === TradingEnvironment::Demo
+            && $account->environment === TradingEnvironment::Demo;
+
+        if (! $isSimulation && ! $isDemo) {
+            $context->fail(RiskReasonCode::InvalidEnvironment, 'Only SIMULATION or DEMO intents can be approved.', [
                 'intent_environment' => $intent->environment->value,
                 'account_environment' => $account->environment->value,
             ], $this->code());
@@ -46,8 +60,13 @@ final class EnvironmentAndAccountRule implements RiskRule
 
             return;
         }
-        if ($this->settings->value('simulation_execution_enabled') !== true) {
+        if ($isSimulation && $this->settings->value('simulation_execution_enabled') !== true) {
             $context->fail(RiskReasonCode::SimulationDisabled, 'Simulation execution is disabled.', [], $this->code());
+
+            return;
+        }
+        if ($isDemo && $this->settings->value('allow_demo_execution') !== true) {
+            $context->fail(RiskReasonCode::InvalidEnvironment, 'DEMO execution is disabled.', [], $this->code());
 
             return;
         }
@@ -59,6 +78,9 @@ final class EnvironmentAndAccountRule implements RiskRule
 
             return;
         }
-        $context->pass($this->code(), ['environment' => TradingEnvironment::Simulation->value]);
+        $context->pass($this->code(), [
+            'environment' => $intent->environment->value,
+            'auto_demo' => false,
+        ]);
     }
 }

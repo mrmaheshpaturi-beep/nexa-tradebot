@@ -26,6 +26,7 @@ const Backtesting = page('TradingPages', 'Backtesting')
 const PendingOrders = lazy(() => import('./pages/PhaseThreeTradingPages').then((module) => ({ default: module.PersistentOrders })))
 const TradeHistory = page('OperationsPages', 'TradeHistory')
 const RiskManagement = lazy(() => import('./pages/PhaseNineRiskPages').then((module) => ({ default: module.PhaseNineRiskManagement })))
+const DemoExecution = lazy(() => import('./pages/PhaseTenExecutionPages').then((module) => ({ default: module.PhaseTenExecutionConsole })))
 const RiskSettings = lazy(() => import('./pages/PersistentOperationsPages').then((module) => ({ default: module.PersistentRiskManagement })))
 const PaperTrading = page('OperationsPages', 'PaperTrading')
 const Analytics = page('OperationsPages', 'Analytics')
@@ -53,8 +54,9 @@ export default function App() {
     <Route index element={<Dashboard />} /><Route path="market-watch" element={<MarketWatch />} /><Route path="market-scanner" element={<MarketScanner />} />
     <Route path="ai-signals" element={<AISignals />} /><Route path="live-charts" element={<LiveCharts />} /><Route path="strategies" element={<Strategies />} />
     <Route path="auto-trading" element={<AutoTrading />} /><Route path="manual-trading" element={<ManualTrading />} /><Route path="open-positions" element={<Positions />} />
-    <Route path="pending-orders" element={<PendingOrders />} /><Route path="trade-history" element={<TradeHistory />} /><Route path="risk-management" element={<RiskManagement />} />
+    <Route path="pending-orders" element={<PendingOrders />} /><Route path="trade-history" element={<TradeHistory />} />    <Route path="risk-management" element={<RiskManagement />} />
     <Route path="risk-settings" element={<RiskSettings />} />
+    <Route path="demo-execution" element={<DemoExecution />} />
     <Route path="backtesting" element={<Backtesting />} /><Route path="paper-trading" element={<PaperTrading />} /><Route path="analytics" element={<Analytics />} />
     <Route path="reports" element={<Reports />} /><Route path="news-calendar" element={<NewsCalendar />} /><Route path="mt5-accounts" element={<MT5Accounts />} />
     <Route path="mt5-dashboard" element={<Mt5Dashboard />} /><Route path="mt5-market" element={<Mt5Market />} /><Route path="mt5-charts" element={<Mt5Charts />} />

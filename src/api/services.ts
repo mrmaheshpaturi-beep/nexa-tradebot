@@ -336,3 +336,50 @@ export const indicatorApi = {
     { method: 'POST', body },
   ),
 }
+
+
+export const phaseTenApi = {
+  health: () => apiRequest<Record<string, unknown>>('/api/v1/execution/health'),
+  dashboard: () => apiRequest<{
+    phase: number
+    disclaimer: string
+    allow_demo_execution: boolean
+    auto_demo_execution: boolean
+    allow_live_execution: boolean
+    commands: Array<Record<string, unknown>>
+    confirmations: Array<Record<string, unknown>>
+    results: Array<Record<string, unknown>>
+    events: Array<Record<string, unknown>>
+    unknown_count: number
+  }>('/api/v1/execution/dashboard'),
+  metrics: () => apiRequest<Record<string, unknown>>('/api/v1/execution/metrics'),
+  startConfirmation: (tradeIntentPublicId: string, idempotency_key: string) =>
+    apiRequest<{ confirmation: { public_id: string; preview_payload?: Record<string, unknown> }; challenge_token: string; replayed: boolean; disclaimer: string }>(
+      `/api/v1/execution/intents/${encodeURIComponent(tradeIntentPublicId)}/confirmations`,
+      { method: 'POST', body: { idempotency_key } },
+    ),
+  completeConfirmation: (confirmationPublicId: string, challenge_token: string) =>
+    apiRequest<{ confirmation: { public_id: string }; confirm_token: string; disclaimer: string }>(
+      `/api/v1/execution/confirmations/${encodeURIComponent(confirmationPublicId)}/step2`,
+      { method: 'POST', body: { challenge_token } },
+    ),
+  submit: (body: {
+    trade_intent_public_id: string
+    confirmation_public_id: string
+    confirm_token: string
+    idempotency_key: string
+  }) => apiRequest<{ command: { public_id: string; status: string; submission_state?: string }; result: Record<string, unknown> | null; replayed: boolean; environment: string }>(
+    '/api/v1/execution/demo/submit',
+    { method: 'POST', body },
+  ),
+  recover: (commandPublicId: string) =>
+    apiRequest<{ command: Record<string, unknown>; blind_retry: false }>(
+      `/api/v1/execution/commands/${encodeURIComponent(commandPublicId)}/recover`,
+      { method: 'POST' },
+    ),
+  reconcile: (broker_account_id?: number) =>
+    apiRequest<Record<string, unknown>>('/api/v1/execution/reconcile', {
+      method: 'POST',
+      body: broker_account_id ? { broker_account_id } : {},
+    }),
+}

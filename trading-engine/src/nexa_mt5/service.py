@@ -109,7 +109,11 @@ class MT5ReadService:
             "configured": bool(self.settings.service_token)
             and (self.settings.mode == "mock" or self.settings.login is not None),
             "mode": self.settings.mode.upper(),
-            "read_only": True,
+            "read_only": self.settings.mode != "real",
+            "demo_execution": True,
+            "live_execution": False,
+            "order_send": "AUTHORIZED_DEMO_PATH_ONLY",
+            "order_send_location": "nexa_mt5.execution.authorized_order_send",
             "stale": self.is_stale,
             "last_success_at": self.last_success_at,
             "attempts": self.attempts,

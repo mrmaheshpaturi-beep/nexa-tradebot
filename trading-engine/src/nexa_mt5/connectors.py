@@ -79,6 +79,7 @@ class MockMT5Connector:
         return {
             "account_id": 900001,
             "name": "Nexa Demo",
+            "server": "Nexa-Demo",
             "currency": "USD",
             "leverage": 100,
             "balance": "10000.00",

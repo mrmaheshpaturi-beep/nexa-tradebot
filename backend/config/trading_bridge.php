@@ -13,4 +13,8 @@ return [
     'history_max_days' => (int) env('TRADING_BRIDGE_HISTORY_MAX_DAYS', 90),
     'history_max_records' => (int) env('TRADING_BRIDGE_HISTORY_MAX_RECORDS', 500),
     'market_stale_after_seconds' => (float) env('TRADING_BRIDGE_MARKET_STALE_AFTER', 15),
+    'write_timeout' => (float) env('TRADING_BRIDGE_WRITE_TIMEOUT', 8.0),
+    // http | fake — CI always uses fake via AppServiceProvider unless explicitly set to http with token
+    'demo_client' => env('TRADING_BRIDGE_DEMO_CLIENT', 'fake'),
+    'demo_integration_enabled' => (bool) env('NEXA_MT5_DEMO_INTEGRATION', false),
 ];

@@ -13,6 +13,11 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from .config import Settings, get_settings
 from .connectors import MT5Connector
 from .errors import BridgeError, ErrorCode
+from .execution import (
+    MockDemoExecutionBackend,
+    RealDemoExecutionBackend,
+    execute_demo_check_and_send,
+)
 from .logging import configure_logging
 from .market_data import MarketDataEngine
 from .models import Envelope, ErrorBody, ErrorEnvelope
@@ -42,6 +47,11 @@ def create_app(settings: Settings | None = None, connector: MT5Connector | None 
     )
     application.state.mt5_service = service
     application.state.market_data = market
+    application.state.demo_backend = (
+        RealDemoExecutionBackend(service.connector._mt5)  # type: ignore[attr-defined]
+        if resolved.mode == "real" and hasattr(service.connector, "_mt5")
+        else MockDemoExecutionBackend()
+    )
 
     def correlation(request: Request) -> str:
         supplied = request.headers.get("X-Correlation-ID", "")
@@ -198,6 +208,40 @@ def create_app(settings: Settings | None = None, connector: MT5Connector | None 
     @application.get("/v1/heartbeat", response_model=Envelope, dependencies=[Depends(authenticate)])
     def heartbeat(request: Request) -> Envelope:
         return envelope(request, service.health())
+
+    @application.post(
+        "/v1/execution/demo/check-and-send",
+        response_model=Envelope,
+        dependencies=[Depends(authenticate)],
+    )
+    async def demo_check_and_send(request: Request) -> Envelope:
+        """DEMO-only write path. order_check then sole authorized_order_send."""
+        body = await request.json()
+        if not isinstance(body, dict):
+            raise BridgeError(ErrorCode.INVALID_REQUEST, "Invalid DEMO execution body.", 422)
+        trade_request = body.get("request")
+        if not isinstance(trade_request, dict):
+            raise BridgeError(ErrorCode.INVALID_REQUEST, "request object is required.", 422)
+        nonce = str(body.get("nonce") or request.headers.get("X-Nexa-Nonce") or "")
+        idempotency_key = str(
+            body.get("idempotency_key") or request.headers.get("X-Nexa-Idempotency-Key") or ""
+        )
+        timestamp = str(body.get("timestamp") or request.headers.get("X-Nexa-Timestamp") or "")
+        correlation_id = correlation(request)
+        backend = request.app.state.demo_backend
+        # Prefer live connector account when real mode becomes available later.
+        if resolved.mode == "real" and hasattr(service.connector, "_mt5") and service.connector._mt5:
+            backend = RealDemoExecutionBackend(service.connector._mt5)
+            request.app.state.demo_backend = backend
+        result = execute_demo_check_and_send(
+            backend,
+            trade_request,
+            nonce=nonce,
+            idempotency_key=idempotency_key,
+            timestamp=timestamp,
+            correlation_id=correlation_id,
+        )
+        return envelope(request, result)
 
     @application.get(
         "/v1/market/quotes", response_model=Envelope, dependencies=[Depends(authenticate)]
