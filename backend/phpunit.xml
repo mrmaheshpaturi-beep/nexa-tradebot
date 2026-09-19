@@ -19,7 +19,7 @@
     </source>
     <php>
         <env name="APP_ENV" value="testing"/>
-        <env name="APP_BASE_PATH" value="/tmp/nexa-phase18-56f9/backend"/>
+        <env name="APP_BASE_PATH" value="/tmp/nexa-phase19-56f9/backend"/>
         <env name="APP_KEY" value="base64:Kv5iNru442Ti90ITbb+GGU+8xLxZ3beg9p2rb0PZQqg="/>
         <env name="APP_MAINTENANCE_DRIVER" value="file"/>
         <env name="BCRYPT_ROUNDS" value="4"/>

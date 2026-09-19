@@ -122,7 +122,7 @@ class PhaseNineteenProductionHardeningTest extends TestCase
         $this->assertSame($a['public_id'], $b['public_id']);
 
         $job = HardeningQueueJob::query()->where('public_id', $a['public_id'])->firstOrFail();
-        $job->forceFill(['attempts' => 2, 'max_attempts' => 3, 'status' => 'RUNNING'])->save();
+        $job->forceFill(['attempts' => 3, 'max_attempts' => 3, 'status' => 'RUNNING'])->save();
         app(\App\Hardening\Queues\HardeningJobQueue::class)->complete($job, false, 'boom');
         $this->assertSame('DEAD', $job->fresh()->status);
         $this->assertDatabaseCount('hardening_dlq_jobs', 1);
