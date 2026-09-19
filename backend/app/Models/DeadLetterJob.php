@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class DeadLetterJob extends Model
 {
-    protected $table = \"dead_letter_jobs\";
+    protected $table = "dead_letter_jobs";
 
     protected $guarded = [];
 

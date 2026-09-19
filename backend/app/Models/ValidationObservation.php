@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class ValidationObservation extends Model
 {
-    protected $table = \"validation_observations\";
+    protected $table = "validation_observations";
 
     protected $guarded = [];
 

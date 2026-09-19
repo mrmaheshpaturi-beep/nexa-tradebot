@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class OpsIncident extends Model
 {
-    protected $table = \"ops_incidents\";
+    protected $table = "ops_incidents";
 
     protected $guarded = [];
 

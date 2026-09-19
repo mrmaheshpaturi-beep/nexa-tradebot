@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class SystemHealthSnapshot extends Model
 {
-    protected $table = \"system_health_snapshots\";
+    protected $table = "system_health_snapshots";
 
     protected $guarded = [];
 

@@ -365,10 +365,15 @@ Readiness scorecard is **operational only**. No automatic declaration that the s
 
 | Suite | Result |
 |---|---|
-| PHPUnit PhaseFifteenObservabilityTest | see gate run |
-| Phase 14 regression | required PASS |
-| Vitest / tsc / eslint / build | required PASS |
-| `scripts/phase15-observability-audit.sh` | required PASS |
+| PHPUnit (full) | 192 passed / 1 skipped / 0 failed |
+| PhaseFifteenObservabilityTest | 15/15 |
+| Vitest | 26/26 |
+| `tsc -b` | PASS |
+| ESLint | PASS (1 pre-existing react-refresh warning) |
+| Production build | PASS |
+| Python pytest | PASS |
+| `scripts/phase15-observability-audit.sh` | PASS |
+| Phase 10/13/14 audits | PASS |
 
 ## Phase 16
 

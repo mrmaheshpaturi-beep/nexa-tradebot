@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class DataQualityScore extends Model
 {
-    protected $table = \"data_quality_scores\";
+    protected $table = "data_quality_scores";
 
     protected $guarded = [];
 

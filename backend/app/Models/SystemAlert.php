@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class SystemAlert extends Model
 {
-    protected $table = \"system_alerts\";
+    protected $table = "system_alerts";
 
     protected $guarded = [];
 

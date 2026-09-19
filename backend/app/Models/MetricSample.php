@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class MetricSample extends Model
 {
-    protected $table = \"metric_samples\";
+    protected $table = "metric_samples";
 
     protected $guarded = [];
 

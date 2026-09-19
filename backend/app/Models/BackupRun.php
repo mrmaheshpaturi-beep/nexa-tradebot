@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class BackupRun extends Model
 {
-    protected $table = \"backup_runs\";
+    protected $table = "backup_runs";
 
     protected $guarded = [];
 

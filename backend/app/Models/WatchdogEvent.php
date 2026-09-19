@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class WatchdogEvent extends Model
 {
-    protected $table = \"watchdog_events\";
+    protected $table = "watchdog_events";
 
     protected $guarded = [];
 

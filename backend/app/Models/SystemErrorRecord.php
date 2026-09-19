@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class SystemErrorRecord extends Model
 {
-    protected $table = \"system_error_records\";
+    protected $table = "system_error_records";
 
     protected $guarded = [];
 

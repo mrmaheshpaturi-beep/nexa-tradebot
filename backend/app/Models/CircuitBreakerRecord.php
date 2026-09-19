@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class CircuitBreakerRecord extends Model
 {
-    protected $table = \"circuit_breakers\";
+    protected $table = "circuit_breakers";
 
     protected $guarded = [];
 

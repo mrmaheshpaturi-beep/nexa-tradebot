@@ -7,7 +7,7 @@ use Illuminate\Support\Str;
 
 class PerformanceDriftCheck extends Model
 {
-    protected $table = \"performance_drift_checks\";
+    protected $table = "performance_drift_checks";
 
     protected $guarded = [];
 
