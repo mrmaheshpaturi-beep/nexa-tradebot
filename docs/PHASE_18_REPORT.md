@@ -54,7 +54,16 @@ New: PHASE_18_REPORT, BROKER_FLEET, PHASE_18_CONTRACT (implemented), PHASE_19_CO
 
 ## 17. Tests / Gates
 
-Recorded in final section-242 status after quality-gate run.
+| Suite | Result |
+|---|---|
+| PHPUnit (full) | 231 passed / 1 skipped / 0 failed |
+| PhaseEighteenBrokerFleetTest | 16/16 |
+| Vitest | 27/27 |
+| `tsc -b` | PASS |
+| ESLint | PASS (1 pre-existing react-refresh warning) |
+| Production build | PASS |
+| Python pytest | PASS (25) |
+| `scripts/phase18-broker-fleet-audit.sh` | PASS |
 
 ## 18. Warnings / Limitations
 
@@ -62,6 +71,7 @@ Recorded in final section-242 status after quality-gate run.
 - Hostinger deployment still pending from prior phases
 - FX valuation uses deterministic MOCK rates when live FX feed absent
 - Split-brain foundation is lease-based; full HA failover is future work
+- Chart vendor chunk remains large (existing advisory)
 
 ## 19. Phase 19
 

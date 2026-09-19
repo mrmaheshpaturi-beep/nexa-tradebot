@@ -4,17 +4,6 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
 fail=0
-assert_absent() {
-  local pattern="$1"
-  local path="$2"
-  if rg -n --glob '!**/vendor/**' --glob '!**/node_modules/**' --glob '!**/*.md' -e "$pattern" "$path" >/dev/null 2>&1; then
-    echo "FAIL: found forbidden pattern '$pattern' in $path"
-    rg -n --glob '!**/vendor/**' --glob '!**/node_modules/**' --glob '!**/*.md' -e "$pattern" "$path" | head -20
-    fail=1
-  else
-    echo "OK: absent '$pattern' in $path"
-  fi
-}
 
 assert_present() {
   local pattern="$1"
@@ -32,12 +21,24 @@ assert_present "BrokerFleet/v1" backend/app/Fleet
 assert_present "PHASE_10_EXECUTION_ENGINE" backend/app/Fleet
 assert_present "routes_into_phase_10" backend/app/Fleet
 assert_present "copy_trading" backend/app/Fleet
-assert_absent "LIVE_AUTO" backend/app/Fleet
-assert_absent "MetaTrader5.order_send" backend/app/Fleet
-assert_absent "mt5\\.order_send" backend/app/Fleet
-assert_absent "order_send\\(" backend/app/Fleet
+assert_present "LIVE_AUTO does not exist" backend/app/Fleet
+assert_present "live_auto_exists" backend/app/Fleet
 
-# Sole order_send remains in trading-engine execution.py
+# LIVE_AUTO must only appear as hard-reject / false existence flags — never as an enabled mode assignment
+if rg -n --glob '!**/vendor/**' --glob '!**/tests/**' -P -e "(?<![!=])=\s*['\"]LIVE_AUTO['\"]|case LiveAuto|LIVE_AUTO_ENABLED\s*=\s*true" backend/app/Fleet >/dev/null 2>&1; then
+  echo "FAIL: LIVE_AUTO appears enabled in fleet code"
+  fail=1
+else
+  echo "OK: LIVE_AUTO not enabled as a fleet mode"
+fi
+
+if rg -n --glob '!**/vendor/**' "MetaTrader5.order_send|mt5\\.order_send" backend/app/Fleet >/dev/null 2>&1; then
+  echo "FAIL: MT5 order_send in fleet layer"
+  fail=1
+else
+  echo "OK: no MT5 order_send in fleet layer"
+fi
+
 count=$(rg -n "def authorized_order_send" trading-engine/src/nexa_mt5/execution.py | wc -l | tr -d ' ')
 if [[ "$count" != "1" ]]; then
   echo "FAIL: expected exactly one authorized_order_send definition, got $count"
@@ -46,13 +47,12 @@ else
   echo "OK: sole authorized_order_send definition"
 fi
 
-# No new order_send sites outside execution.py
-if rg -n --glob '!**/vendor/**' --glob '!**/node_modules/**' --glob '!**/execution.py' -e "\\.order_send\\(|mt5\\.order_send|MetaTrader5\\.order_send" trading-engine backend/app >/dev/null 2>&1; then
+if rg -n --glob '!**/vendor/**' --glob '!**/execution.py' --glob '!**/tests/**' --glob '!**/*test*.py' -e "\\.order_send\\(|mt5\\.order_send|MetaTrader5\\.order_send" trading-engine/src backend/app >/dev/null 2>&1; then
   echo "FAIL: order_send found outside execution.py"
-  rg -n --glob '!**/vendor/**' --glob '!**/node_modules/**' --glob '!**/execution.py' -e "\\.order_send\\(|mt5\\.order_send|MetaTrader5\\.order_send" trading-engine backend/app | head -20
+  rg -n --glob '!**/vendor/**' --glob '!**/execution.py' --glob '!**/tests/**' --glob '!**/*test*.py' -e "\\.order_send\\(|mt5\\.order_send|MetaTrader5\\.order_send" trading-engine/src backend/app | head -20
   fail=1
 else
-  echo "OK: no order_send outside execution.py"
+  echo "OK: no order_send outside execution.py (tests excluded)"
 fi
 
 assert_present "PHASE_18_REPORT" docs

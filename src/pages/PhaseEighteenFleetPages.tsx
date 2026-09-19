@@ -41,16 +41,15 @@ export function PhaseEighteenFleetPages() {
 
   useEffect(() => {
     if (!can('broker_accounts.view')) return
+    let cancelled = false
     phaseTwoApi.brokerAccounts().then((rows) => {
-      const list = Array.isArray(rows)
-        ? rows
-        : (((rows as { data?: Array<Record<string, unknown>> }).data) ?? [])
+      if (cancelled) return
+      const list = (rows.data ?? []).map((b) => b as unknown as Record<string, unknown>)
       setBrokerAccounts(list)
-      if (list.length && !selectedBrokerAccount) {
-        setSelectedBrokerAccount(String(list[0].public_id ?? ''))
-      }
+      setSelectedBrokerAccount((prev) => prev || (list[0] ? String(list[0].public_id ?? '') : ''))
     }).catch(() => undefined)
-  }, [can, selectedBrokerAccount])
+    return () => { cancelled = true }
+  }, [can])
 
   const reload = () => { dash.reload(); health.reload() }
 
@@ -63,12 +62,10 @@ export function PhaseEighteenFleetPages() {
   const recon = (dash.data?.reconciliation as Array<Record<string, unknown>> | undefined) ?? []
   const allocations = (dash.data?.allocations as Array<Record<string, unknown>> | undefined) ?? []
 
-  useEffect(() => {
-    if (providers.length && !selectedProvider) setSelectedProvider(String(providers[0].public_id))
-    if (connections.length && !selectedConnection) setSelectedConnection(String(connections[0].public_id))
-    if (accounts.length && !selectedAccount) setSelectedAccount(String(accounts[0].public_id))
-    if (portfolios.length && !selectedPortfolio) setSelectedPortfolio(String(portfolios[0].public_id))
-  }, [providers, connections, accounts, portfolios, selectedProvider, selectedConnection, selectedAccount, selectedPortfolio])
+  const effectiveProvider = selectedProvider || (providers[0] ? String(providers[0].public_id) : '')
+  const effectiveConnection = selectedConnection || (connections[0] ? String(connections[0].public_id) : '')
+  const effectiveAccount = selectedAccount || (accounts[0] ? String(accounts[0].public_id) : '')
+  const effectivePortfolio = selectedPortfolio || (portfolios[0] ? String(portfolios[0].public_id) : '')
 
   const registerProvider = async () => {
     if (!can('fleet.manage')) return
@@ -83,11 +80,11 @@ export function PhaseEighteenFleetPages() {
   }
 
   const registerConnection = async () => {
-    if (!can('fleet.manage') || !selectedProvider) return
+    if (!can('fleet.manage') || !effectiveProvider) return
     setBusy('conn'); setErr(''); setMsg('')
     try {
       const row = await phaseEighteenApi.registerConnection({
-        provider_public_id: selectedProvider,
+        provider_public_id: effectiveProvider,
         name: connName,
         endpoint_mode: 'MOCK',
       })
@@ -99,13 +96,13 @@ export function PhaseEighteenFleetPages() {
   }
 
   const wizardRegister = async () => {
-    if (!can('fleet.manage') || !selectedProvider || !selectedBrokerAccount) return
+    if (!can('fleet.manage') || !effectiveProvider || !selectedBrokerAccount) return
     setBusy('wizard'); setErr(''); setMsg('')
     try {
       const row = await phaseEighteenApi.registerAccount({
-        provider_public_id: selectedProvider,
+        provider_public_id: effectiveProvider,
         broker_account_public_id: selectedBrokerAccount,
-        connection_public_id: selectedConnection || undefined,
+        connection_public_id: effectiveConnection || undefined,
         display_name: `Fleet ${wizardLogin}`,
         login: wizardLogin,
         server: wizardServer,
@@ -120,10 +117,10 @@ export function PhaseEighteenFleetPages() {
   }
 
   const verifySelected = async () => {
-    if (!selectedAccount || !can('fleet.operate')) return
+    if (!effectiveAccount || !can('fleet.operate')) return
     setBusy('verify'); setErr(''); setMsg('')
     try {
-      await phaseEighteenApi.verifyAccount(selectedAccount)
+      await phaseEighteenApi.verifyAccount(effectiveAccount)
       setMsg('Independent DEMO environment verification OK')
       reload()
     } catch (e) { setErr(firstValidationError(e) || 'Verification failed / SAFE_MODE') }
@@ -143,10 +140,10 @@ export function PhaseEighteenFleetPages() {
   }
 
   const addMember = async () => {
-    if (!selectedPortfolio || !selectedAccount || !can('fleet.manage')) return
+    if (!effectivePortfolio || !effectiveAccount || !can('fleet.manage')) return
     setBusy('member'); setErr(''); setMsg('')
     try {
-      await phaseEighteenApi.addMembership(selectedPortfolio, { fleet_account_public_id: selectedAccount, role: 'MEMBER' })
+      await phaseEighteenApi.addMembership(effectivePortfolio, { fleet_account_public_id: effectiveAccount, role: 'MEMBER' })
       setMsg('Membership added')
       reload()
     } catch (e) { setErr(firstValidationError(e) || 'Membership failed') }
@@ -154,10 +151,10 @@ export function PhaseEighteenFleetPages() {
   }
 
   const activateAlloc = async () => {
-    if (!selectedPortfolio || !selectedAccount || !can('fleet.manage')) return
+    if (!effectivePortfolio || !effectiveAccount || !can('fleet.manage')) return
     setBusy('alloc'); setErr(''); setMsg('')
     try {
-      const plan = await phaseEighteenApi.activateAllocation(selectedPortfolio, { [selectedAccount]: 1 })
+      const plan = await phaseEighteenApi.activateAllocation(effectivePortfolio, { [effectiveAccount]: 1 })
       setMsg(`Allocation v${value(plan.version)} hash ${value(plan.plan_hash).slice(0, 12)}…`)
       reload()
     } catch (e) { setErr(firstValidationError(e) || 'Allocation failed') }
@@ -186,10 +183,10 @@ export function PhaseEighteenFleetPages() {
   }
 
   const reconcile = async () => {
-    if (!selectedAccount || !can('fleet.reconcile')) return
+    if (!effectiveAccount || !can('fleet.reconcile')) return
     setBusy('recon'); setErr(''); setMsg('')
     try {
-      const run = await phaseEighteenApi.reconcile(selectedAccount, {
+      const run = await phaseEighteenApi.reconcile(effectiveAccount, {
         restart_recovery: true,
         observed_positions: [{ login: wizardLogin, owned_by_nexa: true }],
       })
@@ -216,7 +213,7 @@ export function PhaseEighteenFleetPages() {
     <div className="page-stack phase-eighteen-fleet">
       <PageHeader
         title="Portfolio Command Center"
-        subtitle="Multi-account DEMO fleet — Phase 10 sole execution · no copy trading · LIVE/UNKNOWN hard-blocked"
+        description="Multi-account DEMO fleet — Phase 10 sole execution · no copy trading · LIVE/UNKNOWN hard-blocked"
         actions={(
           <button type="button" className="btn ghost" disabled={!!busy} onClick={reload}>
             <RefreshCw size={16} /> Refresh
@@ -272,13 +269,13 @@ export function PhaseEighteenFleetPages() {
             <MetricCard label="Overall" value={value(fleetHealth?.overall ?? '—')} />
             <MetricCard label="Safe mode" value={value((fleetHealth?.components as Record<string, unknown> | undefined)?.safe_mode_accounts ?? 0)} />
           </div>
-          {accounts.length === 0 ? <EmptyState title="No fleet accounts" description="Use the Account Wizard to register a DEMO account." /> : (
+          {accounts.length === 0 ? <EmptyState title="No fleet accounts" detail="Use the Account Wizard to register a DEMO account." /> : (
             <DataTable
               columns={['Account', 'Env', 'Status', 'Safe mode', 'Login']}
               rows={accounts.map((a) => [
                 value(a.display_name),
                 value(a.environment),
-                <StatusBadge key={String(a.public_id)} status={String(a.status)} />,
+                <StatusBadge key={String(a.public_id)} tone="info">{String(a.status)}</StatusBadge>,
                 value(a.safe_mode ? 'YES' : 'NO'),
                 value(a.login),
               ])}
@@ -296,7 +293,7 @@ export function PhaseEighteenFleetPages() {
           </div>
           <div className="action-row">
             <button type="button" className="btn" disabled={!!busy || !can('fleet.manage')} onClick={registerProvider}>Register provider</button>
-            <button type="button" className="btn" disabled={!!busy || !can('fleet.manage') || !selectedProvider} onClick={registerConnection}>Register MOCK connection</button>
+            <button type="button" className="btn" disabled={!!busy || !can('fleet.manage') || !effectiveProvider} onClick={registerConnection}>Register MOCK connection</button>
           </div>
           <DataTable
             columns={['Provider', 'Platform', 'Status']}
@@ -325,7 +322,7 @@ export function PhaseEighteenFleetPages() {
           </div>
           <div className="action-row">
             <button type="button" className="btn" disabled={!!busy || !can('fleet.manage')} onClick={wizardRegister}><Wallet size={16} /> Register fleet account</button>
-            <button type="button" className="btn" disabled={!!busy || !can('fleet.operate') || !selectedAccount} onClick={verifySelected}>Verify DEMO environment</button>
+            <button type="button" className="btn" disabled={!!busy || !can('fleet.operate') || !effectiveAccount} onClick={verifySelected}>Verify DEMO environment</button>
           </div>
           <p className="muted">LIVE / UNKNOWN are hard-blocked. Fingerprint mismatch enters SAFE_MODE.</p>
         </Panel>
@@ -339,11 +336,11 @@ export function PhaseEighteenFleetPages() {
             <button
               type="button"
               className="btn ghost"
-              disabled={!selectedPortfolio || !!busy}
+              disabled={!effectivePortfolio || !!busy}
               onClick={async () => {
                 setBusy('analytics'); setErr(''); setMsg('')
                 try {
-                  const a = await phaseEighteenApi.portfolioAnalytics(selectedPortfolio)
+                  const a = await phaseEighteenApi.portfolioAnalytics(effectivePortfolio)
                   setMsg(`Base equity ${value(a.total_equity_base)} ${value(a.base_currency)}`)
                 } catch (e) { setErr(firstValidationError(e) || 'Analytics failed') }
                 finally { setBusy('') }
@@ -381,7 +378,7 @@ export function PhaseEighteenFleetPages() {
               Create GLOBAL lock
             </button>
           </div>
-          {locks.length === 0 ? <EmptyState title="No active fleet risk locks" /> : (
+          {locks.length === 0 ? <EmptyState title="No active fleet risk locks" detail="Create ACCOUNT, PORTFOLIO, or GLOBAL locks from this panel." /> : (
             <DataTable columns={['Scope', 'Code', 'Reason', 'Status']} rows={locks.map((l) => [value(l.scope), value(l.lock_code), value(l.reason), value(l.status)])} />
           )}
         </Panel>
@@ -412,7 +409,7 @@ export function PhaseEighteenFleetPages() {
       {tab === 'reconciliation' && (
         <Panel title="Per-account reconciliation" subtitle="Foreign-position safety + restart recovery">
           <div className="action-row">
-            <button type="button" className="btn" disabled={!!busy || !can('fleet.reconcile') || !selectedAccount} onClick={reconcile}>Reconcile selected account</button>
+            <button type="button" className="btn" disabled={!!busy || !can('fleet.reconcile') || !effectiveAccount} onClick={reconcile}>Reconcile selected account</button>
           </div>
           <DataTable
             columns={['Status', 'Foreign', 'Matched', 'Safe mode']}
