@@ -165,7 +165,7 @@ export function PhaseSeventeenAdvancedDesk() {
     <div className="page-stack">
       <PageHeader
         title="Advanced Intelligence"
-        subtitle="Phase 17 extends Phase 13 TradeIntelligence — ADVISORY / SHADOW only. LIVE HARD BLOCKED."
+        description="Phase 17 extends Phase 13 TradeIntelligence — ADVISORY / SHADOW only. LIVE HARD BLOCKED."
         actions={(
           <div className="row-actions">
             <StatusBadge tone="warning">ADVISORY</StatusBadge>

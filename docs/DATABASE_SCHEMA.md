@@ -225,3 +225,14 @@ Additive migration `2026_09_19_260000_create_phase_sixteen_strategy_governance.p
 - `strategy_comparisons`, `strategy_experiments` (lab; never deploys)
 - `strategy_portfolios`, `strategy_change_requests`
 - `governance_events` (immutable), `governance_idempotency_keys`
+
+## Phase 17 — Advanced Intelligence tables
+
+Additive migration `2026_09_19_270000_create_phase_seventeen_advanced_intelligence.php`:
+
+- `intelligence_advanced_snapshots` — orchestrator payloads (features, MTF matrix, analogs, suitability, scoring separation)
+- `intelligence_memory_records` — immutable append-only pre/post-trade + research memory
+- `intelligence_feature_versions` — versioned feature hash archive
+- Additive columns on `intelligence_settings`: `advanced_enabled`, `orchestrator_version`, `ai_timeout_ms`, `cost_budget_tokens`
+
+Advisory/shadow only — no broker write tables. Extends Phase 13; does not replace it.

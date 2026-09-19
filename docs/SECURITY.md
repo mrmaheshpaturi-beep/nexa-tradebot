@@ -140,3 +140,16 @@ LIVE modification/partial/full close HARD BLOCKED at gate + verifier + adapter +
 - Rollback/suspend/retire preserve positions + history (no Phase 11 abandonment)
 - Audit: `scripts/phase16-strategy-governance-audit.sh`
 - Permissions: `governance.view|manage|approve|lab`
+
+## Phase 17 advanced intelligence security
+
+- Extends Phase 13 — no parallel conflicting intelligence stack; no path to MT5 / `order_send`
+- AI/chat: no risk/config/approval/deployment mutation; `mutation_tools_available=false`
+- Deterministic scores cannot be influenced by AI narrative output
+- Historical analogs are no-lookahead with sample guards
+- Research memory is append-only / immutable
+- Phase 14 qualification, Phase 9 risk, Phase 10 sole execution, Phase 16 governance remain mandatory
+- LIVE / UNKNOWN hard-blocked; LIVE_AUTO does not exist
+- CI: MockAI / MockNews / MockCalendar only — no paid API calls
+- Audit: `scripts/phase17-advanced-intelligence-audit.sh`
+- Permissions: reuse `intelligence.view|analyze|manage`

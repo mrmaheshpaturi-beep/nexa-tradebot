@@ -143,6 +143,8 @@ React's `can(permission)` checks the permission objects returned in `roles.permi
 
 Viewers can see advisory desk/pulse/calendar/news. Analyze creates assessments/AI chat. Manage updates intelligence settings and queue. No LIVE execution permissions are granted by Phase 13.
 
+Phase 17 advanced intelligence reuses the same `intelligence.*` permissions for `/api/v1/intelligence/advanced/*` and `#/advanced-intelligence`. Mutation endpoints always 403.
+
 ## Phase 14 automation permissions
 
 | Permission | Purpose |

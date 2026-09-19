@@ -194,4 +194,28 @@ StrategyRegistry plugins + config
 
 **Completion audit:** [`PHASE_16_REPORT.md`](PHASE_16_REPORT.md)
 
-**Phase 17 input (contract only):** [`PHASE_17_CONTRACT.md`](PHASE_17_CONTRACT.md)
+**Phase 17 input:** [`PHASE_17_CONTRACT.md`](PHASE_17_CONTRACT.md)
+
+
+## Phase 17 — Advanced Market Intelligence
+
+```text
+Phase 13 TradeIntelligenceEngine (reused — not duplicated)
+  → AdvancedIntelligenceOrchestrator (AdvancedIntelligence/v1)
+      → versioned/fresh market features
+      → deep structure / S-R / trend / momentum / volatility / MTF matrix
+      → Phase 16 approved-strategy ensemble + confluence/conflicts
+      → cross-market rolling context + no-lookahead analogs (sample guards)
+      → event/news/portfolio/execution/session context
+      → deterministic scoring SEPARATED from AI assessment
+      → uncertainty / evidence quality / suitability
+      → immutable pre/post-trade + research memory
+  → NEVER order_send / NEVER mutate risk|config|approval|deployment
+  → LIVE HARD_BLOCKED · LIVE_AUTO absent · CI MOCK only
+```
+
+**Design:** [`ADVANCED_MARKET_INTELLIGENCE.md`](ADVANCED_MARKET_INTELLIGENCE.md) · [`TRADE_INTELLIGENCE_ENGINE.md`](TRADE_INTELLIGENCE_ENGINE.md) · [`AI_ANALYSIS_SERVICE.md`](AI_ANALYSIS_SERVICE.md)
+
+**Phase 18 input (contract only):** [`PHASE_18_CONTRACT.md`](PHASE_18_CONTRACT.md)
+
+**Completion audit:** [`PHASE_17_REPORT.md`](PHASE_17_REPORT.md)

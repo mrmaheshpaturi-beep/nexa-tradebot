@@ -1,25 +1,42 @@
-# Phase 17 Contract (stub only)
+# Phase 17 Contract — Advanced Market Intelligence
 
-**Status: NOT IMPLEMENTED.** Do not treat as enabled capability.
+**Status: IMPLEMENTED** on branch `cursor/phase-17-advanced-intelligence-56f9`.
 
-Phase 16 ends at Strategy Governance / Release Engineering / Controlled DEMO Promotion.
+Phase 17 **extends** Phase 13 TradeIntelligenceEngine. It does **not** create a parallel conflicting intelligence stack.
 
-Phase 17 may address (examples only — not authorized by this stub):
-1. Further product capabilities beyond Phase 16 governance
-2. Any LIVE-adjacent work remains gated by separate governance
+## Scope
 
-## Non-negotiable constraints carried forward
+1. Versioned `AdvancedIntelligenceOrchestrator` coordinating deeper market features on top of Phase 13
+2. Versioned/fresh market features (`market-features/v1`)
+3. Regime, structure, S/R zones, trend, momentum, volatility, MTF matrix
+4. Approved-strategy ensemble / confluence / conflicts (Phase 16 APPROVED|DEPLOYED_DEMO where applicable)
+5. Cross-market rolling context
+6. No-lookahead historical analogs with sample guards
+7. Event/news/portfolio/execution/session context packs
+8. Provider abstraction / prompt builder / schema validation / injection defenses / timeouts / cache / TTL / model tracking / cost budgets
+9. Separated deterministic scoring vs AI assessment
+10. Calibration / uncertainty / evidence quality
+11. Shadow / advisory modes (extended)
+12. Immutable pre/post-trade intelligence and research memory
+13. Suitability analysis
+14. UI: `#/advanced-intelligence` (opportunity / MTF / evidence / chat — ADVISORY labeled)
+15. Migrations / APIs / RBAC / observability
+16. Phase 18 contract stub only
 
-1. LIVE remains hard-disabled until separate governance
-2. LIVE_AUTO must not be introduced without governance
-3. AI never calls MT5 or bypasses qualification/risk/execution/management
-4. Exactly one authorized `order_send` call site (Phase 10)
-5. AI cannot approve, deploy, or change active strategy config
-6. Strategy governance / lab never call order_send
-7. DEMO-only deployments remain the only promotion path until separate LIVE decision
+## Non-negotiable constraints
 
-## Explicit non-goals of this stub
+1. AI/chat: ZERO MT5 / `order_send` access
+2. AI/chat: NO risk / config / approval / deployment mutation
+3. Phase 14 qualification remains mandatory (AI not final authority)
+4. Phase 9 RiskEngine mandatory
+5. Phase 10 sole execution authority
+6. Phase 16 governance mandatory for promotions
+7. LIVE / UNKNOWN hard blocked; LIVE_AUTO absent
+8. CI: deterministic mocks only — NO paid API calls
+
+## Explicit non-goals
 
 - No LIVE enablement
 - No LIVE_AUTO
-- No Phase 17 implementation work
+- No Phase 18 implementation
+- No parallel intelligence stack replacing Phase 13

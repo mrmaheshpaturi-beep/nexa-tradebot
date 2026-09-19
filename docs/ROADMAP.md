@@ -198,13 +198,24 @@ Complete on branch `cursor/phase-16-strategy-governance-56f9`:
 - StrategyGovernanceService — immutable versions, lifecycle, RC, evidence, two-step approvals
 - DEMO-only promotion into Phase 14 AutomationProfile; LIVE_AUTO absent
 - Strategy Lab / comparisons / portfolios / change requests
-- Governance UI; Phase 17 contract stub only
+- Governance UI; Phase 17 contract stub (superseded by Phase 17 delivery)
 
-See `PHASE_16_REPORT.md`, `STRATEGY_GOVERNANCE.md`, `PHASE_16_CONTRACT.md`, `PHASE_17_CONTRACT.md`.
+See `PHASE_16_REPORT.md`, `STRATEGY_GOVERNANCE.md`, `PHASE_16_CONTRACT.md`.
+
+## Phase 17 — Advanced Market Intelligence
+
+Complete on branch `cursor/phase-17-advanced-intelligence-56f9`:
+
+- `AdvancedIntelligenceOrchestrator` extends Phase 13 (no duplicate stack)
+- Versioned/fresh features, deep structure/MTF, approved-strategy ensemble, analogs, suitability, immutable memory
+- UI `#/advanced-intelligence`; CI MOCK-only providers
+- Phase 18 contract stub only
+
+See `PHASE_17_REPORT.md`, `ADVANCED_MARKET_INTELLIGENCE.md`, `PHASE_17_CONTRACT.md`, `PHASE_18_CONTRACT.md`.
 
 ## Later phases requiring separate approval
 
-1. Phase 17 operational follow-ons (contract only — `PHASE_17_CONTRACT.md`).
+1. Phase 18 operational follow-ons (contract only — `PHASE_18_CONTRACT.md`).
 2. Durable outbox / exactly-once delivery beyond process-local nonce cache.
 3. Real Windows MT5 DEMO end-to-end automation validation and controlled deployment.
 

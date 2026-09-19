@@ -9,6 +9,7 @@ Advisory / shadow market intelligence. Produces assessments, opportunity ranking
 - Version: `TradeIntelligence/v1`
 - Modes: `ADVISORY`, `SHADOW` only
 - Entry: `App\Intelligence\TradeIntelligenceEngineService`
+- Phase 17 extension: `App\Intelligence\Advanced\AdvancedIntelligenceOrchestrator` (`AdvancedIntelligence/v1`) — see [`ADVANCED_MARKET_INTELLIGENCE.md`](ADVANCED_MARKET_INTELLIGENCE.md). Does not replace this engine.
 
 ## Safety
 
