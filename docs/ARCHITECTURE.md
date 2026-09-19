@@ -240,6 +240,26 @@ BrokerProvider / FleetAccount / Fingerprint / Connection / Capability
 
 **Completion audit:** [`PHASE_18_REPORT.md`](PHASE_18_REPORT.md)
 
-**Phase 19 input (contract only):** [`PHASE_19_CONTRACT.md`](PHASE_19_CONTRACT.md)
+## Phase 19 — Production Hardening
+
+```
+App vs Broker env validation
+  → Secret inventory / rotation / redaction (no FE/Git secrets)
+  → MFA foundation + service/node identity + security headers
+  → Durable backups + isolated restore + DR (reconcile before resume)
+  → Prioritized/DLQ/idempotent queues (Redis optional)
+  → Worker supervisor + graceful shutdown + restart reconcile
+  → Trading-aware deploy / maintenance / rollback
+  → Ops Control Center + scoped safe modes
+  → Liveness ≠ readiness ≠ trading-readiness (LIVE always NOT_READY)
+  → Soak/chaos TEST/DEMO only — never LIVE
+  → NEVER blind-retry UNKNOWN · NEVER LIVE_AUTO · Phase 10 sole order_send
+```
+
+**Design:** [`PRODUCTION_HARDENING.md`](PRODUCTION_HARDENING.md) · [`PHASE_19_CONTRACT.md`](PHASE_19_CONTRACT.md)
+
+**Completion audit:** [`PHASE_19_REPORT.md`](PHASE_19_REPORT.md)
+
+**Phase 20 input (contract only):** [`PHASE_20_CONTRACT.md`](PHASE_20_CONTRACT.md)
 
 **Completion audit:** [`PHASE_17_REPORT.md`](PHASE_17_REPORT.md)

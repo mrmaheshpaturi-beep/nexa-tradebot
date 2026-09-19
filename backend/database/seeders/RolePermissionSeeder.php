@@ -33,6 +33,7 @@ class RolePermissionSeeder extends Seeder
         'observability.view', 'observability.manage', 'observability.operate',
         'governance.view', 'governance.manage', 'governance.approve', 'governance.lab',
         'fleet.view', 'fleet.manage', 'fleet.operate', 'fleet.risk', 'fleet.route', 'fleet.reconcile', 'fleet.emergency',
+        'hardening.view', 'hardening.manage', 'hardening.operate', 'hardening.deploy', 'hardening.secrets',
     ];
 
     public function run(): void
@@ -66,6 +67,7 @@ class RolePermissionSeeder extends Seeder
                 'observability.view', 'observability.manage', 'observability.operate',
                 'governance.view', 'governance.manage', 'governance.approve', 'governance.lab',
                 'fleet.view', 'fleet.manage', 'fleet.operate', 'fleet.risk', 'fleet.route', 'fleet.reconcile', 'fleet.emergency',
+                'hardening.view', 'hardening.manage', 'hardening.operate', 'hardening.deploy', 'hardening.secrets',
             ],
             'ANALYST' => [
                 'dashboard.view', 'strategies.view', 'risk_profiles.view', 'risk_engine.view',
@@ -78,6 +80,7 @@ class RolePermissionSeeder extends Seeder
                 'observability.view',
                 'governance.view', 'governance.lab',
                 'fleet.view',
+                'hardening.view',
             ],
             'VIEWER' => [
                 'dashboard.view', 'strategies.view', 'settings.view',
@@ -89,6 +92,7 @@ class RolePermissionSeeder extends Seeder
                 'observability.view',
                 'governance.view',
                 'fleet.view',
+                'hardening.view',
             ],
         ];
 

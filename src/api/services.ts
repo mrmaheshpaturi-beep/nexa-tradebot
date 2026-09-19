@@ -738,3 +738,55 @@ export const phaseEighteenApi = {
   refuseCopyTrading: () =>
     apiRequest<Record<string, unknown>>('/api/v1/fleet/copy-trading', { method: 'POST', body: {} }),
 }
+
+export const phaseNineteenApi = {
+  matrix: () => apiRequest<Record<string, unknown>>('/api/v1/hardening/matrix'),
+  ops: () => apiRequest<Record<string, unknown>>('/api/v1/hardening/ops'),
+  tradingReadiness: () => apiRequest<Record<string, unknown>>('/api/v1/hardening/trading-readiness'),
+  environments: () => apiRequest<Record<string, unknown>>('/api/v1/hardening/environments'),
+  validateEnvironments: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/hardening/environments/validate', { method: 'POST', body }),
+  secrets: () => apiRequest<Record<string, unknown>>('/api/v1/hardening/secrets'),
+  rotateSecret: (secret_key: string) =>
+    apiRequest<Record<string, unknown>>('/api/v1/hardening/secrets/rotate', { method: 'POST', body: { secret_key } }),
+  identity: () => apiRequest<Record<string, unknown>>('/api/v1/hardening/identity'),
+  security: () => apiRequest<Record<string, unknown>>('/api/v1/hardening/security'),
+  queues: () => apiRequest<Record<string, unknown>>('/api/v1/hardening/queues'),
+  enqueue: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/hardening/queues', { method: 'POST', body }),
+  workers: () => apiRequest<Record<string, unknown>>('/api/v1/hardening/workers'),
+  registerWorker: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/hardening/workers', { method: 'POST', body }),
+  workerAction: (id: string, action: string) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/hardening/workers/${encodeURIComponent(id)}`, {
+      method: 'POST', body: { action },
+    }),
+  dr: () => apiRequest<Record<string, unknown>>('/api/v1/hardening/dr'),
+  backup: () => apiRequest<Record<string, unknown>>('/api/v1/hardening/backup', { method: 'POST', body: {} }),
+  isolatedRestore: (body: Record<string, unknown> = {}) =>
+    apiRequest<Record<string, unknown>>('/api/v1/hardening/isolated-restore', { method: 'POST', body }),
+  deploy: () => apiRequest<Record<string, unknown>>('/api/v1/hardening/deploy'),
+  registerDeploy: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/hardening/deploy', { method: 'POST', body }),
+  deployAction: (id: string, body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/hardening/deploy/${encodeURIComponent(id)}`, {
+      method: 'POST', body,
+    }),
+  failover: () => apiRequest<Record<string, unknown>>('/api/v1/hardening/failover'),
+  safeModes: () => apiRequest<Array<Record<string, unknown>>>('/api/v1/hardening/safe-modes'),
+  activateSafeMode: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/hardening/safe-modes', { method: 'POST', body }),
+  clearSafeMode: (id: string) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/hardening/safe-modes/${encodeURIComponent(id)}/clear`, {
+      method: 'POST', body: {},
+    }),
+  capacity: () => apiRequest<Record<string, unknown>>('/api/v1/hardening/capacity'),
+  soak: () => apiRequest<Record<string, unknown>>('/api/v1/hardening/soak'),
+  runSoak: () => apiRequest<Record<string, unknown>>('/api/v1/hardening/soak/run', { method: 'POST', body: {} }),
+  windows: () => apiRequest<Record<string, unknown>>('/api/v1/hardening/windows'),
+  refuseAiMutation: () =>
+    apiRequest<Record<string, unknown>>('/api/v1/hardening/ai-mutate', { method: 'POST', body: {} }),
+  refuseLiveAuto: () =>
+    apiRequest<Record<string, unknown>>('/api/v1/hardening/live-auto', { method: 'POST', body: {} }),
+}
+

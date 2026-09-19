@@ -254,3 +254,16 @@ Additive migration `2026_09_19_280000_create_phase_eighteen_broker_fleet.php`:
 - Additive `broker_accounts.fleet_provider_code`, `broker_accounts.fleet_safe_mode`
 
 Fleet routes into Phase 10 — does not add broker write tables beyond existing DEMO execution path.
+
+## Phase 19 — Production Hardening tables
+
+Additive migration `2026_09_19_290000_create_phase_nineteen_production_hardening.php`:
+
+- `hardening_secret_inventory` (metadata only; never stores secret values)
+- `hardening_service_identities`, `hardening_node_identities`
+- `hardening_mfa_challenges`, `hardening_replay_nonces`
+- `hardening_queue_jobs`, `hardening_dlq_jobs` (idempotent + dead letter)
+- `hardening_worker_processes` (graceful shutdown + restart reconcile flags)
+- `hardening_deploy_versions` (maintenance / trading pause / reconcile-before-resume)
+- `hardening_ops_safe_modes` (scoped SAFE_MODE)
+- `hardening_isolated_restores`, `hardening_config_validations`

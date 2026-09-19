@@ -1,6 +1,7 @@
 <?php
 
 use App\Exceptions\TradingBridgeException;
+use App\Http\Middleware\ApplySecurityHeaders;
 use App\Http\Middleware\EnsureActiveUser;
 use App\Http\Middleware\RequirePermission;
 use Illuminate\Foundation\Application;
@@ -17,10 +18,14 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
+        $middleware->appendToGroup('web', [
+            ApplySecurityHeaders::class,
+        ]);
         $middleware->redirectGuestsTo(fn (Request $request): ?string => $request->is('api/*') ? null : '/');
         $middleware->alias([
             'active' => EnsureActiveUser::class,
             'permission' => RequirePermission::class,
+            'security.headers' => ApplySecurityHeaders::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

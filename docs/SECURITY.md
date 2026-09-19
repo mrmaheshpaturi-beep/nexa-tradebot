@@ -165,3 +165,15 @@ LIVE modification/partial/full close HARD BLOCKED at gate + verifier + adapter +
 - IDOR: fleet resources user-scoped; cross-user verify returns 404
 - Audit: `scripts/phase18-broker-fleet-audit.sh`
 - Permissions: `fleet.view|manage|operate|risk|route|reconcile|emergency`
+
+## Phase 19 production hardening security
+
+- App env (LOCAL|STAGING|DEMO_VPS) separated from broker trade mode (SIMULATION|DEMO)
+- Secret inventory: server-side only; frontend/Git secrets forbidden; values never returned
+- MFA challenge foundation + service/node identity + replay nonces
+- Security headers middleware; CORS same-origin preferred; SSRF user-URL fetch blocked
+- UNKNOWN execution → RECONCILE_NOT_RETRY; no blind retry
+- Soak/chaos forbidden against LIVE; multi-day soak not claimed in CI
+- Phase 19 `order_send` sites = 0; LIVE_AUTO does not exist
+- Audit: `scripts/phase19-production-hardening-audit.sh`
+- Permissions: `hardening.view|manage|operate|deploy|secrets`

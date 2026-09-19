@@ -1,26 +1,41 @@
-# Phase 19 Contract (stub only)
+# Phase 19 Contract — Production Hardening / Security / Ops / DR / Trading-Aware Deploy
 
-**Status: NOT IMPLEMENTED.** Do not treat as enabled capability.
+**Status: IMPLEMENTED** as `ProductionHardening/v1` on branch `cursor/phase-19-production-hardening-56f9`.
 
-Phase 18 ends at Multi-Broker / Multi-Account Fleet Architecture.
+## Scope
 
-Phase 19 may address (examples only — not authorized by this stub):
-1. Further operational product capabilities beyond Phase 18 fleet controls
-2. Any LIVE-adjacent work remains gated by separate governance
+1. Explicit app-vs-broker environments + config validation + safe defaults
+2. Secret inventory / provider / rotation / redaction (no frontend or Git secrets)
+3. Auth/RBAC/MFA foundation + service/node identity + replay/TLS/headers/CORS/CSRF/XSS/SQLi/IDOR/SSRF defenses
+4. Dependency and reproducible builds posture
+5. Database durability / backups / verification / isolated restore / DR
+6. Redis-optional queue abstraction + prioritized / DLQ / idempotent jobs
+7. Supervised workers (Laravel/Python/MT5 metadata) + graceful shutdown + restart reconciliation
+8. Windows/node/network/time hardening checklists
+9. Leases / split-brain / safe failover (extends Phase 18)
+10. Trading-aware deploy / maintenance / rollback / versioning
+11. Separated liveness / readiness / trading-readiness
+12. Metrics / logging / correlation / audit / alerts / incidents / runbooks (extends Phase 15)
+13. Operations Control Center + scoped safe modes
+14. Performance / capacity signals
+15. Soak / chaos frameworks in TEST/DEMO only — never LIVE; multi-day soak not claimed in CI
+16. CI / static / dependency / secret / bundle audits
+17. Docs + Phase 20 contract stub only
 
-## Non-negotiable constraints carried forward
+## Non-negotiable constraints
 
-1. LIVE remains hard-disabled until separate governance
-2. LIVE_AUTO must not be introduced without governance
-3. AI never calls MT5 or bypasses qualification/risk/execution/management
-4. Exactly one authorized `order_send` call site (Phase 10)
-5. AI cannot approve, deploy, route, allocate, or change risk / active strategy config
-6. Fleet routing remains account-bound into Phase 10 only — no copy trading
-7. Independent account environment verification remains mandatory
-8. DEMO-only deployments remain the only promotion path until separate LIVE decision
+1. No blind retry on UNKNOWN execution — reconcile first
+2. AI: no execution / risk mutation
+3. Phase 9 RiskEngine mandatory
+4. Phase 10 sole execution authority (`authorized_order_send` only)
+5. Phase 16 governance intact
+6. Phase 18 account/fleet isolation intact
+7. LIVE/UNKNOWN hard-blocked; LIVE_AUTO does not exist
+8. Honest PENDING for soak/restore/VPS not actually run
 
-## Explicit non-goals of this stub
+## Explicit non-goals
 
 - No LIVE enablement
 - No LIVE_AUTO
-- No Phase 19 implementation work
+- No Phase 20 implementation
+- No rewrite of trading engines (Risk/Execution/Management/Governance/Fleet)

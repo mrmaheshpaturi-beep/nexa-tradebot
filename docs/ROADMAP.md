@@ -227,9 +227,23 @@ Complete on branch `cursor/phase-18-broker-fleet-56f9`:
 
 See `PHASE_18_REPORT.md`, `BROKER_FLEET.md`, `PHASE_18_CONTRACT.md`, `PHASE_19_CONTRACT.md`.
 
+## Phase 19 — Production Hardening / Security / Ops / DR / Trading-Aware Deploy
+
+Complete on branch `cursor/phase-19-production-hardening-56f9`:
+
+- `ProductionHardening/v1` — app-vs-broker env, secrets, MFA/identity, security headers
+- Durable DR + isolated restore; Redis-optional prioritized/DLQ/idempotent queues
+- Worker supervisor + graceful shutdown + restart reconcile
+- Trading-aware deploy/maintenance/rollback; lease-aware safe failover
+- Ops Control Center (`#/ops-control-center`) + scoped safe modes
+- Separated liveness/readiness/trading-readiness; soak/chaos TEST/DEMO only
+- Phase 20 contract stub only
+
+See `PHASE_19_REPORT.md`, `PRODUCTION_HARDENING.md`, `PHASE_19_CONTRACT.md`, `PHASE_20_CONTRACT.md`.
+
 ## Later phases requiring separate approval
 
-1. Phase 19 operational follow-ons (contract only — `PHASE_19_CONTRACT.md`).
+1. Phase 20 follow-ons (contract only — `PHASE_20_CONTRACT.md`).
 2. Durable outbox / exactly-once delivery beyond process-local nonce cache.
 3. Real Windows MT5 DEMO end-to-end automation validation and controlled deployment.
 
