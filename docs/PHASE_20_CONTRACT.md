@@ -1,17 +1,17 @@
-# Phase 20 Contract (stub only)
+# Phase 20 Contract — Final Validation / DEMO Certification / Release Candidate
 
-**Status: NOT IMPLEMENTED.** Do not treat as enabled capability.
+**Status: IMPLEMENTED (validation phase).** Feature freeze. No Phase 21. No LIVE/LIVE_AUTO.
 
-Phase 19 ends at Production Hardening / Security / Ops / DR / Trading-Aware Deploy.
+## Purpose
 
-Phase 20 may address (examples only — not authorized by this stub):
-1. Further product capabilities beyond Phase 19 hardening
-2. Any LIVE-adjacent work remains gated by separate governance
+Re-validate Phases 1–19, produce release evidence, and assign exactly one final status:
 
-## Non-negotiable constraints carried forward
+`NOT_READY` | `READY_FOR_CONTROLLED_DEMO` | `DEMO_RELEASE_CANDIDATE`
 
-1. LIVE remains hard-disabled until separate governance
-2. LIVE_AUTO must not be introduced without governance
+## Non-negotiable constraints
+
+1. LIVE remains hard-disabled
+2. LIVE_AUTO must not be introduced
 3. AI never calls MT5 or bypasses qualification/risk/execution/management
 4. Exactly one authorized `order_send` call site (Phase 10)
 5. AI cannot approve, deploy, route, allocate, or change risk / active strategy config
@@ -20,9 +20,19 @@ Phase 20 may address (examples only — not authorized by this stub):
 8. DEMO-only deployments remain the only promotion path until separate LIVE decision
 9. UNKNOWN execution → reconcile, never blind retry
 10. Soak/chaos never against LIVE
+11. Do not fabricate DEMO broker evidence
+12. Do not claim soak PASS without elapsed runtime
+13. Do not create LIVE_READY / REAL_MONEY_READY / PROFIT_CERTIFIED
 
-## Explicit non-goals of this stub
+## Deliverables
 
-- No LIVE enablement
-- No LIVE_AUTO
-- No Phase 20 implementation work
+- `PHASE_20_FINAL_REPORT.md` (60 sections)
+- `PHASE_1_TO_19_AUDIT.md`
+- `PHASE_20_DEFECT_REGISTER.md`
+- Evidence under `docs/evidence/phase20/`
+- Checklists: INSTALLATION, OPERATIONS_MANUAL, TROUBLESHOOTING, FINAL_SECURITY_CHECKLIST, DEMO_RELEASE_CHECKLIST
+- `scripts/phase20-final-validation-audit.sh`
+
+## Current decision
+
+See final report — **READY_FOR_CONTROLLED_DEMO** (software/safety PASS; XM DEMO/soak/VPS PENDING).

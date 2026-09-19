@@ -241,10 +241,26 @@ Complete on branch `cursor/phase-19-production-hardening-56f9`:
 
 See `PHASE_19_REPORT.md`, `PRODUCTION_HARDENING.md`, `PHASE_19_CONTRACT.md`, `PHASE_20_CONTRACT.md`.
 
-## Later phases requiring separate approval
+## Phase 20 — Final Validation / DEMO Certification / Release Candidate
 
-1. Phase 20 follow-ons (contract only — `PHASE_20_CONTRACT.md`).
-2. Durable outbox / exactly-once delivery beyond process-local nonce cache.
-3. Real Windows MT5 DEMO end-to-end automation validation and controlled deployment.
+Complete on branch `cursor/phase-20-demo-release-candidate-56f9`:
 
-LIVE/real-money activation is not implied by any phase. It requires a separate governance, legal, security, operational and rollback decision after DEMO evidence.
+- Feature freeze + release identity `NEXA-TRADEBOT-RC1` (`v1.0.0-rc.1`)
+- Full Phase 1–19 re-audit with quality gates and static safety audits
+- Defect register, evidence pack, UAT, traceability, ops/security/DEMO checklists
+- Local backup/restore drill PASS; XM DEMO / Windows MT5 / soak elapsed / VPS restore PENDING
+- Final status: **READY_FOR_CONTROLLED_DEMO** (not DEMO_RELEASE_CANDIDATE without broker evidence)
+
+See `PHASE_20_FINAL_REPORT.md`, `PHASE_20_CONTRACT.md`, `DEMO_RELEASE_CHECKLIST.md`, `RELEASE_IDENTITY.md`.
+
+**This is the final phase of the current roadmap. Phase 21 is not authorized.**
+
+## Items requiring separate approval (not Phase 21)
+
+1. Operator XM DEMO forward validation with broker evidence.
+2. Elapsed multi-day soak on controlled DEMO.
+3. Hostinger/VPS production restore drill.
+4. Durable outbox / exactly-once delivery beyond process-local nonce cache.
+5. Any LIVE/real-money activation (separate governance/legal/security decision after DEMO evidence).
+
+LIVE/real-money activation is not implied by any phase. LIVE_AUTO does not exist.

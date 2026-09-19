@@ -1,81 +1,50 @@
-# Nexa TradeBot
+# Nexa TradeBot — Release Candidate RC1
 
-Nexa TradeBot Phase 6 adds an **Indicator Engine** on top of the Phase 5 Market Data Engine. Stack: React 19/TypeScript/Vite, Laravel 13/Sanctum, Python FastAPI bridge.
+**Release:** `NEXA-TRADEBOT-RC1` · package `1.0.0-rc.1` · branch `cursor/phase-20-demo-release-candidate-56f9`  
+**Final status:** **READY_FOR_CONTROLLED_DEMO** (not LIVE; LIVE_AUTO does not exist)
 
-Implemented through Phase 6:
+Stack: React 19 / TypeScript / Vite · Laravel / Sanctum · Python FastAPI MT5 bridge.
 
-- Phase 3 simulation trade lifecycle (intent → risk → simulation execution)
-- Phase 4 read-only MT5 bridge (Mock + Windows Real connectors), Laravel sync/reconcile, MT5 UI
-- Phase 5 market data engine: quotes/candles/symbols, freshness + quality, Market Watch + Charts
-- Phase 6 indicator engine: SMA/EMA/RSI/MACD/ATR/Bollinger from closed candles, chart overlays + panels
+Phases 1–19 delivered and re-validated in Phase 20 (feature freeze). See `docs/PHASE_20_FINAL_REPORT.md`.
 
-Not implemented: broker order execution, DEMO/LIVE trading, Phase 7 strategies, Hostinger production deploy.
-
-## Local setup
-
-Requirements: Node.js 22+, PHP 8.3+ (bcmath), Composer 2, Python 3.12+.
-
-### 1. Python market/bridge service (mock mode)
+## Local preview (Phase 20 ports)
 
 ```bash
-cd trading-engine
-python3 -m pip install -e ".[dev]"
-cp .env.example .env
-# set NEXA_MT5_SERVICE_TOKEN=local-dev-token
-# NEXA_MT5_MODE=mock
-python3 -m uvicorn nexa_mt5.api:app --host 127.0.0.1 --port 8765
+# Laravel
+cd backend && php artisan serve --host=127.0.0.1 --port=48420
+
+# Vite (proxies /api → 48420)
+npm run dev
+# → http://127.0.0.1:58420
 ```
 
-### 2. Laravel API
-
-```bash
-cd backend
-composer install
-cp .env.example .env
-# TRADING_BRIDGE_URL=http://127.0.0.1:8765
-# TRADING_BRIDGE_SERVICE_TOKEN=local-dev-token
-touch database/database.sqlite
-php artisan key:generate
-php artisan migrate
-DEV_SUPER_ADMIN_PASSWORD='choose-at-least-12-characters' php artisan db:seed
-php artisan serve --host=0.0.0.0 --port=46281
-```
-
-### 3. React UI
-
-```bash
-npm install
-npm run dev -- --host=0.0.0.0 --port=46280
-```
-
-Sign in with `admin@nexa.local` and the seeded password. Vite proxies `/api` and `/sanctum` to Laravel on port 46281.
-
-Open [Nexa TradeBot](http://127.0.0.1:46280) → **Live Charts** for indicator overlays.
-
-Without `TRADING_BRIDGE_SERVICE_TOKEN`, use `prefer=simulation` / SIMULATION source. MT5 DEMO never silently falls back to mock.
+Admin (local seed): `admin@nexa.local` / `NexaLocalDevPass1!`  
+Ops UI: `#/ops-control-center`
 
 ## Validation
 
 ```bash
-cd trading-engine && python3 -m pytest && python3 -m ruff check src tests && python3 -m mypy src
-
-cd backend && php artisan test && ./vendor/bin/pint --test
-
-npm run typecheck && npm run lint && npm test && npm run build
-
-bash scripts/phase6-no-execution-audit.sh
+cd backend && ./vendor/bin/phpunit
+cd trading-engine && .venv/bin/pytest
+npm test && npx tsc -b && npm run lint && npm run build
+bash scripts/phase20-final-validation-audit.sh
 ```
 
-## Documentation
+## Documentation index
 
-- `docs/PHASE_6_REPORT.md`
-- `docs/PHASE_6_ARCHITECTURE.md`
-- `docs/INDICATOR_ENGINE.md`
-- `docs/PHASE_5_REPORT.md` / `docs/MARKET_DATA_ENGINE.md`
-- `docs/ARCHITECTURE.md`
+| Doc | Purpose |
+|---|---|
+| `docs/PHASE_20_FINAL_REPORT.md` | 60-section final report |
+| `docs/PHASE_1_TO_19_AUDIT.md` | Full re-audit |
+| `docs/DEMO_RELEASE_CHECKLIST.md` | Release decision checklist |
+| `docs/RELEASE_IDENTITY.md` | RC identity |
+| `docs/INSTALLATION.md` | Install |
+| `docs/OPERATIONS_MANUAL.md` | Ops |
+| `docs/FINAL_SECURITY_CHECKLIST.md` | Security |
+| `docs/evidence/phase20/` | Raw evidence |
 
-## Warnings
+## Explicit non-certifications
 
-- Real MT5 validation still needs a Windows host with MetaTrader 5 DEMO (`MT5_WINDOWS_SETUP.md`).
-- Seed defaults keep emergency stop on and simulation execution off until an operator changes them.
-- No Hostinger deploy is configured in this phase.
+Not `LIVE_READY` · Not `REAL_MONEY_READY` · Not `PROFIT_CERTIFIED` · No Phase 21
+
+Windows MT5 / XM DEMO broker evidence / multi-day soak / VPS restore: **PENDING** (see final report).

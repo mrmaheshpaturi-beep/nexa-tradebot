@@ -1,0 +1,21 @@
+# Static Safety Audits — Phase 20
+Commit: 29fa1bc1e162ca0c8bce78f67f2e5f26e6389412
+
+## Sole mt5.order_send
+trading-engine/src/nexa_mt5/execution.py:182:        result = mt5.order_send(self._build_request(request))
+
+## authorized_order_send definition
+trading-engine/src/nexa_mt5/execution.py:99:def authorized_order_send(
+
+## LIVE_AUTO_EXISTS = false constants
+backend/app/Hardening/Support/HardeningSafety.php:27:    public const LIVE_AUTO_EXISTS = false;
+backend/app/Governance/Support/GovernanceSafety.php:24:    public const LIVE_AUTO_EXISTS = false;
+backend/app/Intelligence/Support/IntelligenceSafety.php:32:    public const LIVE_AUTO_EXISTS = false;
+backend/app/Fleet/Support/FleetSafety.php:19:    public const LIVE_AUTO_EXISTS = false;
+backend/app/Observability/Support/ObservabilitySafety.php:20:    public const LIVE_AUTO_EXISTS = false;
+
+## Frontend VITE secrets
+NONE
+
+## Dist secret scan
+NONE in dist

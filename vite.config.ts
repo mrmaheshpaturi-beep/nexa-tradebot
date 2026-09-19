@@ -7,10 +7,10 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   server: {
     proxy: {
-      '/api': 'http://127.0.0.1:48419',
-      '/sanctum': 'http://127.0.0.1:48419',
+      '/api': 'http://127.0.0.1:48420',
+      '/sanctum': 'http://127.0.0.1:48420',
     },
-    port: 58419,
+    port: 58420,
     strictPort: true,
     watch: {
       ignored: ['**/backend/**', '**/trading-engine/**', '**/media/**', '**/docs/**'],

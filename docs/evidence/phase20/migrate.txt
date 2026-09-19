@@ -1,0 +1,29 @@
+
+ INFO Preparing database. 
+
+ Creating migration table .. 17.22ms DONE
+
+ INFO Running migrations. 
+
+ 0001_01_01_000000_create_users_table .. 27.19ms DONE
+ 0001_01_01_000001_create_cache_table .. 16.43ms DONE
+ 0001_01_01_000002_create_jobs_table .. 32.35ms DONE
+ 2026_09_17_000003_create_phase_two_foundation_tables .. 191.67ms DONE
+ 2026_09_17_000004_create_personal_access_tokens_table .. 12.54ms DONE
+ 2026_09_17_120000_create_phase_three_trading_lifecycle .. 805.20ms DONE
+ 2026_09_18_000001_create_phase_four_mt5_read_models .. 166.75ms DONE
+ 2026_09_18_120000_create_phase_five_market_data .. 70.12ms DONE
+ 2026_09_18_220000_create_phase_seven_strategy_engine .. 83.73ms DONE
+ 2026_09_18_230000_create_phase_eight_scanner_orchestrator .. 57.40ms DONE
+ 2026_09_19_070000_create_phase_nine_risk_engine .. 147.16ms DONE
+ 2026_09_19_120000_create_phase_ten_execution_engine .. 130.41ms DONE
+ 2026_09_19_180000_create_phase_eleven_trade_management .. 185.71ms DONE
+ 2026_09_19_220000_create_phase_twelve_analytics_backtest .. 126.21ms DONE
+ 2026_09_19_230000_create_phase_thirteen_trade_intelligence .. 123.52ms DONE
+ 2026_09_19_240000_create_phase_fourteen_demo_automation .. 120.48ms DONE
+ 2026_09_19_250000_create_phase_fifteen_observability .. 257.23ms DONE
+ 2026_09_19_260000_create_phase_sixteen_strategy_governance .. 207.16ms DONE
+ 2026_09_19_270000_create_phase_seventeen_advanced_intelligence  93.52ms DONE
+ 2026_09_19_280000_create_phase_eighteen_broker_fleet .. 325.60ms DONE
+ 2026_09_19_290000_create_phase_nineteen_production_hardening . 353.13ms DONE
+

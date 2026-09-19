@@ -1,0 +1,312 @@
+PHPUnit 12.5.35 by Sebastian Bergmann and contributors.
+
+Runtime:       PHP 8.3.6
+Configuration: /tmp/nexa-phase20-56f9/backend/phpunit.xml
+
+Time: 00:16.204, Memory: 91.00 MB
+
+[4mAuthentication (Tests\Feature\Authentication)[0m
+[32m ✔ [0mProtected api returns json unauthorized without login route redirect
+[32m ✔ [0mActive user can login read session and logout
+[32m ✔ [0mSuspended and disabled users cannot login
+[32m ✔ [0mLogin is rate limited
+[32m ✔ [0mPassword request is non enumerating and does not claim email delivery
+[32m ✔ [0mPassword can be reset with valid broker token
+
+[4mExample (Tests\Feature\Example)[0m
+[32m ✔ [0mThe application returns a successful response
+
+[4mExample (Tests\Unit\Example)[0m
+[32m ✔ [0mEnvironment vocabulary is expanded but only simulation is executable
+[32m ✔ [0mService safety defaults disable all execution
+[32m ✔ [0mPhase three lifecycle enums use the canonical vocabulary
+
+[4mPersistence And Safety (Tests\Feature\PersistenceAndSafety)[0m
+[32m ✔ [0mDomain relationships persist
+[32m ✔ [0mBroker and strategy requests cannot enable execution
+[32m ✔ [0mLocked execution settings cannot be enabled
+[32m ✔ [0mAudit logs are immutable
+
+[4mPhase Eighteen Broker Fleet (Tests\Feature\PhaseEighteenBrokerFleet)[0m
+[32m ✔ [0mSafety matrix and health
+[32m ✔ [0mProvider account fingerprint connection capability models
+[32m ✔ [0mLive unknown hard blocked and fingerprint safe mode
+[32m ✔ [0mMt5 adapter has no order send duplicate
+[32m ✔ [0mTerminal registry supervisor isolation
+[32m ✔ [0mInstruments mapping and spec freshness
+[32m ✔ [0mPortfolios versioned allocation and approved assignments
+[32m ✔ [0mPhase9 account portfolio global risk locks
+[32m ✔ [0mExecution router into phase10 account bound idempotency no copy
+[32m ✔ [0mCorrect account phase11 management gate
+[32m ✔ [0mPer account reconciliation foreign and restart
+[32m ✔ [0mFleet health automation scope emergency
+[32m ✔ [0mValuation and portfolio analytics
+[32m ✔ [0mTrading node leases split brain
+[32m ✔ [0mApi rbac idor and refuse probes
+[32m ✔ [0mAi cannot register provider
+
+[4mPhase Eight Market Scanner (Tests\Feature\PhaseEightMarketScanner)[0m
+[32m ✔ [0mUniverse and health advertise phase eight without execution
+[32m ✔ [0mManual scan creates run and candidate queue
+[32m ✔ [0mOn candle close scan is idempotent
+[32m ✔ [0mBoard and matrix endpoints
+[32m ✔ [0mCandidate lifecycle dismiss invalidate mark simulate
+[32m ✔ [0mConflict detection flags opposing directions
+[32m ✔ [0mConfig upsert and alerts foundation
+[32m ✔ [0mSystem status includes scanner and orchestrator
+[32m ✔ [0mExecution gate still rejects demo live
+[32m ✔ [0mStrategy backed scan does not enable auto trading
+[32m ✔ [0mNo order send in phase eight sources
+
+[4mPhase Eleven Trade Management (Tests\Feature\PhaseElevenTradeManagement)[0m
+[32m ✔ [0mBreak even buy moves stop once and idempotent
+[32m ✔ [0mBreak even sell and never worsens
+[32m ✔ [0mTrailing buy never loosens and respects step
+[32m ✔ [0mAtr and structure trailing types
+[32m ✔ [0mPartial close idempotent and residual safety
+[32m ✔ [0mFull close duplicate prevented
+[32m ✔ [0mStrategy time session risk exits
+[32m ✔ [0mForeign position never managed
+[32m ✔ [0mLive and unknown management hard blocked
+[32m ✔ [0mRisk lock allows protective close
+[32m ✔ [0mBroker action lock block all blocks management
+[32m ✔ [0mTimeout unknown reconciles without blind retry
+[32m ✔ [0mManual api two step close and pause resume
+[32m ✔ [0mTrade summary immutable after finalize
+[32m ✔ [0mHealth dashboard and close all rbac
+[32m ✔ [0mStatic no extra order send in php
+
+[4mPhase Fifteen Observability (Tests\Feature\PhaseFifteenObservability)[0m
+[32m ✔ [0mSafety constants and forbidden environments
+[32m ✔ [0mPublic health endpoints
+[32m ✔ [0mSystem status exposes phase fifteen
+[32m ✔ [0mMetrics evidence labels separate and insufficient sample warning
+[32m ✔ [0mAlert dedup ack and providers
+[32m ✔ [0mForward validation distinct from backtest
+[32m ✔ [0mBad data blocks new trades and clock drift
+[32m ✔ [0mDrift never auto disables on noise but safety block ok
+[32m ✔ [0mStale heartbeat blocks new entries via watchdog
+[32m ✔ [0mCircuit breaker and unknown execution reconcile
+[32m ✔ [0mBackup verify and disaster recovery
+[32m ✔ [0mLive production refused and scorecard not profit
+[32m ✔ [0mSecret redaction
+[32m ✔ [0mFailure injection and ci soak not days
+[32m ✔ [0mOperations dashboard rbac
+
+[4mPhase Five Market Data (Tests\Feature\PhaseFiveMarketData)[0m
+[32m ✔ [0mSimulation snapshot includes quality and persists
+[32m ✔ [0mBridge snapshot is used when configured
+[32m ✔ [0mQuotes candles and extension hooks endpoints
+[32m ✔ [0mBridge prefer does not silently fallback to mock
+[32m ✔ [0mSessions health quality and closed candles
+[32m ✔ [0mBackfill and symbol sync are permission scoped
+[32m ✔ [0mUnauthenticated market snapshot is rejected
+
+[4mPhase Four Mt5Bridge (Tests\Feature\PhaseFourMt5Bridge)[0m
+[32m ✔ [0mMt5 sync is forbidden for viewer
+[32m ✔ [0mViewer can read mt5 status when granted
+[32m ✔ [0mBridge proxy returns normalized envelope
+[32m ✔ [0mConnection test sync and reconcile are permission scoped
+[32m ✔ [0mSystem status reports read only bridge metadata
+
+[4mPhase Fourteen Demo Automation (Tests\Feature\PhaseFourteenDemoAutomation)[0m
+[32m ✔ [0mDefaults off live locked auto demo unlockable
+[32m ✔ [0mHealth and system status expose phase fourteen
+[32m ✔ [0mLive auto refused
+[32m ✔ [0mProfile validate activate and dry run workflow zero broker
+[32m ✔ [0mIntelligence required wait never silent bypass
+[32m ✔ [0mDemo auto requires settings and two step phrases
+[32m ✔ [0mKill switch blocks entries no close all
+[32m ✔ [0mRestart recovery pauses entries
+[32m ✔ [0mForbidden mode rejected
+[32m ✔ [0mPhase14 source has no order send
+
+[4mPhase Nine Risk Engine (Tests\Feature\PhaseNineRiskEngine)[0m
+[32m ✔ [0mRisk engine health and system status expose phase nine
+[32m ✔ [0mSymbol aware sizing respects volume step and equity
+[32m ✔ [0mApprove creates immutable decision and proposed plan with reservation
+[32m ✔ [0mIdempotent reevaluation returns same decision
+[32m ✔ [0mReward risk and stop distance fail closed
+[32m ✔ [0mDaily weekly drawdown and loss streak guards
+[32m ✔ [0mExposure correlation margin spread session and locks
+[32m ✔ [0mFail closed without snapshot and missing specs
+[32m ✔ [0mExecution gate still rejects demo live and order send none
+[32m ✔ [0mRbac for risk engine endpoints
+[32m ✔ [0mProfile version recorded and no randomness
+[32m ✔ [0mCorrelation limit blocks related exposure
+
+[4mPhase Nineteen Production Hardening (Tests\Feature\PhaseNineteenProductionHardening)[0m
+[32m ✔ [0mSafety matrix and forbidden modes
+[32m ✔ [0mSystem status exposes phase nineteen
+[32m ✔ [0mOps control center separates readiness
+[32m ✔ [0mApp vs broker env validation and live block
+[32m ✔ [0mSecret inventory never returns values
+[32m ✔ [0mSecurity headers present on api
+[32m ✔ [0mIdempotent queue and dlq
+[32m ✔ [0mWorker graceful shutdown and restart reconcile
+[32m ✔ [0mDeploy requires reconcile before resume
+[32m ✔ [0mScoped safe modes
+[32m ✔ [0mIsolated restore and dr checklist
+[32m ✔ [0mSoak chaos ci safe not multi day claim
+[32m ✔ [0mAi mutation and live auto refused
+[32m ✔ [0mMfa foundation challenge verify
+[32m ✔ [0mService and node identity
+[32m ✔ [0mDependency audit and capacity
+[32m ✔ [0mViewer cannot operate hardening
+[32m ✔ [0mFailover extends phase eighteen leases
+
+[4mPhase Seven Strategy Engine (Tests\Feature\PhaseSevenStrategyEngine)[0m
+[32m ✔ [0mCatalog lists twelve plugins without upload
+[32m ✔ [0mTechnical adapter builds snapshot from indicators
+[32m ✔ [0mEvaluate strategy is deterministic and idempotent
+[32m ✔ [0mDisabled strategy is gate blocked
+[32m ✔ [0mScanner and confluence and matrix
+[32m ✔ [0mConfluence avoids double counting same family
+[36m ↩ [0mSignal show includes explainability not ai
+[32m ✔ [0mExecution gate rejects demo and live
+[32m ✔ [0mRegistry has exactly twelve strategies
+[32m ✔ [0mStrategy enable keeps auto trading disabled
+[32m ✔ [0mPerformance does not fabricate win rate
+[32m ✔ [0mHealth endpoint
+[32m ✔ [0mEngine service scan has no randomness
+
+[4mPhase Seventeen Advanced Intelligence (Tests\Feature\PhaseSeventeenAdvancedIntelligence)[0m
+[32m ✔ [0mOrchestrator extends phase13 not duplicate
+[32m ✔ [0mMarket features versioned and freshness
+[32m ✔ [0mDeep structure mtf matrix deterministic
+[32m ✔ [0mApproved ensemble filters non governed
+[32m ✔ [0mCross market and analogs no lookahead
+[32m ✔ [0mAnalog sample guard
+[32m ✔ [0mScoring separation and uncertainty suitability
+[32m ✔ [0mPrompt builder redacts injection
+[32m ✔ [0mAdvanced assess api and memory immutable
+[32m ✔ [0mAdvanced chat advisory and mutate refused
+[32m ✔ [0mMtf features analogs suitability endpoints
+[32m ✔ [0mHealth system status and shadow mode
+[32m ✔ [0mViewer cannot assess
+[32m ✔ [0mSafety constants phase mandates
+
+[4mPhase Six Indicator Engine (Tests\Feature\PhaseSixIndicatorEngine)[0m
+[32m ✔ [0mCatalog lists core indicators
+[32m ✔ [0mSma series from closed candles
+[32m ✔ [0mCompute and batch endpoints
+[32m ✔ [0mQuality gate refuses bad market data
+[32m ✔ [0mBridge prefer does not silently fallback
+[32m ✔ [0mUnknown indicator returns 422
+[32m ✔ [0mExtension hooks advertise ready indicator engine
+[32m ✔ [0mEngine consumes only closed candles contract
+
+[4mPhase Sixteen Strategy Governance (Tests\Feature\PhaseSixteenStrategyGovernance)[0m
+[32m ✔ [0mSafety constants
+[32m ✔ [0mHealth and system status
+[32m ✔ [0mLive deploy and ai approve refused
+[32m ✔ [0mAi actor cannot register or approve
+[32m ✔ [0mLifecycle illegal jump rejected
+[32m ✔ [0mFull demo promotion two step flow
+[32m ✔ [0mRollback preserves positions flag
+[32m ✔ [0mLab never deploys and comparison diff
+[32m ✔ [0mLifecycle doc and dashboard
+
+[4mPhase Ten Execution Engine (Tests\Feature\PhaseTenExecutionEngine)[0m
+[32m ✔ [0mDefaults auto demo off and live locked
+[32m ✔ [0mLive and unknown hard fail at gate
+[32m ✔ [0mDemo lifecycle two step confirm and idempotent submit
+[32m ✔ [0mLive trade mode from bridge hard fails verification
+[32m ✔ [0mTimeout unknown forbids blind retry and recovery
+[32m ✔ [0mPartial fill supported
+[32m ✔ [0mHealth documents sole order send path
+[32m ✔ [0mSimulation execute rejects demo intent
+[32m ✔ [0mSystem status exposes phase ten and defaults
+
+[4mPhase Thirteen Trade Intelligence (Tests\Feature\PhaseThirteenTradeIntelligence)[0m
+[32m ✔ [0mTechnical mtf regime deterministic
+[32m ✔ [0mEnsemble families and conflicts
+[32m ✔ [0mOpportunity ranking transparent
+[32m ✔ [0mMarket quality engines
+[32m ✔ [0mEvidence labels refuse mixed
+[32m ✔ [0mMock calendar news fabricated and unavailable
+[32m ✔ [0mMock ai structured and injection blocked
+[32m ✔ [0mRead only chat blocks mutation intent
+[32m ✔ [0mConfidence calibration sample guard
+[32m ✔ [0mAssess api advisory and safety flags
+[32m ✔ [0mViewer can view intelligence not manage
+[32m ✔ [0mMutation endpoint refuses
+[32m ✔ [0mUnavailable providers via query
+[32m ✔ [0mHealth and system status include phase13
+[32m ✔ [0mUsage budget blocks ai
+[32m ✔ [0mEngine refuse mutation and safety constants
+[32m ✔ [0mShadow mode assessment
+[32m ✔ [0mAssessment content hash stable for same input
+
+[4mPhase Three Contracts (Tests\Feature\PhaseThreeContracts)[0m
+[32m ✔ [0mMock market data and financial calculations are deterministic
+[32m ✔ [0mInstrument api exposes the exact backend mock quote and price semantics
+[32m ✔ [0mSimulation reconciliation detects and accepts deal consistency
+[32m ✔ [0mPhase three indexes support idempotent and lifecycle queries
+[32m ✔ [0mSystem health reports exact phase three safety boundary
+
+[4mPhase Three Lifecycle (Tests\Feature\PhaseThreeLifecycle)[0m
+[32m ✔ [0mSimulation lifecycle works with trading disabled and only simulation execution enabled
+[32m ✔ [0mExecution idempotency creates one command order and position
+[32m ✔ [0mRisk rejection creates no downstream entities
+[32m ✔ [0mMarket protection uses the mock execution quote and rejects only invalid sides
+[32m ✔ [0mDemo and live environments are never executable
+[32m ✔ [0mPending order stops at accepted and can be cancelled
+[32m ✔ [0mTyped pending order must match its side
+[32m ✔ [0mPartial close protection change and full close update account consistently
+[32m ✔ [0mPosition protection modification uses the current close side mock quote
+[32m ✔ [0mPartial close rejects a non step volume
+[32m ✔ [0mSignal is consumed once when converted to an intent
+[32m ✔ [0mNeutral signal cannot create a trade intent
+[32m ✔ [0mControlled adapter failure is persisted without order or position
+[32m ✔ [0mControlled position failure keeps position open and persists failed command
+[32m ✔ [0mPhase three rbac public ids schema and no broker adapter contract
+[32m ✔ [0mTransition guards prevent order status reversal
+[32m ✔ [0mCancelled order cannot transition to filled
+[32m ✔ [0mClosed position cannot transition to open
+[32m ✔ [0mCompleted command cannot return to queued
+
+[4mPhase Twelve Analytics Backtest (Tests\Feature\PhaseTwelveAnalyticsBacktest)[0m
+[32m ✔ [0mMetrics win rate na without completed outcomes
+[32m ✔ [0mMetrics deterministic same input
+[32m ✔ [0mAnalytics dataset and snapshot from trade summaries
+[32m ✔ [0mBacktest deterministic and lineage
+[32m ✔ [0mWalk forward monte carlo optimization portfolio
+[32m ✔ [0mQueue bounded
+[32m ✔ [0mBacktest demo comparison and promote refused
+[32m ✔ [0mApi health rbac and exports
+[32m ✔ [0mSystem status includes phase twelve engines
+[32m ✔ [0mPhase12 source has zero broker changing calls
+
+[4mPhase Two Semantics (Tests\Feature\PhaseTwoSemantics)[0m
+[32m ✔ [0mFoundation schema contains required phase two fields
+[32m ✔ [0mPreferences are validated and persisted
+[32m ✔ [0mAll thirteen risk limits are validated and persisted
+[32m ✔ [0mStrategy domain configuration is validated and versioned
+[32m ✔ [0mUser status endpoints are audited
+[32m ✔ [0mNotification read state is persisted
+[32m ✔ [0mDashboard returns latest persistent account snapshot
+[32m ✔ [0mAudit logs cannot be deleted
+
+[4mRbac (Tests\Feature\Rbac)[0m
+[32m ✔ [0mViewer cannot manage users
+[32m ✔ [0mSuper admin can create user with role atomically
+[32m ✔ [0mRole change is persisted and audited without password data
+[32m ✔ [0mInactive authenticated session is rejected
+[32m ✔ [0mSuper admin can manage emergency stop but admin cannot
+[32m ✔ [0mTrader can submit simulation command but analyst cannot
+[32m ✔ [0mAnalyst has read access while viewer has narrower access
+
+[4mSimulation Order Idempotency (Tests\Feature\SimulationOrderIdempotency)[0m
+[32m ✔ [0mSame key returns same order and one audit record
+[32m ✔ [0mIdempotency keys are scoped per user
+
+[4mSimulation Safety (Tests\Feature\SimulationSafety)[0m
+[32m ✔ [0mStatus explicitly disables execution
+[32m ✔ [0mOrder endpoint only creates simulation record
+[32m ✔ [0mOrder validation rejects unsupported inputs
+[32m ✔ [0mEmergency stop blocks simulation orders by default
+
+[30;42mOK, but some tests were skipped![0m
+[30;42mTests: 250[0m[30;42m, Assertions: 2164[0m[30;42m, Skipped: 1[0m[30;42m.[0m
+{"tool":"phpunit","result":"passed","tests":250,"passed":249,"assertions":2164,"duration_ms":16209,"skipped":1}

@@ -1,0 +1,55 @@
+
+> nexa-tradebot@1.0.0-rc.1 build
+> tsc -b && vite build
+
+vite v8.3.0 building client environment for production...
+transforming...
+✓ 2506 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                            0.63 kB │ gzip:   0.37 kB
+dist/assets/index-C2mFeAPj.css                            68.67 kB │ gzip:  16.05 kB
+dist/assets/check-ZwlK9M2H.js                              0.15 kB │ gzip:   0.15 kB
+dist/assets/play-Bl84Zm1v.js                               0.21 kB │ gzip:   0.19 kB
+dist/assets/pause-OdSFmPxV.js                              0.24 kB │ gzip:   0.18 kB
+dist/assets/download-82q_oomQ.js                           0.26 kB │ gzip:   0.21 kB
+dist/assets/message-square-DDRrA63r.js                     0.26 kB │ gzip:   0.22 kB
+dist/assets/circle-off-DUlJWnph.js                         0.27 kB │ gzip:   0.22 kB
+dist/assets/x-b35bGnPa.js                                  0.28 kB │ gzip:   0.21 kB
+dist/assets/refresh-cw-CM8ugwRN.js                         0.35 kB │ gzip:   0.24 kB
+dist/assets/plus-S_Y6NsWX.js                               0.43 kB │ gzip:   0.28 kB
+dist/assets/useService-D-wW0_qO.js                         0.43 kB │ gzip:   0.30 kB
+dist/assets/octagon-alert-C7ZGOxz1.js                      0.48 kB │ gzip:   0.28 kB
+dist/assets/siren-C6Lobnp8.js                              0.50 kB │ gzip:   0.29 kB
+dist/assets/persistenceServices-DxUHUfJn.js                0.59 kB │ gzip:   0.34 kB
+dist/assets/PhaseTenExecutionPages-DmeAnXG3.js             6.33 kB │ gzip:   2.41 kB
+dist/assets/PhaseElevenTradeManagementPages-Dmr8O2jL.js    6.61 kB │ gzip:   2.44 kB
+dist/assets/PhaseEightScannerPages-CGf5fIJa.js             6.99 kB │ gzip:   2.52 kB
+dist/assets/PersistentTradingPages-CmaTNfQO.js             7.44 kB │ gzip:   2.69 kB
+dist/assets/PhaseSeventeenIntelligencePages-BDk_aYlA.js    7.65 kB │ gzip:   2.76 kB
+dist/assets/PhaseTwelveAnalyticsPages-BnvPpiL9.js          8.57 kB │ gzip:   3.34 kB
+dist/assets/PhaseNineRiskPages-KsrCsxba.js                 8.95 kB │ gzip:   2.77 kB
+dist/assets/PhaseFourMt5Pages-8E6I7Od0.js                  9.03 kB │ gzip:   2.83 kB
+dist/assets/PhaseNineteenHardeningPages-CnmyoYqS.js        9.26 kB │ gzip:   2.98 kB
+dist/assets/PhaseFifteenObservabilityPages-CczXPM7t.js     9.70 kB │ gzip:   3.24 kB
+dist/assets/mockServices-Bi384SxX.js                       9.73 kB │ gzip:   4.04 kB
+dist/assets/PhaseSevenStrategyPages-DaO55FBq.js            9.76 kB │ gzip:   3.33 kB
+dist/assets/SettingsPage-rvawvNt7.js                       9.96 kB │ gzip:   3.20 kB
+dist/assets/PhaseFiveMarketPages-C48BrhBB.js              10.16 kB │ gzip:   3.55 kB
+dist/assets/PhaseThirteenIntelligencePages-DYtNVBsD.js    10.62 kB │ gzip:   3.54 kB
+dist/assets/PhaseSixteenGovernancePages-5v7jGD9_.js       11.11 kB │ gzip:   3.67 kB
+dist/assets/PhaseFourteenAutomationPages-BxQF3iHc.js      11.70 kB │ gzip:   3.91 kB
+dist/assets/PersistentOperationsPages-O_KYn5Op.js         12.55 kB │ gzip:   3.84 kB
+dist/assets/PhaseEighteenFleetPages-CKQ8tFmz.js           12.89 kB │ gzip:   4.03 kB
+dist/assets/OperationsPages-3oCw0hOZ.js                   18.62 kB │ gzip:   5.53 kB
+dist/assets/PhaseThreeTradingPages-ZJ9UoOse.js            26.98 kB │ gzip:   7.35 kB
+dist/assets/TradingPages-CHajCV9l.js                      28.74 kB │ gzip:   8.48 kB
+dist/assets/index-DrueIjhJ.js                            328.55 kB │ gzip: 100.75 kB
+dist/assets/TradingCharts-C1xsXT6x.js                    545.36 kB │ gzip: 162.69 kB
+
+[plugin builtin:vite-reporter] 
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 468ms

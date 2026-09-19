@@ -1,0 +1,57 @@
+# Phase 20 Quality Gate Evidence
+Captured: 2026-09-19T16:00:06Z
+Commit: 29fa1bc1e162ca0c8bce78f67f2e5f26e6389412
+
+## PHPUnit
+[32m ✔ [0mEmergency stop blocks simulation orders by default
+
+[30;42mOK, but some tests were skipped![0m
+[30;42mTests: 250[0m[30;42m, Assertions: 2164[0m[30;42m, Skipped: 1[0m[30;42m.[0m
+{"tool":"phpunit","result":"passed","tests":250,"passed":249,"assertions":2164,"duration_ms":16209,"skipped":1}
+
+## Vitest
+9: Test Files  13 passed (13)
+10:      Tests  27 passed (27)
+
+## tsc
+exit 0 (empty output)
+
+## eslint
+> eslint .
+
+
+/tmp/nexa-phase20-56f9/src/context/MarketDataContext.tsx
+  70:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components
+
+✖ 1 problem (0 errors, 1 warning)
+
+
+## build
+55:✓ built in 543ms
+index hash: be0b1c83dfa4f8838645f57d780f5a8886b332f40530cfe089f87a147468553d
+
+## pytest
+2:=============================== warnings summary ===============================
+25 passed (from 25 dots)
+
+## migrate
+23
+21 migrations applied cleanly
+
+## backup/restore
+{
+ "public_id": "4d951d76-1acb-4d6a-b9ab-95319114e60d",
+ "status": "COMPLETED",
+ "verified": true,
+ "restore_tested": true,
+ "path": "\/tmp\/nexa-phase20-56f9\/backend\/storage\/app\/backups\/phase20\/backup-4d951d76-1acb-4d6a-b9ab-95319114e60d.json",
+ "reconcile_required_before_trading": true
+}
+RESTORE_DRILL migrations=21 tables=173
+
+## perf
+{
+ "occ_dashboard_ms": 37.92,
+ "risk_engine_resolve_ms": 1.18,
+ "measured_at": "2026-09-19T15:59:35+00:00"
+}

@@ -1,0 +1,9 @@
+{
+ "public_id": "4d951d76-1acb-4d6a-b9ab-95319114e60d",
+ "status": "COMPLETED",
+ "verified": true,
+ "restore_tested": true,
+ "path": "\/tmp\/nexa-phase20-56f9\/backend\/storage\/app\/backups\/phase20\/backup-4d951d76-1acb-4d6a-b9ab-95319114e60d.json",
+ "reconcile_required_before_trading": true
+}
+RESTORE_DRILL migrations=21 tables=173
