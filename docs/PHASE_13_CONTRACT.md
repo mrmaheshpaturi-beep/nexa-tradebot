@@ -1,29 +1,13 @@
-# Phase 13 Contract (stub only)
+# Phase 13 Contract
 
-**Status: NOT IMPLEMENTED.** Do not treat as enabled capability.
+**Status: IMPLEMENTED** on branch `cursor/phase-13-trade-intelligence-56f9`.
+
+Supersedes the Phase 12 stub. See `PHASE_13_REPORT.md`, `TRADE_INTELLIGENCE_ENGINE.md`, `AI_ANALYSIS_SERVICE.md`.
 
 ## Boundary
 
-Phase 12 ends at research AnalyticsEngine + BacktestEngine (BACKTEST environment). Zero broker-changing calls. No auto-promote of strategies/risk. LIVE remains hard-disabled.
+Advisory / shadow Trade Intelligence only. No path from AI to MT5, `order_send`, position management, risk mutation, settings mutation, or strategy mutation/promotion. LIVE hard-blocked. CI uses Mock AI / News / Calendar only.
 
-Phase 13 may address (examples only):
+## Phase 14
 
-1. Operator workflow hardening / reporting delivery
-2. Controlled paper-trading loops still behind existing gates
-3. Observability and retention — still DEMO-first; LIVE remains hard-disabled
-
-## Non-negotiable constraints carried forward
-
-1. LIVE remains hard-disabled until separate governance.
-2. Auto Demo remains OFF unless explicitly unlocked.
-3. React never talks to the bridge for writes.
-4. Analytics/Backtest never call MT5 order APIs.
-5. Exactly one authorized `order_send` call site (Phase 10 execution module).
-6. BACKTEST and DEMO labels remain strictly separate.
-7. Research results never auto-promote strategies or risk.
-
-## Explicit non-goals of this stub
-
-- No LIVE enablement
-- No AutoTrading
-- No Phase 13 implementation work
+Contract stub only — `PHASE_14_CONTRACT.md`.

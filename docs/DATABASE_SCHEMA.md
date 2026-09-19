@@ -189,3 +189,13 @@ SQLite migration/rollback/test behavior is verified. Decimal behavior, JSON hand
 - `backtest_walk_forward_folds`, `backtest_optimization_trials`, `backtest_monte_carlo_paths`
 - `research_comparisons` (strict BACKTEST vs DEMO labels)
 
+## Phase 13 tables (additive)
+
+- `intelligence_assessments`, `intelligence_opportunities`
+- `intelligence_ai_analyses`, `intelligence_chat_messages`
+- `intelligence_calendar_events`, `intelligence_news_items`
+- `intelligence_jobs`, `intelligence_usage_meters`
+- `intelligence_calibration_samples`, `intelligence_settings`
+
+Advisory/shadow only — no broker write tables.
+

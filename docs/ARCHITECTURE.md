@@ -133,7 +133,23 @@ Closed candles snapshot
 
 **Design:** [`ANALYTICS_ENGINE.md`](ANALYTICS_ENGINE.md) · [`BACKTEST_ENGINE.md`](BACKTEST_ENGINE.md)
 
-**Phase 13 input (contract only):** [`PHASE_13_CONTRACT.md`](PHASE_13_CONTRACT.md)
-
 **Completion audit:** [`PHASE_12_REPORT.md`](PHASE_12_REPORT.md)
+
+## Phase 13 — Trade Intelligence Engine
+
+```text
+Market/strategy/confluence/scanner/analytics evidence (labels kept distinct)
+  → TradeIntelligenceEngine (ADVISORY | SHADOW)
+      → technical/MTF/regime + ensemble + opportunity ranking
+      → market quality / volatility / spread / anomaly
+      → calendar/news providers (MOCK | UNAVAILABLE fail-closed)
+      → AIAnalysisService (Mock in CI; structured + hashed + injection-guarded)
+  → NEVER order_send / NEVER mutate risk|settings|strategy / LIVE HARD_BLOCKED
+```
+
+**Design:** [`TRADE_INTELLIGENCE_ENGINE.md`](TRADE_INTELLIGENCE_ENGINE.md) · [`AI_ANALYSIS_SERVICE.md`](AI_ANALYSIS_SERVICE.md)
+
+**Phase 14 input (contract only):** [`PHASE_14_CONTRACT.md`](PHASE_14_CONTRACT.md)
+
+**Completion audit:** [`PHASE_13_REPORT.md`](PHASE_13_REPORT.md)
 

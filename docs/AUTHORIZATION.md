@@ -132,3 +132,13 @@ React's `can(permission)` checks the permission objects returned in `roles.permi
 - User status buttons avoid changing the current user in the UI, but the backend route itself does not contain a self-status prohibition.
 - Role assignment accepts any role present in the database; the shipped seeder defines the five roles above.
 - API pagination uses Laravel defaults and the frontend does not yet expose page navigation.
+
+## Phase 13 intelligence permissions
+
+| Permission | SUPER_ADMIN | ADMIN | TRADER | ANALYST | VIEWER |
+|---|:---:|:---:|:---:|:---:|:---:|
+| `intelligence.view` | ✓ | ✓ | ✓ | ✓ | ✓ |
+| `intelligence.analyze` | ✓ | ✓ | ✓ | ✓ | — |
+| `intelligence.manage` | ✓ | ✓ | ✓ | — | — |
+
+Viewers can see advisory desk/pulse/calendar/news. Analyze creates assessments/AI chat. Manage updates intelligence settings and queue. No LIVE execution permissions are granted by Phase 13.

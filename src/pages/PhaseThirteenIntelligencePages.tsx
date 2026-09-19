@@ -214,7 +214,7 @@ export function PhaseThirteenIntelligenceDesk() {
                 <button key={String(a.public_id)} type="button" onClick={() => { setSelectedId(String(a.public_id)); setTab('detail') }}>{value(a.public_id)}</button>,
               ])}
             />
-            {!((desk.data?.recent_assessments as unknown[] | undefined)?.length) && <EmptyState title="No assessments yet" description="Run an advisory assessment to populate the desk." />}
+            {!((desk.data?.recent_assessments as unknown[] | undefined)?.length) && <EmptyState title="No assessments yet" detail="Run an advisory assessment to populate the desk." />}
           </Panel>
         </div>
       )}
@@ -243,7 +243,7 @@ export function PhaseThirteenIntelligenceDesk() {
 
       {tab === 'detail' && (
         <Panel title="Assessment Detail" subtitle={selectedId || 'Select an assessment'}>
-          {!selectedId && <EmptyState title="No selection" description="Assess a symbol or pick from the desk." />}
+          {!selectedId && <EmptyState title="No selection" detail="Assess a symbol or pick from the desk." />}
           {selectedId && detail.data && (
             <>
               <div className="metric-grid">

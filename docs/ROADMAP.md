@@ -148,18 +148,28 @@ Complete on branch `cursor/phase-12-analytics-backtest-56f9`:
 - AnalyticsEngine datasets/snapshots/metrics/exports over TradeSummary lineage
 - BacktestEngine deterministic BACKTEST runs with lineage, costs, WF/OOS, MC, opt, portfolio
 - Strict BACKTEST/DEMO separation; zero broker-changing calls; no auto-promote
-- Phase 13 contract stub only
+- Phase 13 contract stub only (superseded by Phase 13 delivery)
 
-See `PHASE_12_REPORT.md`, `ANALYTICS_ENGINE.md`, `BACKTEST_ENGINE.md`, `PHASE_13_CONTRACT.md`.
+See `PHASE_12_REPORT.md`, `ANALYTICS_ENGINE.md`, `BACKTEST_ENGINE.md`.
+
+## Phase 13 — Trade Intelligence Engine
+
+Complete on branch `cursor/phase-13-trade-intelligence-56f9`:
+
+- TradeIntelligenceEngine (ADVISORY/SHADOW) with assessments, ensemble, ranking, market quality
+- AIAnalysisService + Mock AI/News/Calendar (CI deterministic; paid not required)
+- Evidence label separation; usage/audit/health; AI Trade Desk UI
+- Zero intelligence→execution/risk/settings/strategy mutation paths; LIVE hard-blocked
+- Phase 14 contract stub only
+
+See `PHASE_13_REPORT.md`, `TRADE_INTELLIGENCE_ENGINE.md`, `AI_ANALYSIS_SERVICE.md`, `PHASE_14_CONTRACT.md`.
 
 ## Later phases requiring separate approval
 
-1. Phase 13 operational/research follow-ons (contract only — `PHASE_13_CONTRACT.md`).
+1. Phase 14 operational follow-ons (contract only — `PHASE_14_CONTRACT.md`).
 2. Durable outbox / exactly-once delivery beyond process-local nonce cache.
-3. AI analysis behind the risk boundary.
-4. News/session intelligence.
-5. Security hardening, tamper-evident audit, observability and recovery.
-6. DEMO end-to-end validation and controlled deployment.
+3. Security hardening, tamper-evident audit, observability and recovery.
+4. DEMO end-to-end validation and controlled deployment.
 
 LIVE/real-money activation is not implied by any phase. It requires a separate governance, legal, security, operational and rollback decision after DEMO evidence.
 

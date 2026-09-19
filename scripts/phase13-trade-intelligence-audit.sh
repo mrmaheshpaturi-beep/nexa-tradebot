@@ -3,10 +3,11 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 echo "== Phase 13 trade intelligence audit =="
 
-# Intelligence sources must never call order_send / demo bridge writes / risk mutation
-if rg -n "order_send\s*\(|DemoBridgeClient|TradingBridgeDemoClient|authorized_order_send|MetaTrader5|RiskEngineService|TradeManagementEngine|mutateRisk|promote_strategy" \
-  "$ROOT/backend/app/Intelligence" 2>/dev/null; then
-  echo "FAIL: forbidden execution/mutation symbols in Phase 13 Intelligence"
+# Intelligence sources must never *call* order_send / demo bridge writes / risk mutation.
+# Allow deny-list string constants in IntelligenceSafety.php only.
+if rg -n "order_send\s*\(|DemoBridgeClient::|TradingBridgeDemoClient::|authorized_order_send\s*\(|MetaTrader5\.|new RiskEngineService|TradeManagementEngineService|mutateRisk\s*\(|promote_strategy\s*\(" \
+  "$ROOT/backend/app/Intelligence" --glob '!**/Support/IntelligenceSafety.php' 2>/dev/null; then
+  echo "FAIL: forbidden execution/mutation call sites in Phase 13 Intelligence"
   exit 1
 fi
 

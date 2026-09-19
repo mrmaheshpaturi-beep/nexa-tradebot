@@ -6,7 +6,7 @@
 - CSRF cookie and `X-XSRF-TOKEN` on writes; session regeneration on login and invalidation on logout.
 - Login and reset throttles; non-enumerating reset request response.
 - `ACTIVE` user enforcement followed by named backend permission middleware.
-- Five roles and seeded named permissions (includes Phase 12 `analytics.*` / `backtest.*`). React permission controls are UX only.
+- Five roles and seeded named permissions (includes Phase 12 `analytics.*` / `backtest.*` and Phase 13 `intelligence.*`). React permission controls are UX only.
 - Current-user ownership checks for accounts, signals, intents, orders, positions and other user-scoped resources.
 
 See `AUTHORIZATION.md` for the exact matrix.
@@ -99,4 +99,13 @@ LIVE modification/partial/full close HARD BLOCKED at gate + verifier + adapter +
 - Research promote endpoints refuse (403); StrategySetting/RiskProfile are never auto-mutated from results.
 - LIVE remains hard-blocked. Audit: `scripts/phase12-analytics-backtest-audit.sh`.
 - Permissions: `analytics.view|manage|export`, `backtest.view|run|export`.
+
+## Phase 13 trade intelligence security
+
+- Intelligence has no path to MT5, `order_send`, position management, or risk/settings/strategy mutation.
+- AI chat/analysis is read-only; injection and mutation intents are blocked; `mutation_tools_available=false`.
+- CI uses MockAI / MockNews / MockCalendar only; paid providers env-gated and never required for PASS.
+- Missing news/calendar providers return UNAVAILABLE (never fabricate as real).
+- LIVE remains hard-blocked. Audit: `scripts/phase13-trade-intelligence-audit.sh`.
+- Permissions: `intelligence.view|analyze|manage` (viewers can view advisory; admins configure; no LIVE perms).
 
