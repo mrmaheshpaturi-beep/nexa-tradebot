@@ -14,7 +14,6 @@ function synthCandles(n = 180, start = 1.1): Array<Record<string, number | strin
   const out: Array<Record<string, number | string>> = []
   let px = start
   for (let i = 0; i < n; i++) {
-    // Deterministic walk (no Math.random)
     const drift = ((i % 17) - 8) * 0.00008
     const open = px
     const close = px + drift
@@ -56,6 +55,11 @@ export function PhaseTwelveAnalyticsDashboard() {
   const core = metrics?.core ?? {}
   const riskAdj = metrics?.risk_adjusted ?? {}
   const rMult = metrics?.r_multiple ?? {}
+
+  const equity = useMemo(() => {
+    const curve = (metrics?.equity_curve as number[] | undefined) ?? []
+    return curve.map((v, i) => ({ name: String(i + 1), value: v }))
+  }, [metrics])
 
   const buildDataset = async () => {
     if (!can('analytics.manage')) return
@@ -150,11 +154,6 @@ export function PhaseTwelveAnalyticsDashboard() {
     ['explorer', 'Trade explorer'],
   ] as const
 
-  const equity = useMemo(() => {
-    const curve = (metrics?.equity_curve as number[] | undefined) ?? []
-    return curve.map((v, i) => ({ name: String(i + 1), value: v }))
-  }, [metrics])
-
   return (
     <div className="page-stack">
       <PageHeader
@@ -164,7 +163,7 @@ export function PhaseTwelveAnalyticsDashboard() {
           <div className="action-row">
             <StatusBadge tone="info">PHASE 12</StatusBadge>
             <StatusBadge tone="warning">LIVE BLOCKED</StatusBadge>
-            <StatusBadge tone="success">BACKTEST ≠ DEMO</StatusBadge>
+            <StatusBadge tone="good">BACKTEST ≠ DEMO</StatusBadge>
           </div>
         )}
       />
@@ -213,12 +212,14 @@ export function PhaseTwelveAnalyticsDashboard() {
             <MetricCard label="Win-rate status" value={value(core.win_rate_status)} />
           </div>
           <Panel title="Equity curve" subtitle="From latest analytics snapshot (DEMO/SIMULATION outcomes)">
-            {equity.length === 0 ? <EmptyState title="No equity series" description="Build a dataset from finalized TradeSummaries." /> : (
-              <DataTable
-                columns={['Bar', 'Equity']}
-                rows={equity.slice(-40).map((p) => [p.name, String(p.value)])}
-              />
-            )}
+            {equity.length === 0
+              ? <EmptyState title="No equity series" detail="Build a dataset from finalized TradeSummaries." />
+              : (
+                <DataTable
+                  columns={['Bar', 'Equity']}
+                  rows={equity.slice(-40).map((p) => [p.name, String(p.value)])}
+                />
+              )}
           </Panel>
           <Panel title="Snapshots">
             <DataTable
@@ -305,7 +306,7 @@ export function PhaseTwelveAnalyticsDashboard() {
       {tab === 'explorer' && (
         <Panel title="Trade explorer" subtitle="Analytics dataset rows from TradeSummary lineage.">
           {(trades.data ?? []).length === 0 ? (
-            <EmptyState title="No trades" description="Finalize DEMO managed positions or build a dataset." />
+            <EmptyState title="No trades" detail="Finalize DEMO managed positions or build a dataset." />
           ) : (
             <DataTable
               columns={['Symbol', 'Dir', 'PnL', 'R', 'MAE', 'MFE', 'Session', 'TF']}

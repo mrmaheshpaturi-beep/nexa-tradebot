@@ -3,10 +3,11 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 echo "== Phase 12 analytics/backtest audit =="
 
-# Phase 12 sources must never call order_send / demo bridge writes
-if rg -n "order_send|DemoBridgeClient|TradingBridgeDemoClient|authorized_order_send|MetaTrader5" \
+# Phase 12 sources must never *call* order_send / demo bridge writes
+# Allow documentation keys like 'order_send' => false
+if rg -n "order_send\s*\(|DemoBridgeClient|TradingBridgeDemoClient|authorized_order_send|MetaTrader5" \
   "$ROOT/backend/app/Analytics" "$ROOT/backend/app/Backtest" 2>/dev/null; then
-  echo "FAIL: broker-changing symbols in Phase 12 engines"
+  echo "FAIL: broker-changing call symbols in Phase 12 engines"
   exit 1
 fi
 

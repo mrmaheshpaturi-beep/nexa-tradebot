@@ -23,7 +23,9 @@ class ExampleTest extends TestCase
     public function test_environment_vocabulary_is_expanded_but_only_simulation_is_executable(): void
     {
         $this->assertSame('BUY', OrderDirection::Buy->value);
-        $this->assertSame(['SIMULATION', 'PAPER', 'DEMO', 'LIVE'], array_column(TradingEnvironment::cases(), 'value'));
+        $this->assertSame(['SIMULATION', 'PAPER', 'DEMO', 'LIVE', 'BACKTEST'], array_column(TradingEnvironment::cases(), 'value'));
+        $this->assertFalse(TradingEnvironment::Backtest->isExecutable());
+        $this->assertFalse(TradingEnvironment::Backtest->isBrokerRoutable());
         $this->assertSame(
             ['SIMULATION'],
             array_values(array_map(
