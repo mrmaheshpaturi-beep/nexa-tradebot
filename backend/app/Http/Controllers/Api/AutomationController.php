@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Automation\AutomatedTradingOrchestrator;
 use App\Automation\AutomationProfileService;
 use App\Automation\Support\AutomationSafety;
+use App\Http\Controllers\Controller;
 use App\Models\AutomationEvent;
 use App\Models\AutomationNotification;
 use App\Models\AutomationProfile;

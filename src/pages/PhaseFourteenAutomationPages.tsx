@@ -186,10 +186,12 @@ export function PhaseFourteenAutomationControlCenter() {
   const cc = center.data as Record<string, unknown> | null
   const session = (cc?.session || null) as Record<string, unknown> | null
   const accountRows = (() => {
-    const raw = accounts.data as { data?: Array<Record<string, unknown>> } | Array<Record<string, unknown>> | null
-    if (Array.isArray(raw)) return raw
-    if (raw && Array.isArray(raw.data)) return raw.data
-    return []
+    const raw = accounts.data as unknown
+    if (Array.isArray(raw)) return raw as Array<Record<string, unknown>>
+    if (raw && typeof raw === 'object' && Array.isArray((raw as { data?: unknown }).data)) {
+      return (raw as { data: Array<Record<string, unknown>> }).data
+    }
+    return [] as Array<Record<string, unknown>>
   })()
   const pageRows = (payload: unknown): Array<Record<string, unknown>> => {
     if (!payload) return []
@@ -210,8 +212,8 @@ export function PhaseFourteenAutomationControlCenter() {
         actions={(
           <div className="header-actions">
             <StatusBadge tone="neutral">AUTO DEMO</StatusBadge>
-            <StatusBadge tone="danger">AUTO LIVE — NOT AVAILABLE</StatusBadge>
-            <StatusBadge tone={(cc?.settings as { emergency_stop?: boolean } | undefined)?.emergency_stop ? 'danger' : 'success'}>
+            <StatusBadge tone="bad">AUTO LIVE — NOT AVAILABLE</StatusBadge>
+            <StatusBadge tone={(cc?.settings as { emergency_stop?: boolean } | undefined)?.emergency_stop ? 'bad' : 'good'}>
               {(cc?.settings as { emergency_stop?: boolean } | undefined)?.emergency_stop ? 'EMERGENCY STOP' : 'STOP CLEARED'}
             </StatusBadge>
             <button type="button" className="ghost-button" onClick={reload}><RefreshCw size={16} /> Refresh</button>
@@ -223,10 +225,10 @@ export function PhaseFourteenAutomationControlCenter() {
       {(health.loading || center.loading) && !cc && <LoadingState />}
 
       <div className="metric-grid">
-        <MetricCard label="Default state" value="OFF" hint="Never auto-starts on boot" />
-        <MetricCard label="Mode path" value="OFF → DRY_RUN → DEMO_AUTO" hint="No LIVE_AUTO" />
-        <MetricCard label="Session" value={value(session?.state || 'NONE')} hint={value(session?.mode)} />
-        <MetricCard label="Phase 14 order_send" value="NONE" hint="Phase 10 sole path" />
+        <MetricCard label="Default state" value="OFF" detail="Never auto-starts on boot" />
+        <MetricCard label="Mode path" value="OFF → DRY_RUN → DEMO_AUTO" detail="No LIVE_AUTO" />
+        <MetricCard label="Session" value={value(session?.state || 'NONE')} detail={value(session?.mode)} />
+        <MetricCard label="Phase 14 order_send" value="NONE" detail="Phase 10 sole path" />
       </div>
 
       {(msg || err) && (
@@ -312,10 +314,10 @@ export function PhaseFourteenAutomationControlCenter() {
 
       {tab === 'preflight' && (
         <Panel title="Pre-flight checks">
-          {!preflight && <EmptyState title="No pre-flight yet" description="Run pre-flight from Control Center." />}
+          {!preflight && <EmptyState title="No pre-flight yet" detail="Run pre-flight from Control Center." />}
           {preflight && (
             <>
-              <StatusBadge tone={preflight.ok ? 'success' : 'danger'}>{preflight.ok ? 'PASS' : 'BLOCKED'}</StatusBadge>
+              <StatusBadge tone={preflight.ok ? 'good' : 'bad'}>{preflight.ok ? 'PASS' : 'BLOCKED'}</StatusBadge>
               <pre className="code-block">{JSON.stringify(preflight, null, 2)}</pre>
             </>
           )}

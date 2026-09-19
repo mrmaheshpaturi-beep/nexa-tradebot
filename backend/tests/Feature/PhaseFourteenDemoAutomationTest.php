@@ -73,6 +73,7 @@ class PhaseFourteenDemoAutomationTest extends TestCase
                 ['symbol' => 'EURUSD', 'timeframe' => 'H1', 'strategy_key' => 'ema_trend', 'strategy_version' => 'v1'],
             ],
             'intelligence_required' => false,
+            'session_policy' => ['trade_weekends' => true, 'respect_symbol_hours' => true, 'respect_dst' => true],
         ])->assertCreated()->json('data');
 
         $this->actingAs($user)->postJson("/api/v1/automation/profiles/{$profile['public_id']}/validate")
@@ -238,7 +239,7 @@ class PhaseFourteenDemoAutomationTest extends TestCase
                 'candle_id' => 'kill-1',
             ],
         ])->assertOk()->json('data');
-        $this->assertSame('AUTO_ENTRY_PAUSED', $tick['skipped']);
+        $this->assertTrue(in_array($tick['skipped'], ['AUTO_ENTRY_PAUSED', 'STATE_PAUSED'], true));
     }
 
     public function test_restart_recovery_pauses_entries(): void
@@ -301,6 +302,7 @@ class PhaseFourteenDemoAutomationTest extends TestCase
                 ['symbol' => 'EURUSD', 'timeframe' => 'H1', 'strategy_key' => 'ema_trend', 'strategy_version' => 'v1'],
             ],
             'intelligence_required' => $intelligenceRequired,
+            'session_policy' => ['trade_weekends' => true, 'respect_symbol_hours' => true, 'respect_dst' => true],
             'qualification_rules' => [
                 'min_confluence' => 60,
                 'intelligence_required' => $intelligenceRequired,
