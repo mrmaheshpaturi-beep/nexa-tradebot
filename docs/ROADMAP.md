@@ -188,4 +188,24 @@ LIVE/real-money activation is not implied by any phase. It requires a separate g
 
 ## Phase 15 — Validation, Observability & Production Hardening
 
-**Status: COMPLETE (PASS WITH WARNINGS).** See `PHASE_15_REPORT.md`. Phase 16 not started.
+**Status: COMPLETE (PASS WITH WARNINGS).** See `PHASE_15_REPORT.md`.
+
+
+## Phase 16 — Strategy Governance / Release Engineering / Controlled DEMO Promotion
+
+Complete on branch `cursor/phase-16-strategy-governance-56f9`:
+
+- StrategyGovernanceService — immutable versions, lifecycle, RC, evidence, two-step approvals
+- DEMO-only promotion into Phase 14 AutomationProfile; LIVE_AUTO absent
+- Strategy Lab / comparisons / portfolios / change requests
+- Governance UI; Phase 17 contract stub only
+
+See `PHASE_16_REPORT.md`, `STRATEGY_GOVERNANCE.md`, `PHASE_16_CONTRACT.md`, `PHASE_17_CONTRACT.md`.
+
+## Later phases requiring separate approval
+
+1. Phase 17 operational follow-ons (contract only — `PHASE_17_CONTRACT.md`).
+2. Durable outbox / exactly-once delivery beyond process-local nonce cache.
+3. Real Windows MT5 DEMO end-to-end automation validation and controlled deployment.
+
+LIVE/real-money activation is not implied by any phase. It requires a separate governance, legal, security, operational and rollback decision after DEMO evidence.

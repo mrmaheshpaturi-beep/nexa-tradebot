@@ -34,3 +34,4 @@ terminals/
 *.sln
 *.sw?
 backend/vendor/
+backend/vendor/

@@ -172,3 +172,26 @@ OFF (default) | DRY_RUN (zero broker) | DEMO_AUTO
 ## Phase 15 Observability
 
 `App\Observability\*` coordinates metrics, health, watchdog, alerts, forward validation, data quality, backups, circuit breakers, and resource monitors. UI: `#/system-operations`.
+
+
+## Phase 16 — Strategy Governance / Release Engineering
+
+```text
+StrategyRegistry plugins + config
+  → StrategyGovernanceService
+      → immutable semantic versions (code_hash + config_hash)
+      → lifecycle (LifecycleGuard) + release candidates
+      → evidence packages (Phase 12 analytics + Phase 15 forward validation)
+      → validation policies/decisions (insufficient samples ≠ auto-approve)
+      → two-step human approvals (bound single-use tokens)
+      → DEMO_AUTO promotion → Phase 14 AutomationProfile only
+      → rollback/suspend/retire (positions + history preserved)
+      → Strategy Lab / portfolios / change requests
+  → NEVER order_send / NEVER AI approve-deploy / NEVER LIVE_AUTO
+```
+
+**Design:** [`STRATEGY_GOVERNANCE.md`](STRATEGY_GOVERNANCE.md) · [`PHASE_16_CONTRACT.md`](PHASE_16_CONTRACT.md)
+
+**Completion audit:** [`PHASE_16_REPORT.md`](PHASE_16_REPORT.md)
+
+**Phase 17 input (contract only):** [`PHASE_17_CONTRACT.md`](PHASE_17_CONTRACT.md)

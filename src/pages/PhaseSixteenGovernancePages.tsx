@@ -170,8 +170,8 @@ export function PhaseSixteenGovernanceCenter() {
     }
   }
 
-  if (dash.loading && !dash.data) return <LoadingState label="Loading strategy governance…" />
-  if (dash.error) return <ErrorState message={dash.error} onRetry={reload} />
+  if (dash.loading && !dash.data) return <LoadingState />
+  if (dash.error) return <ErrorState message={dash.error} />
 
   const h = health.data ?? {}
 
@@ -179,7 +179,7 @@ export function PhaseSixteenGovernanceCenter() {
     <div className="page-stack">
       <PageHeader
         title="Strategy Governance"
-        subtitle="Release engineering · evidence · two-step human approval · DEMO-only promotion · Strategy Lab"
+        description="Release engineering · evidence · two-step human approval · DEMO-only promotion · Strategy Lab"
         actions={(
           <button type="button" className="btn ghost" onClick={reload} disabled={!!busy}>
             <RefreshCw size={16} /> Refresh
@@ -188,13 +188,13 @@ export function PhaseSixteenGovernanceCenter() {
       />
 
       <div className="danger-banner" role="status">
-        DEMO-only deployments via Phase 14 AutomationProfile. LIVE / LIVE_AUTO controls do not exist.
-        AI cannot approve, deploy, or change active config. Governance never calls order_send.
+        DEMO-only deployments via Phase 14 AutomationProfile. LIVE and live-auto controls do not exist.
+        AI cannot approve, deploy, or change active config. Governance never sends broker orders.
       </div>
 
       <div className="metric-grid">
         <MetricCard label="Phase" value={value(h.phase ?? 16)} />
-        <MetricCard label="order_send (P16)" value={value(h.order_send_phase16 ?? 0)} />
+        <MetricCard label="P16 broker writes" value={value(h.order_send_phase16 ?? 0)} />
         <MetricCard label="AI may approve" value={value(h.ai_may_approve ?? false)} />
         <MetricCard label="Deploy targets" value="DEMO_AUTO" />
       </div>
@@ -239,14 +239,14 @@ export function PhaseSixteenGovernanceCenter() {
               Open release candidate
             </button>
           </div>
-          {versions.length === 0 ? <EmptyState title="No governed versions" /> : (
+          {versions.length === 0 ? <EmptyState title="No governed versions" detail="Register an immutable semantic version to begin." /> : (
             <DataTable
               columns={['Public ID', 'Strategy', 'SemVer', 'State', 'Code hash', 'Select']}
               rows={versions.map((v) => [
                 value(v.public_id),
                 value(v.strategy_key),
                 value(v.semantic_version),
-                <StatusBadge key={String(v.public_id)} status={String(v.lifecycle_state)} />,
+                <StatusBadge key={String(v.public_id)} tone="info">{String(v.lifecycle_state)}</StatusBadge>,
                 value(String(v.code_hash ?? '').slice(0, 12)),
                 <button key={`s-${v.public_id}`} type="button" className="btn ghost" onClick={() => setSelectedVersion(String(v.public_id))}>
                   {selectedVersion === v.public_id ? 'Selected' : 'Select'}
@@ -291,13 +291,13 @@ export function PhaseSixteenGovernanceCenter() {
               Consume step 2
             </button>
           </div>
-          {approvals.length === 0 ? <EmptyState title="No approvals yet" /> : (
+          {approvals.length === 0 ? <EmptyState title="No approvals yet" detail="Start a two-step human approval for the selected version." /> : (
             <DataTable
               columns={['ID', 'Action', 'Status', 'Steps']}
               rows={approvals.slice(0, 15).map((a) => [
                 value(a.public_id),
                 value(a.action),
-                <StatusBadge key={String(a.public_id)} status={String(a.status)} />,
+                <StatusBadge key={String(a.public_id)} tone="info">{String(a.status)}</StatusBadge>,
                 `${value(a.completed_steps)}/${value(a.required_steps)}`,
               ])}
             />
@@ -307,13 +307,13 @@ export function PhaseSixteenGovernanceCenter() {
 
       {tab === 'deployments' && (
         <Panel title="DEMO deployments" subtitle="Integrated with Phase 14 AutomationProfile · positions preserved on rollback">
-          {deployments.length === 0 ? <EmptyState title="No deployments" /> : (
+          {deployments.length === 0 ? <EmptyState title="No deployments" detail="DEMO_AUTO promotions appear here after two-step approval." /> : (
             <DataTable
               columns={['ID', 'Target', 'Status', 'Positions preserved', 'Deployed']}
               rows={deployments.map((d) => [
                 value(d.public_id),
                 value(d.target),
-                <StatusBadge key={String(d.public_id)} status={String(d.status)} />,
+                <StatusBadge key={String(d.public_id)} tone="info">{String(d.status)}</StatusBadge>,
                 value(d.positions_preserved),
                 value(d.deployed_at),
               ])}
@@ -337,7 +337,7 @@ export function PhaseSixteenGovernanceCenter() {
           </div>
           {lab.data && (
             <p className="muted">
-              can_deploy={value(lab.data.can_deploy)} · mutates_active_config={value(lab.data.mutates_active_config)} · LIVE_AUTO controls={value(lab.data.live_auto_controls)}
+              can_deploy={value(lab.data.can_deploy)} · mutates_active_config={value(lab.data.mutates_active_config)} · live auto controls absent={value(lab.data.live_auto_controls === false)}
             </p>
           )}
           {((lab.data?.experiments as Array<Record<string, unknown>> | undefined) ?? []).length > 0 && (
@@ -377,7 +377,7 @@ export function PhaseSixteenGovernanceCenter() {
 
       {tab === 'lifecycle' && (
         <Panel title="Allowed lifecycle transitions" subtitle="Illegal jumps rejected">
-          {lifecycle.loading && <LoadingState label="Loading lifecycle…" />}
+          {lifecycle.loading && <LoadingState />}
           {lifecycle.data && (
             <pre className="code-block">{JSON.stringify(lifecycle.data.allowed_transitions, null, 2)}</pre>
           )}

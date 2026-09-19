@@ -127,3 +127,16 @@ LIVE modification/partial/full close HARD BLOCKED at gate + verifier + adapter +
 - EnvValidator rejects LIVE flags / LIVE_PRODUCTION
 - Health probes rate-limited
 - Phase 15 order_send = 0; LIVE_AUTO absent
+
+
+## Phase 16 governance security
+
+- AI cannot approve, deploy, or change active config (`GovernanceSafety::AI_MAY_* = false`)
+- Two-step human approvals: bound resource hash, single-use tokens, nonce replay protection, TTL/staleness
+- DEMO_AUTO deploy target only; LIVE / LIVE_AUTO endpoints 403
+- Governance + Strategy Lab: `order_send` = 0; Phase 10 remains sole path
+- Lab never mutates active config and never deploys
+- Insufficient samples → `can_auto_approve=false`; human may still reject
+- Rollback/suspend/retire preserve positions + history (no Phase 11 abandonment)
+- Audit: `scripts/phase16-strategy-governance-audit.sh`
+- Permissions: `governance.view|manage|approve|lab`
