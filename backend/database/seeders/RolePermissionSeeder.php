@@ -26,6 +26,8 @@ class RolePermissionSeeder extends Seeder
         'market.configure',
         'execution.view', 'execution.confirm', 'execution.execute', 'execution.recover', 'execution.reconcile',
         'trade_management.view', 'trade_management.manage', 'trade_management.recover', 'trade_management.close_all',
+        'analytics.view', 'analytics.manage', 'analytics.export',
+        'backtest.view', 'backtest.run', 'backtest.export',
     ];
 
     public function run(): void
@@ -52,17 +54,21 @@ class RolePermissionSeeder extends Seeder
                 'market.configure',
                 'execution.view', 'execution.confirm', 'execution.execute', 'execution.recover', 'execution.reconcile',
                 'trade_management.view', 'trade_management.manage', 'trade_management.recover',
+                'analytics.view', 'analytics.manage', 'analytics.export',
+                'backtest.view', 'backtest.run', 'backtest.export',
             ],
             'ANALYST' => [
                 'dashboard.view', 'strategies.view', 'risk_profiles.view', 'risk_engine.view',
                 'broker_accounts.view', 'settings.view', 'preferences.view',
                 'preferences.update', 'notifications.view', 'notifications.update',
                 'trading.read', 'signals.view', 'mt5.read', 'execution.view', 'trade_management.view',
+                'analytics.view', 'analytics.export', 'backtest.view', 'backtest.export',
             ],
             'VIEWER' => [
                 'dashboard.view', 'strategies.view', 'settings.view',
                 'preferences.view', 'notifications.view',
                 'trading.read', 'mt5.read', 'risk_engine.view', 'execution.view', 'trade_management.view',
+                'analytics.view', 'backtest.view',
             ],
         ];
 

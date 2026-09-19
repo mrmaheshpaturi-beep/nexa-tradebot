@@ -422,3 +422,45 @@ export const phaseElevenApi = {
   monitorTick: () => apiRequest<Record<string, unknown>>('/api/v1/trade-management/monitor/tick', { method: 'POST' }),
   recoverAll: () => apiRequest<Record<string, unknown>>('/api/v1/trade-management/recover', { method: 'POST' }),
 }
+
+export const phaseTwelveApi = {
+  health: () => apiRequest<{
+    analytics: Record<string, unknown>
+    backtest: Record<string, unknown>
+    phase: number
+    live_execution: string
+    broker_changing_calls: number
+  }>('/api/v1/analytics/health'),
+  dashboard: () => apiRequest<{
+    snapshot: Record<string, unknown> | null
+    metrics: Record<string, unknown> | null
+    environment_note: string
+    auto_promote_strategies: boolean
+    auto_promote_risk: boolean
+  }>('/api/v1/analytics/dashboard'),
+  datasets: () => apiRequest<Array<Record<string, unknown>>>('/api/v1/analytics/datasets'),
+  buildDataset: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/analytics/datasets', { method: 'POST', body }),
+  createSnapshot: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/analytics/snapshots', { method: 'POST', body }),
+  snapshots: () => apiRequest<Array<Record<string, unknown>>>('/api/v1/analytics/snapshots'),
+  trades: (datasetId?: string) =>
+    apiRequest<Array<Record<string, unknown>>>(
+      `/api/v1/analytics/trades${datasetId ? `?dataset_id=${encodeURIComponent(datasetId)}` : ''}`,
+    ),
+  reports: () => apiRequest<Array<Record<string, unknown>>>('/api/v1/analytics/reports'),
+  compare: (body: { backtest_run_id: string; demo_snapshot_id: string }) =>
+    apiRequest<Record<string, unknown>>('/api/v1/analytics/compare', { method: 'POST', body }),
+  comparisons: () => apiRequest<Array<Record<string, unknown>>>('/api/v1/analytics/comparisons'),
+  createDataSnapshot: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/backtest/data-snapshots', { method: 'POST', body }),
+  queueRun: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/backtest/runs', { method: 'POST', body }),
+  runs: () => apiRequest<Array<Record<string, unknown>>>('/api/v1/backtest/runs'),
+  showRun: (id: string) => apiRequest<Record<string, unknown>>(`/api/v1/backtest/runs/${encodeURIComponent(id)}`),
+  evaluation: (id: string) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/backtest/runs/${encodeURIComponent(id)}/evaluation`),
+  queueStats: () => apiRequest<Record<string, unknown>>('/api/v1/backtest/queue'),
+  processQueue: (limit = 3) =>
+    apiRequest<Record<string, unknown>>('/api/v1/backtest/queue/process', { method: 'POST', body: { limit } }),
+}

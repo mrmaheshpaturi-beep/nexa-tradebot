@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuditLogController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\AnalyticsBacktestController;
 use App\Http\Controllers\Api\BrokerAccountController;
 use App\Http\Controllers\Api\IndicatorController;
 use App\Http\Controllers\Api\MarketDataController;
@@ -214,5 +215,31 @@ Route::prefix('v1')->middleware('web')->group(function (): void {
         Route::post('/positions-managed/{position}/protection/confirm', [TradeManagementController::class, 'confirmProtection'])->middleware('permission:trade_management.manage');
         Route::get('/positions-managed/{position}/events', [TradeManagementController::class, 'events'])->middleware('permission:trade_management.view');
         Route::post('/trade-management/actions/{action}/recover', [TradeManagementController::class, 'recover'])->middleware('permission:trade_management.recover');
+
+        // Phase 12 — Analytics + Backtesting (research only; zero broker writes)
+        Route::get('/analytics/health', [AnalyticsBacktestController::class, 'health'])->middleware('permission:trading.read');
+        Route::get('/analytics/dashboard', [AnalyticsBacktestController::class, 'dashboard'])->middleware('permission:analytics.view');
+        Route::get('/analytics/datasets', [AnalyticsBacktestController::class, 'datasets'])->middleware('permission:analytics.view');
+        Route::post('/analytics/datasets', [AnalyticsBacktestController::class, 'buildDataset'])->middleware('permission:analytics.manage');
+        Route::get('/analytics/datasets/{dataset}', [AnalyticsBacktestController::class, 'showDataset'])->middleware('permission:analytics.view');
+        Route::get('/analytics/snapshots', [AnalyticsBacktestController::class, 'snapshots'])->middleware('permission:analytics.view');
+        Route::post('/analytics/snapshots', [AnalyticsBacktestController::class, 'snapshot'])->middleware('permission:analytics.manage');
+        Route::get('/analytics/snapshots/{snapshot}/export', [AnalyticsBacktestController::class, 'exportSnapshot'])->middleware('permission:analytics.export');
+        Route::get('/analytics/trades', [AnalyticsBacktestController::class, 'tradeExplorer'])->middleware('permission:analytics.view');
+        Route::get('/analytics/reports', [AnalyticsBacktestController::class, 'reports'])->middleware('permission:analytics.view');
+        Route::post('/analytics/reports', [AnalyticsBacktestController::class, 'createReport'])->middleware('permission:analytics.manage');
+        Route::post('/analytics/promote', [AnalyticsBacktestController::class, 'refusePromote'])->middleware('permission:analytics.manage');
+        Route::post('/analytics/compare', [AnalyticsBacktestController::class, 'compare'])->middleware('permission:analytics.manage');
+        Route::get('/analytics/comparisons', [AnalyticsBacktestController::class, 'comparisons'])->middleware('permission:analytics.view');
+
+        Route::get('/backtest/health', [AnalyticsBacktestController::class, 'health'])->middleware('permission:trading.read');
+        Route::get('/backtest/queue', [AnalyticsBacktestController::class, 'queueStats'])->middleware('permission:backtest.view');
+        Route::post('/backtest/queue/process', [AnalyticsBacktestController::class, 'processQueue'])->middleware('permission:backtest.run');
+        Route::post('/backtest/data-snapshots', [AnalyticsBacktestController::class, 'createDataSnapshot'])->middleware('permission:backtest.run');
+        Route::post('/backtest/runs', [AnalyticsBacktestController::class, 'queueBacktest'])->middleware('permission:backtest.run');
+        Route::get('/backtest/runs', [AnalyticsBacktestController::class, 'runs'])->middleware('permission:backtest.view');
+        Route::get('/backtest/runs/{run}', [AnalyticsBacktestController::class, 'showRun'])->middleware('permission:backtest.view');
+        Route::get('/backtest/runs/{run}/evaluation', [AnalyticsBacktestController::class, 'strategyEvaluation'])->middleware('permission:backtest.view');
+        Route::get('/backtest/runs/{run}/export', [AnalyticsBacktestController::class, 'exportRun'])->middleware('permission:backtest.export');
     });
 });

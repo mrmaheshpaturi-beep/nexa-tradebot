@@ -8,9 +8,16 @@ enum TradingEnvironment: string
     case Paper = 'PAPER';
     case Demo = 'DEMO';
     case Live = 'LIVE';
+    /** Research-only. Never broker-routable; never mixed with DEMO labels. */
+    case Backtest = 'BACKTEST';
 
     public function isExecutable(): bool
     {
         return $this === self::Simulation;
+    }
+
+    public function isBrokerRoutable(): bool
+    {
+        return false;
     }
 }
