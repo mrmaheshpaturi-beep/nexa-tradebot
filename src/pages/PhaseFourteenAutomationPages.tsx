@@ -78,7 +78,8 @@ export function PhaseFourteenAutomationControlCenter() {
         symbol_universe: ['EURUSD'],
         timeframe_universe: ['H1'],
         strategy_matrix: [{ symbol: 'EURUSD', timeframe: 'H1', strategy_key: 'ema_trend', strategy_version: 'v1' }],
-        intelligence_required: true,
+        intelligence_required: false,
+        session_policy: { trade_weekends: true, respect_symbol_hours: true, respect_dst: true },
       })
       const validated = await phaseFourteenApi.validateProfile(String(created.public_id))
       const activated = await phaseFourteenApi.activateProfile(String(validated.public_id))
@@ -224,7 +225,7 @@ export function PhaseFourteenAutomationControlCenter() {
       {(health.error || center.error) && <ErrorState message={String(health.error || center.error)} />}
       {(health.loading || center.loading) && !cc && <LoadingState />}
 
-      <div className="metric-grid">
+      <div className="metrics-grid">
         <MetricCard label="Default state" value="OFF" detail="Never auto-starts on boot" />
         <MetricCard label="Mode path" value="OFF → DRY_RUN → DEMO_AUTO" detail="No LIVE_AUTO" />
         <MetricCard label="Session" value={value(session?.state || 'NONE')} detail={value(session?.mode)} />
@@ -233,41 +234,40 @@ export function PhaseFourteenAutomationControlCenter() {
 
       {(msg || err) && (
         <Panel title="Operator feedback">
-          {msg && <p className="ok-text">{msg}</p>}
-          {err && <p className="error-text">{err}</p>}
+          {msg && <p className="success-inline">{msg}</p>}
+          {err && <p className="error-inline">{err}</p>}
         </Panel>
       )}
 
-      <div className="tab-row">
+      <div className="tabs phase14-tabs">
         {(['center', 'preflight', 'pipeline', 'workflows', 'rejections', 'executions', 'events'] as Tab[]).map((t) => (
-          <button key={t} type="button" className={tab === t ? 'tab active' : 'tab'} onClick={() => setTab(t)}>{t}</button>
+          <button key={t} type="button" className={tab === t ? 'active' : ''} onClick={() => setTab(t)}>{t}</button>
         ))}
       </div>
-
       {tab === 'center' && (
         <div className="stack-gap">
           <Panel title="Mode selector (UI path)">
             <div className="button-row">
               {(['OFF', 'DRY_RUN', 'DEMO_AUTO'] as const).map((m) => (
-                <button key={m} type="button" className={mode === m ? 'primary-button' : 'ghost-button'} onClick={() => setModePath(m)}>
+                <button key={m} type="button" className={mode === m ? 'btn primary' : 'btn ghost'} onClick={() => setModePath(m)}>
                   {m === 'DEMO_AUTO' ? 'AUTO DEMO' : m === 'DRY_RUN' ? 'DRY RUN' : 'OFF'}
                 </button>
               ))}
-              <button type="button" className="ghost-button" disabled title="Not available">AUTO LIVE</button>
+              <button type="button" className="btn ghost" disabled title="Not available">AUTO LIVE</button>
             </div>
             <p className="muted">Selected: <strong>{mode === 'DEMO_AUTO' ? 'AUTO DEMO TRADING' : mode}</strong>. LIVE_AUTO hard-rejected.</p>
           </Panel>
 
           <Panel title="Setup">
             <div className="button-row">
-              <button type="button" className="primary-button" disabled={!!busy || !can('automation.manage')} onClick={ensureProfile}>
+              <button type="button" className="btn primary" disabled={!!busy || !can('automation.manage')} onClick={ensureProfile}>
                 Create → Validate → Activate profile
               </button>
-              <button type="button" className="ghost-button" disabled={!!busy || !can('automation.manage')} onClick={enableAutoDemo}>
+              <button type="button" className="btn ghost" disabled={!!busy || !can('automation.manage')} onClick={enableAutoDemo}>
                 Enable AUTO DEMO setting
               </button>
-              <button type="button" className="ghost-button" disabled={!!busy} onClick={runPreflight}>Run pre-flight</button>
-              <button type="button" className="ghost-button" disabled={!!busy} onClick={refuseLive}>Probe LIVE_AUTO (expect 403)</button>
+              <button type="button" className="btn ghost" disabled={!!busy} onClick={runPreflight}>Run pre-flight</button>
+              <button type="button" className="btn ghost" disabled={!!busy} onClick={refuseLive}>Probe LIVE_AUTO (expect 403)</button>
             </div>
             <label className="field">
               <span>DEMO account</span>
@@ -287,19 +287,19 @@ export function PhaseFourteenAutomationControlCenter() {
             <label className="field"><span>Step 1 phrase</span><input value={phrase1} onChange={(e) => setPhrase1(e.target.value)} /></label>
             <label className="field"><span>Step 2 phrase</span><input value={phrase2} onChange={(e) => setPhrase2(e.target.value)} /></label>
             <div className="button-row">
-              <button type="button" className="primary-button" disabled={!!busy || mode === 'OFF' || !can('automation.operate')} onClick={startTwoStep}>
+              <button type="button" className="btn primary" disabled={!!busy || mode === 'OFF' || !can('automation.operate')} onClick={startTwoStep}>
                 <Play size={16} /> Start {mode === 'DEMO_AUTO' ? 'AUTO DEMO' : 'DRY RUN'}
               </button>
-              <button type="button" className="ghost-button" disabled={!!busy || !sessionId} onClick={dryRunTick}>Tick candidate (dry-run safe)</button>
+              <button type="button" className="btn ghost" disabled={!!busy || !sessionId} onClick={dryRunTick}>Tick candidate (dry-run safe)</button>
             </div>
           </Panel>
 
           <Panel title="Kill switch / pause / resume / stop">
             <div className="button-row">
-              <button type="button" className="ghost-button" disabled={!sessionId} onClick={() => sessionAction('pause')}><Pause size={16} /> Pause</button>
-              <button type="button" className="ghost-button" disabled={!sessionId} onClick={() => sessionAction('resume')}><Play size={16} /> Resume</button>
-              <button type="button" className="ghost-button" disabled={!sessionId} onClick={() => sessionAction('stop')}><Square size={16} /> Stop</button>
-              <button type="button" className="danger-button" disabled={!sessionId || !can('automation.kill')} onClick={() => sessionAction('kill')}>
+              <button type="button" className="btn ghost" disabled={!sessionId} onClick={() => sessionAction('pause')}><Pause size={16} /> Pause</button>
+              <button type="button" className="btn ghost" disabled={!sessionId} onClick={() => sessionAction('resume')}><Play size={16} /> Resume</button>
+              <button type="button" className="btn ghost" disabled={!sessionId} onClick={() => sessionAction('stop')}><Square size={16} /> Stop</button>
+              <button type="button" className="btn danger" disabled={!sessionId || !can('automation.kill')} onClick={() => sessionAction('kill')}>
                 <OctagonX size={16} /> Kill switch
               </button>
             </div>

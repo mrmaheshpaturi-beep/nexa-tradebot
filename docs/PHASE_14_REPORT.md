@@ -61,6 +61,28 @@ Priority queues (SAFETY before INTELLIGENCE); heartbeat `AUTOMATED_TRADING_ORCHE
 - Notification delivery is IN_APP foundation only (email/Telegram not required).
 - Distributed multi-node lock TTL is DB-backed (no Redis cluster required for PASS).
 
+
+## 16. Tests / Gates
+
+| Suite | Result |
+|---|---|
+| PHPUnit (full) | 177 passed / 1 skipped / 0 failed |
+| PhaseFourteenDemoAutomationTest | 10/10 |
+| Vitest | 26/26 |
+| `tsc -b` | PASS |
+| ESLint | PASS (1 pre-existing react-refresh warning) |
+| Production build | PASS |
+| Python pytest | PASS |
+| `scripts/phase14-demo-automation-audit.sh` | PASS |
+| Phase 10 + 13 audits | PASS |
+
+## 17. Proof invariants
+
+- AI → MT5: none (Phase 13 audit still PASS)
+- Phase 14 → order_send: none
+- Phase 10 sole `authorized_order_send`
+- LIVE_AUTO does not exist (403 refuse endpoint + enum absence)
+
 ## 15. Phase 15
 
 **NOT STARTED** — contract stub only.
