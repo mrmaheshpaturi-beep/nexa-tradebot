@@ -312,7 +312,7 @@ class PhaseNineRiskEngineTest extends TestCase
             'environment' => 'DEMO',
         ])->assertStatus(422)->assertJsonPath('data.order_send', false);
 
-        $root = dirname(__DIR__, 2);
+        $root = dirname(__DIR__, 3);
         $sources = shell_exec('rg -n "mt5\\.order_send|MetaTrader5\\.order_send" --glob "!vendor/**" --glob "!node_modules/**" '.$root.'/backend/app 2>/dev/null || true');
         $this->assertSame('', trim((string) $sources));
         $bridgeSources = shell_exec('rg -n "authorized_order_send|mt5\\.order_send" --glob "!vendor/**" '.$root.'/trading-engine/src/nexa_mt5/execution.py 2>/dev/null || true');

@@ -179,7 +179,7 @@ class PhaseThreeLifecycleTest extends TestCase
 
         $this->actingAs($user)->postJson("/api/v1/trade-intents/{$intent->public_id}/execute", [
             'idempotency_key' => 'demo-command',
-        ])->assertUnprocessable()->assertJsonValidationErrors('environment');
+        ])->assertUnprocessable()->assertJsonValidationErrors(['intent']);
         $this->assertDatabaseCount('execution_commands', 0);
 
         $intent->update(['environment' => TradingEnvironment::Live]);

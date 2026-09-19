@@ -19,9 +19,10 @@ See `AUTHORIZATION.md` for the exact matrix.
 | `simulation_execution_enabled` | false by default; authorized setting |
 | `auto_trading_enabled` | hard false |
 | `emergency_stop` | true by default; dedicated SUPER_ADMIN control |
-| `allow_demo_execution` | hard false |
+| `allow_demo_execution` | false by default; unlockable for gated DEMO |
+| `auto_demo_execution` | hard false |
 | `allow_live_execution` | hard false |
-| execution adapter | simulation only |
+| execution adapter | simulation + gated DEMO ExecutionEngine |
 | terminal / broker | simulation offline; optional read-only MT5 bridge metadata |
 | broker transmission | false |
 
@@ -76,3 +77,12 @@ Lifecycle mutations and controlled execution failures are audited, and position 
 - Real terminal validation is **PENDING WINDOWS ENVIRONMENT**; mock connector is not proof of broker readiness.
 
 Any DEMO write phase still requires a new threat review, account allowlists, durable delivery/reconciliation, signed integration, credential controls and rollback. LIVE requires a separate governance decision.
+
+
+## Phase 10 DEMO execution controls
+
+- LIVE and UNKNOWN trade modes hard-fail at ExecutionGate, DemoAccountVerifier, bridge independent verification, and request account mode.
+- Two-step manual confirmation required; Auto Demo locked off.
+- CI uses `FakeDemoBridgeClient` only; real MetaTrader5 `order_send` exists solely in `nexa_mt5.execution.authorized_order_send`.
+- Bridge writes require service token + nonce/timestamp replay protection.
+- Real Windows DEMO integration requires explicit `NEXA_MT5_DEMO_INTEGRATION` / bridge real mode.

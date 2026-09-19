@@ -1,5 +1,9 @@
 # Execution Model
 
+Phase 10 extends this document: SIMULATION path unchanged; DEMO uses ExecutionEngine with two-step confirmation. See `EXECUTION_ENGINE.md`.
+
+# Execution Model
+
 ## Boundary
 
 Phase 3 execution means mutation of the local simulation ledger. `ExecutionAdapter` is bound only to `SimulationExecutionAdapter`. No MT5, broker, network, credential, demo, live, or real-funds adapter exists.

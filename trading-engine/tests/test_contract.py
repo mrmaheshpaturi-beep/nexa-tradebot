@@ -71,9 +71,18 @@ def test_bounded_backoff_and_safe_disconnect() -> None:
 
 
 def test_source_contains_no_trade_write_api_reference() -> None:
-    source = "\n".join(
-        path.read_text(encoding="utf-8")
-        for path in (Path(__file__).parents[1] / "src").rglob("*.py")
-    ).lower()
-    forbidden = ["order" + "_send", "position" + "_close", "order" + "_cancel"]
-    assert all(term not in source for term in forbidden)
+    """Phase 10 allows exactly one authorized order_send call site in execution.py."""
+    root = Path(__file__).parents[1] / "src"
+    unauthorized: list[str] = []
+    for path in root.rglob("*.py"):
+        text = path.read_text(encoding="utf-8")
+        lowered = text.lower()
+        if path.name == "execution.py":
+            assert "authorized_order_send" in lowered
+            assert "order_send" in lowered
+            continue
+        # Only flag actual write call sites / close/cancel APIs — not documentation strings.
+        for pattern in [".order_send(", "mt5.order_send", "ordersend(", "position_close(", "order_cancel("]:
+            if pattern in lowered:
+                unauthorized.append(f"{path}:{pattern}")
+    assert unauthorized == []

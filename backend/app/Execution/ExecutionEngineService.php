@@ -419,9 +419,10 @@ class ExecutionEngineService
     ): array {
         $command->forceFill([
             'submission_state' => ExecutionSubmissionState::Rejected->value,
-            'failure_code' => ExecutionFailureCode::AdapterRejected,
-            'failure_message' => 'DEMO bridge rejected the order.',
-            'failed_at' => now(),
+                        'failure_code' => ExecutionFailureCode::AdapterRejected,
+                        'safe_error' => 'DEMO bridge rejected the order.',
+                        'error_message' => 'DEMO bridge rejected the order.',
+                        'failed_at' => now(),
             'payload' => array_merge($command->payload ?? [], ['bridge' => $bridgeResult]),
         ])->save();
         $command->transitionTo(ExecutionCommandStatus::Failed);
@@ -464,7 +465,8 @@ class ExecutionEngineService
             'unknown_reason' => 'BRIDGE_TIMEOUT',
             'blind_retry_forbidden' => true,
             'failure_code' => ExecutionFailureCode::AdapterTimeout,
-            'failure_message' => 'DEMO submit timed out; status UNKNOWN — no blind retry.',
+            'safe_error' => 'DEMO submit timed out; status UNKNOWN — no blind retry.',
+            'error_message' => 'DEMO submit timed out; status UNKNOWN — no blind retry.',
             'payload' => array_merge($command->payload ?? [], ['bridge' => $bridgeResult]),
         ])->save();
 

@@ -113,10 +113,21 @@ Implemented on `cursor/phase-9-risk-engine-56f9`:
 
 See `PHASE_9_REPORT.md`, `RISK_ENGINE.md`, `PHASE_10_EXECUTION_CONTRACT.md`.
 
+## Phase 10 — DEMO-only ExecutionEngine (delivered)
+
+Implemented on `cursor/phase-10-execution-engine-56f9`:
+
+- ExecutionEngine with DEMO lifecycle, two-step confirmation, locks, gates, reconciliation/recovery;
+- Sole authorized `order_send` in Python bridge execution module;
+- Fake CI adapter; LIVE hard-fail; Auto Demo OFF;
+- Execution UI + docs; Phase 11 contract stub only.
+
+See `PHASE_10_REPORT.md`, `EXECUTION_ENGINE.md`, `PHASE_10_EXECUTION_CONTRACT.md`.
+
 ## Later phases requiring separate approval
 
-1. Phase 10 execution adapter consuming RiskDecision/ProposedPlan (contract only today; not started).
-2. MT5 DEMO write adapter with durable delivery and reconciliation.
+1. Phase 11 operational hardening / expanded DEMO position ops (contract only — `PHASE_11_CONTRACT.md`).
+2. Durable outbox / exactly-once delivery beyond process-local nonce cache.
 3. AI analysis behind the risk boundary.
 4. News/session intelligence.
 5. Historical backtesting and real-price paper trading.

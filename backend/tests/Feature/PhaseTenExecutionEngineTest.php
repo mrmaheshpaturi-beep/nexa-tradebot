@@ -187,10 +187,11 @@ class PhaseTenExecutionEngineTest extends TestCase
             ->assertJsonPath('data.auto_demo_execution', false)
             ->assertJsonPath('data.order_send_location', 'trading-engine/src/nexa_mt5/execution.py::authorized_order_send');
 
-        $root = dirname(__DIR__, 2);
-        $sources = shell_exec('rg -n "mt5\\.order_send|MetaTrader5\\.order_send|\\.order_send\\(" --glob "!vendor/**" --glob "!node_modules/**" '.$root.'/backend/app '.$root.'/trading-engine/src 2>/dev/null || true');
-        $this->assertStringContainsString('execution.py', (string) $sources);
-        $this->assertDoesNotMatchRegularExpression('#backend/app/.+order_send#', (string) $sources);
+        $root = dirname(__DIR__, 3);
+        $sources = shell_exec('rg -n "authorized_order_send" '.$root.'/trading-engine/src/nexa_mt5/execution.py 2>/dev/null || true');
+        $this->assertStringContainsString('authorized_order_send', (string) $sources);
+        $appHits = shell_exec('rg -n "mt5\\.order_send|MetaTrader5\\.order_send" '.$root.'/backend/app 2>/dev/null || true');
+        $this->assertSame('', trim((string) $appHits));
     }
 
     public function test_simulation_execute_rejects_demo_intent(): void

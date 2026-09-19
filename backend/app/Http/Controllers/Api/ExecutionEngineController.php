@@ -81,13 +81,18 @@ class ExecutionEngineController extends Controller
         ]]);
     }
 
-    public function verifyAccount(BrokerAccount $brokerAccount, Request $request): JsonResponse
+    public function verifyAccount(string $brokerAccount, Request $request): JsonResponse
     {
-        abort_unless($brokerAccount->user_id === $request->user()->id, 404);
-        $verified = $this->verifier->verify($brokerAccount, true);
+        $account = BrokerAccount::query()
+            ->where('user_id', $request->user()->id)
+            ->where(function ($query) use ($brokerAccount): void {
+                $query->where('public_id', $brokerAccount)->orWhere('id', $brokerAccount);
+            })
+            ->firstOrFail();
+        $verified = $this->verifier->verify($account, true);
 
         return response()->json(['data' => [
-            'account' => $brokerAccount->fresh(),
+            'account' => $account->fresh(),
             'verification' => $verified,
             'live_hard_fail' => true,
         ]]);

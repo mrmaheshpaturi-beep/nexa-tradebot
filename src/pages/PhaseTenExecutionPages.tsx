@@ -2,6 +2,7 @@ import { useCallback, useState } from 'react'
 import { AlertTriangle, CheckCircle2, RefreshCw, ShieldAlert } from 'lucide-react'
 import { firstValidationError } from '../api/client'
 import { phaseTenApi, phaseTwoApi, phaseThreeApi } from '../api/services'
+import type { TradeIntent } from '../api/types'
 import { useAuth } from '../auth/authState'
 import {
   DataTable, EmptyState, ErrorState, LoadingState, MetricCard, PageHeader, Panel, StatusBadge,
@@ -110,20 +111,17 @@ export function PhaseTenExecutionConsole() {
   }
 
   if (dashboard.loading || health.loading) return <LoadingState />
-  if (dashboard.error || health.error) return <ErrorState message={dashboard.error || health.error || 'Failed'} onRetry={reload} />
+  if (dashboard.error || health.error) return <ErrorState message={dashboard.error || health.error || 'Failed'} />
 
   const demoEnabled = Boolean(status.data?.allow_demo_execution)
   const rows = (dashboard.data?.commands ?? []) as Array<Record<string, unknown>>
-  const intentOptions = ((intents.data as { data?: Array<Record<string, unknown>> } | Array<Record<string, unknown>> | null)?.data
-    ?? (Array.isArray(intents.data) ? intents.data : [])
-    ?? []) as Array<Record<string, unknown>>
-  const demoIntents = intentOptions.filter((row) => row.environment === 'DEMO')
+  const demoIntents = ((intents.data?.data ?? []) as TradeIntent[]).filter((row) => row.environment === 'DEMO')
 
   return (
     <div className="page-stack">
       <PageHeader
         title="DEMO Execution Engine"
-        subtitle="Phase 10 — manual two-step DEMO confirmation. LIVE hard-fail. Auto Demo OFF."
+        description="Phase 10 — manual two-step DEMO confirmation. LIVE hard-fail. Auto Demo OFF."
         actions={<button type="button" className="ghost-button" onClick={reload}><RefreshCw size={16} /> Refresh</button>}
       />
 
@@ -143,7 +141,7 @@ export function PhaseTenExecutionConsole() {
       </div>
 
       <Panel title="Two-step DEMO confirmation" subtitle="Never hides that this is DEMO">
-        {!can('execution.confirm') && <EmptyState title="Missing execution.confirm permission" />}
+        {!can('execution.confirm') && <EmptyState title="Missing execution.confirm permission" detail="Ask an administrator to grant DEMO execution permissions." />}
         {can('execution.confirm') && (
           <div className="form-grid">
             <label>
@@ -151,8 +149,8 @@ export function PhaseTenExecutionConsole() {
               <select value={intentId} onChange={(event) => setIntentId(event.target.value)} aria-label="DEMO trade intent">
                 <option value="">Select DEMO intent…</option>
                 {demoIntents.map((intent) => (
-                  <option key={String(intent.public_id)} value={String(intent.public_id)}>
-                    {String(intent.public_id)} · {String(intent.status)}
+                  <option key={intent.public_id} value={intent.public_id}>
+                    {intent.public_id} · {intent.status}
                   </option>
                 ))}
               </select>
@@ -176,12 +174,12 @@ export function PhaseTenExecutionConsole() {
         <div className="button-row" style={{ marginBottom: '0.75rem' }}>
           <button type="button" disabled={!can('execution.reconcile') || busy === 'reconcile'} onClick={reconcile}>Run reconciliation</button>
         </div>
-        {rows.length === 0 ? <EmptyState title="No DEMO commands yet" /> : (
+        {rows.length === 0 ? <EmptyState title="No DEMO commands yet" detail="Approve a DEMO intent, then complete two-step confirmation." /> : (
           <DataTable
             columns={['Command', 'Status', 'Submission', 'Blind retry', 'Actions']}
             rows={rows.map((row) => [
               value(row.public_id),
-              <StatusBadge key="st" status={String(row.status)} />,
+              <StatusBadge key="st" tone="info">{String(row.status)}</StatusBadge>,
               value(row.submission_state),
               row.blind_retry_forbidden ? 'Forbidden' : '—',
               row.submission_state === 'UNKNOWN' && can('execution.recover') ? (

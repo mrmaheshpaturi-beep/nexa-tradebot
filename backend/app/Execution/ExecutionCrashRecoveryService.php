@@ -43,7 +43,8 @@ class ExecutionCrashRecoveryService
             // Recovery never re-invokes order_send. It only reconciles and marks reviewed.
             $command->forceFill([
                 'submission_state' => ExecutionSubmissionState::Failed->value,
-                'failure_message' => 'UNKNOWN recovered via reconciliation without blind retry.',
+                'safe_error' => 'UNKNOWN recovered via reconciliation without blind retry.',
+                'error_message' => 'UNKNOWN recovered via reconciliation without blind retry.',
                 'failed_at' => now(),
                 'payload' => array_merge($command->payload ?? [], [
                     'recovery_run' => $run->public_id,

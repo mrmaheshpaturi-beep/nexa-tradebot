@@ -1,6 +1,6 @@
-# Phase 10 Execution Contract (stub only)
+# Phase 10 Execution Contract
 
-**Status: NOT IMPLEMENTED.** This document is an input contract for a future phase. Do not treat it as enabled capability.
+**Status: IMPLEMENTED (DEMO-only, gated).** See `PHASE_10_REPORT.md` and `EXECUTION_ENGINE.md`.
 
 ## Boundary
 
@@ -10,36 +10,31 @@ Phase 9 ends at:
 TradeIntent → RiskDecision (APPROVED) + ProposedPlan + RiskReservation
 ```
 
-Phase 10 may consume those artifacts to create `ExecutionCommand` for a future adapter. It must not weaken Phase 3 `ExecutionGate`.
+Phase 10 consumes those artifacts for:
+
+1. **SIMULATION** — existing `TradeLifecycleService` path (unchanged adapter)
+2. **DEMO** — `ExecutionEngineService` with two-step confirmation and sole authorized `order_send`
 
 ## Required inputs from Phase 9
 
 | Artifact | Required fields |
 |---|---|
-| RiskDecision | `status=APPROVED`, `public_id`, `profile_version`, `config_hash`, `approved_volume`, `approved_risk` |
-| ProposedPlan | `proposed_volume`, prices, `broker_routable=false` until explicitly upgraded by governance |
-| RiskReservation | Active margin/risk reservation idempotency key |
-| TradeIntent | Owner, account, instrument, side, order type, protections |
+| RiskDecision | `status=APPROVED`, approved volume/risk, profile version |
+| ProposedPlan | sizing/prices; still not auto-routed |
+| RiskReservation | Active reservation consumed/released on fill/reject |
+| TradeIntent | Owner, DEMO account, instrument, side, protections |
 
 ## Non-negotiable constraints
 
-1. MT5 / DEMO / LIVE execution remain DISABLED until a separate governance decision.
-2. Application-owned `order_send` remains NONE until Phase 10+ explicitly implements a write bridge with allowlists, reconciliation, and audit.
-3. React must never talk to the bridge for writes.
-4. RiskEngine must never call MT5 order APIs.
-5. Fail closed remains mandatory when reservation expired or decision superseded.
-6. SimulationExecutionAdapter remains the only executable path unless a new adapter is introduced behind ExecutionGate.
+1. LIVE hard-fail at ExecutionGate + verifier + bridge + request account mode.
+2. UNKNOWN account trade mode hard-fail.
+3. `allow_demo_execution` default false; `auto_demo_execution` locked false.
+4. Two-step manual confirmation before DEMO submit.
+5. `order_check` before the sole `authorized_order_send`.
+6. CI uses fake adapters only — never real MT5.
+7. SimulationExecutionAdapter remains for SIMULATION; DEMO intents never silently route to simulation fills.
+8. No silent mock prices under MT5 DEMO label.
 
-## Suggested Phase 10 sequence (future)
+## Sole order_send location
 
-1. Consume approved ProposedPlan → ExecutionCommand (SIMULATION first).
-2. Reservation consume/release on fill/reject.
-3. Optional DEMO write adapter behind explicit flags (default false).
-4. Reconciliation + durable delivery.
-
-## Explicit non-goals of this stub
-
-- No DEMO enablement
-- No LIVE enablement
-- No `order_send` implementation
-- No auto-routing from RiskEngine to brokers
+`trading-engine/src/nexa_mt5/execution.py::authorized_order_send`

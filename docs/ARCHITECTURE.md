@@ -9,13 +9,14 @@ Nexa TradeBot is a React 19/TypeScript/Vite client with a Laravel 13/Sanctum API
 | Phase 1–2 | Simulation UI, session auth, RBAC, persistence foundation |
 | Phase 3 | Persistent simulation trading domain (only executable environment) |
 | Phase 4 | Read-only MT5 DEMO bridge (external observations; no broker writes) |
+| Phase 10 | DEMO-only ExecutionEngine (manual two-step confirm; sole authorized order_send) |
 | Phase 5 | Market Data Engine (freshness/validation/quality + snapshot for UI) |
 | Phase 6 | Indicator Engine (closed-candle indicators; no broker writes) |
 | Phase 7 | Strategy Engine + Signal/Confluence (analysis only; no broker writes) |
 | Phase 8 | Market Scanner + Signal Orchestrator (candidates only; no broker writes) |
 | Phase 9 | Authoritative RiskEngine (decisions/plans/locks; no broker writes) |
 
-Phase 3 execution remains `SIMULATION` only. Phase 4–9 add external read models, market snapshots, indicators, strategy signals, candidate queues, and risk authority without enabling DEMO/LIVE execution.
+Phase 3 execution remains `SIMULATION` via `SimulationExecutionAdapter`. Phase 4–9 add read models, indicators, strategies, scanner, and risk authority. Phase 10 adds gated DEMO ExecutionEngine (manual confirm; LIVE hard-fail).
 
 ## Phase 3 system (summary)
 
@@ -112,4 +113,4 @@ Phase 9 does not require public bridge exposure. See `PHASE_9_REPORT.md` for ver
 
 ## Nonexistent architecture
 
-No MT5 write adapter, broker order path, or DEMO/LIVE execution enablement exists. Phase 7–8 automation is analysis/signals/candidates only. Phase 9 risk proposals never auto-route to brokers.
+Phase 10 adds a gated DEMO write path behind ExecutionGate + two-step confirmation. LIVE remains hard-fail. Phase 7–8 automation is analysis/signals/candidates only. Phase 9 risk proposals never auto-route; ExecutionEngine consumes approved plans only after manual DEMO confirmation. Sole order_send: `trading-engine/src/nexa_mt5/execution.py::authorized_order_send`.

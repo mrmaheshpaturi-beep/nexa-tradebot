@@ -165,3 +165,14 @@ Active locks that block new intents; release audited; anti-spam reuse of equival
 ## Portability limitations
 
 SQLite migration/rollback/test behavior is verified. Decimal behavior, JSON handling, index limits, FK alterations, `change()` operations and concurrent idempotency must be tested independently on each future MySQL/PostgreSQL target before deployment.
+
+
+## Phase 10 execution tables (additive)
+
+- `execution_confirmations` — two-step DEMO confirmation challenges/tokens
+- `execution_submission_locks` — per-intent submit locks
+- `execution_results` — immutable submit outcomes
+- `execution_events` — immutable timeline
+- `execution_reconciliation_runs` — DEMO sync runs
+- `execution_commands` columns: `submission_state`, bridge correlation/nonce, `order_check_passed`, `unknown_reason`, `blind_retry_forbidden`
+- `broker_accounts` columns: `broker_login`, `broker_server`, `verified_trade_mode`, `demo_verified_at`, `demo_verification`
