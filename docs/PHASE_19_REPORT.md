@@ -74,7 +74,18 @@ APIs: `/api/v1/hardening/*`
 
 ## 18. Tests / Gates
 
-See final section-253 status in agent response after quality gates.
+| Suite | Result |
+|---|---|
+| PHPUnit (full) | 249 passed / 1 skipped / 0 failed (250 tests) |
+| PhaseNineteenProductionHardeningTest | 18/18 |
+| Vitest | 27/27 |
+| `tsc -b` | PASS |
+| ESLint | PASS (1 pre-existing react-refresh warning) |
+| Production build | PASS |
+| Python pytest | PASS (25) |
+| `scripts/phase19-production-hardening-audit.sh` | PASS |
+
+Preview: Vite http://127.0.0.1:58419 · Laravel http://127.0.0.1:48419
 
 ## 19. Warnings / Limitations (honest)
 
