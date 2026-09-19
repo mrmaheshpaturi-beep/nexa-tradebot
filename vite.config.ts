@@ -7,9 +7,11 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   server: {
     proxy: {
-      '/api': 'http://127.0.0.1:48410',
-      '/sanctum': 'http://127.0.0.1:48410',
+      '/api': 'http://127.0.0.1:48411',
+      '/sanctum': 'http://127.0.0.1:48411',
     },
+    port: 58411,
+    strictPort: true,
   },
   plugins: [
     react(),

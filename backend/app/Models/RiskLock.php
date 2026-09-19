@@ -22,6 +22,8 @@ class RiskLock extends BaseModel
             'lock_type' => RiskLockType::class,
             'reason_code' => RiskReasonCode::class,
             'is_active' => 'boolean',
+            'blocks_new_entries' => 'boolean',
+            'blocks_protective_closes' => 'boolean',
             'context' => 'array',
             'locked_at' => 'datetime',
             'released_at' => 'datetime',

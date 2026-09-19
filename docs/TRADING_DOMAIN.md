@@ -62,3 +62,8 @@ Phase 3 database-backs manual lifecycle, signal records, order ledger/cancellati
 ## Intentional limitations
 
 No real quote feed, automatic strategy/signal execution, pending trigger service, broker, credentials, MT5, DEMO/LIVE execution, commissions/swaps/fees, trailing stop, break-even, reconciliation scheduler or real-money behavior exists.
+
+
+## Managed positions (Phase 11)
+
+`ManagedPosition` ownership is mandatory. Foreign/manual/other-EA positions are never auto-managed. Trade summaries finalize immutably for analytics.

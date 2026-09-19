@@ -13,6 +13,7 @@ const navigation = [
   ['Pending Orders', '/pending-orders', ClipboardList], ['Trade History', '/trade-history', History],   ['Risk Management', '/risk-management', ShieldAlert],
   ['Risk Settings', '/risk-settings', SlidersHorizontal],
   ['DEMO Execution', '/demo-execution', CircleDollarSign],
+  ['Trade Management', '/trade-management', ShieldAlert],
   ['Backtesting', '/backtesting', Target], ['Paper Trading', '/paper-trading', Activity], ['Analytics', '/analytics', Gauge],
   ['Reports', '/reports', FileBarChart], ['News Calendar', '/news-calendar', CalendarDays], ['MT5 Accounts', '/mt5-accounts', Command],
   ['MT5 Dashboard', '/mt5-dashboard', LayoutDashboard], ['MT5 Market', '/mt5-market', CandlestickChart], ['MT5 Charts', '/mt5-charts', BarChart3],

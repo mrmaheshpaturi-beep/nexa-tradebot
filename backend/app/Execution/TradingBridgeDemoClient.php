@@ -77,6 +77,55 @@ class TradingBridgeDemoClient implements DemoBridgeClient
         return $data;
     }
 
+
+    public function modifyPositionProtection(array $request, string $idempotencyKey, string $nonce, string $correlationId): array
+    {
+        return $this->managementWrite('execution/demo/modify-protection', $request, $idempotencyKey, $nonce, $correlationId);
+    }
+
+    public function closePosition(array $request, string $idempotencyKey, string $nonce, string $correlationId): array
+    {
+        return $this->managementWrite('execution/demo/close-position', $request, $idempotencyKey, $nonce, $correlationId);
+    }
+
+    public function partialClose(array $request, string $idempotencyKey, string $nonce, string $correlationId): array
+    {
+        return $this->managementWrite('execution/demo/partial-close', $request, $idempotencyKey, $nonce, $correlationId);
+    }
+
+    public function cancelPendingOrder(array $request, string $idempotencyKey, string $nonce, string $correlationId): array
+    {
+        return $this->managementWrite('execution/demo/cancel-pending', $request, $idempotencyKey, $nonce, $correlationId);
+    }
+
+    /**
+     * @param  array<string,mixed>  $request
+     * @return array<string,mixed>
+     */
+    private function managementWrite(string $path, array $request, string $idempotencyKey, string $nonce, string $correlationId): array
+    {
+        $timestamp = (string) now()->timestamp;
+        $payload = $this->request('POST', $path, [
+            'request' => $request,
+            'idempotency_key' => $idempotencyKey,
+            'nonce' => $nonce,
+            'timestamp' => $timestamp,
+            'correlation_id' => $correlationId,
+        ], false, [
+            'X-Nexa-Nonce' => $nonce,
+            'X-Nexa-Timestamp' => $timestamp,
+            'X-Nexa-Idempotency-Key' => $idempotencyKey,
+            'X-Correlation-ID' => $correlationId,
+        ]);
+
+        $data = $payload['data'] ?? [];
+        if (! is_array($data)) {
+            throw new TradingBridgeException('BRIDGE_INVALID_RESPONSE', 'Invalid DEMO management payload.');
+        }
+
+        return $data;
+    }
+
     public function syncOrders(): array
     {
         return ($this->request('GET', 'orders')['data'] ?? []) ?: [];

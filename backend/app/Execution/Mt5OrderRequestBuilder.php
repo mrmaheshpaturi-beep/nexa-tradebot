@@ -69,3 +69,94 @@ class Mt5OrderRequestBuilder
         ];
     }
 }
+
+    /**
+     * @param  array<string,mixed>  $verification
+     * @return array<string,mixed>
+     */
+    public function buildModifyProtection(
+        string $symbol,
+        string $positionId,
+        string $side,
+        ?float $sl,
+        ?float $tp,
+        array $verification,
+        string $actionPublicId,
+    ): array {
+        return [
+            'action' => 'MODIFY_POSITION_PROTECTION',
+            'symbol' => $symbol,
+            'position_id' => $positionId,
+            'broker_position_id' => $positionId,
+            'side' => $side,
+            'stop_loss' => $sl !== null ? (string) $sl : null,
+            'take_profit' => $tp !== null ? (string) $tp : null,
+            'magic' => 10010,
+            'comment' => 'NEXA-MGMT',
+            'account' => [
+                'login' => $verification['login'],
+                'server' => $verification['server'],
+                'trade_mode' => $verification['trade_mode'],
+            ],
+            'action_public_id' => $actionPublicId,
+        ];
+    }
+
+    /**
+     * @param  array<string,mixed>  $verification
+     * @param  array{bid:float|string,ask:float|string}  $quote
+     * @return array<string,mixed>
+     */
+    public function buildClosePosition(
+        string $symbol,
+        string $positionId,
+        string $side,
+        float $volume,
+        array $quote,
+        array $verification,
+        string $actionPublicId,
+        bool $partial = false,
+    ): array {
+        $dir = OrderDirection::from($side);
+        $price = $dir === OrderDirection::Buy ? (float) $quote['bid'] : (float) $quote['ask'];
+
+        return [
+            'action' => $partial ? 'PARTIAL_CLOSE' : 'CLOSE_POSITION',
+            'symbol' => $symbol,
+            'position_id' => $positionId,
+            'broker_position_id' => $positionId,
+            'side' => $side,
+            'volume' => number_format($volume, 4, '.', ''),
+            'close_volume' => number_format($volume, 4, '.', ''),
+            'price' => number_format($price, 5, '.', ''),
+            'magic' => 10010,
+            'comment' => $partial ? 'NEXA-PARTIAL' : 'NEXA-CLOSE',
+            'account' => [
+                'login' => $verification['login'],
+                'server' => $verification['server'],
+                'trade_mode' => $verification['trade_mode'],
+            ],
+            'action_public_id' => $actionPublicId,
+        ];
+    }
+
+    /**
+     * @param  array<string,mixed>  $verification
+     * @return array<string,mixed>
+     */
+    public function buildCancelPending(string $orderId, array $verification, string $actionPublicId): array
+    {
+        return [
+            'action' => 'CANCEL_PENDING',
+            'order_id' => $orderId,
+            'magic' => 10010,
+            'comment' => 'NEXA-CANCEL',
+            'account' => [
+                'login' => $verification['login'],
+                'server' => $verification['server'],
+                'trade_mode' => $verification['trade_mode'],
+            ],
+            'action_public_id' => $actionPublicId,
+        ];
+    }
+

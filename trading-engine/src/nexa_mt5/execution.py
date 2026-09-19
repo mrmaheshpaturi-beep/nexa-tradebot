@@ -193,7 +193,39 @@ class RealDemoExecutionBackend:
 
     def _build_request(self, request: dict[str, Any]) -> dict[str, Any]:
         mt5 = self._mt5
+        action = str(request.get("action") or "PLACE_ORDER").upper()
         side = str(request.get("side", "BUY")).upper()
+        if action == "MODIFY_POSITION_PROTECTION":
+            return {
+                "action": mt5.TRADE_ACTION_SLTP,
+                "symbol": request["symbol"],
+                "position": int(request.get("position_id") or request.get("broker_position_id")),
+                "sl": float(request["stop_loss"]) if request.get("stop_loss") else 0.0,
+                "tp": float(request["take_profit"]) if request.get("take_profit") else 0.0,
+                "magic": int(request.get("magic", 10010)),
+                "comment": str(request.get("comment", "NEXA-MGMT"))[:31],
+            }
+        if action in {"CLOSE_POSITION", "PARTIAL_CLOSE"}:
+            close_type = mt5.ORDER_TYPE_SELL if side == "BUY" else mt5.ORDER_TYPE_BUY
+            return {
+                "action": mt5.TRADE_ACTION_DEAL,
+                "symbol": request["symbol"],
+                "volume": float(request.get("close_volume") or request.get("volume") or 0),
+                "type": close_type,
+                "position": int(request.get("position_id") or request.get("broker_position_id")),
+                "price": float(request.get("price") or 0),
+                "deviation": int(request.get("deviation", 20)),
+                "magic": int(request.get("magic", 10010)),
+                "comment": str(request.get("comment", "NEXA-CLOSE"))[:31],
+                "type_filling": mt5.ORDER_FILLING_IOC,
+            }
+        if action == "CANCEL_PENDING":
+            return {
+                "action": mt5.TRADE_ACTION_REMOVE,
+                "order": int(request.get("order_id")),
+                "magic": int(request.get("magic", 10010)),
+                "comment": str(request.get("comment", "NEXA-CANCEL"))[:31],
+            }
         order_type = str(request.get("order_type", "MARKET")).upper()
         type_map = {
             ("BUY", "MARKET"): mt5.ORDER_TYPE_BUY,
@@ -299,3 +331,38 @@ def execute_demo_check_and_send(
 
 def constant_time_token_eq(presented: str, expected: str) -> bool:
     return bool(expected) and hmac.compare_digest(presented.encode("utf-8"), expected.encode("utf-8"))
+
+
+ALLOWED_MANAGEMENT_ACTIONS = {
+    "MODIFY_POSITION_PROTECTION",
+    "CLOSE_POSITION",
+    "PARTIAL_CLOSE",
+    "CANCEL_PENDING",
+    "PLACE_ORDER",
+}
+
+
+def execute_demo_management_action(
+    backend: MockDemoExecutionBackend | RealDemoExecutionBackend,
+    request: dict[str, Any],
+    *,
+    nonce: str,
+    idempotency_key: str,
+    timestamp: str,
+    correlation_id: str,
+) -> dict[str, Any]:
+    """DEMO management actions — still sole authorized_order_send; no generic arbitrary payload API."""
+    action = str(request.get("action") or "").upper()
+    if action not in ALLOWED_MANAGEMENT_ACTIONS:
+        raise BridgeError(ErrorCode.INVALID_REQUEST, f"Unsupported management action: {action}", 422)
+    # Independent DEMO verification at lowest broker layer before ANY broker-changing action.
+    result = execute_demo_check_and_send(
+        backend,
+        request,
+        nonce=nonce,
+        idempotency_key=idempotency_key,
+        timestamp=timestamp,
+        correlation_id=correlation_id,
+    )
+    result["action"] = action
+    return result

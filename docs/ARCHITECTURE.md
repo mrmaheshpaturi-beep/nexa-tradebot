@@ -114,3 +114,8 @@ Phase 9 does not require public bridge exposure. See `PHASE_9_REPORT.md` for ver
 ## Nonexistent architecture
 
 Phase 10 adds a gated DEMO write path behind ExecutionGate + two-step confirmation. LIVE remains hard-fail. Phase 7–8 automation is analysis/signals/candidates only. Phase 9 risk proposals never auto-route; ExecutionEngine consumes approved plans only after manual DEMO confirmation. Sole order_send: `trading-engine/src/nexa_mt5/execution.py::authorized_order_send`.
+
+
+## Phase 11 — Trade Management
+
+DEMO-only `TradeManagementEngine` manages Nexa-owned positions (break-even, trailing, partial/full close, exits) behind `PositionManagementGate`. LIVE hard-blocked. Adapter extends Phase 10 with modify/close/partial/cancel; sole `order_send` unchanged.

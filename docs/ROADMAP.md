@@ -136,3 +136,8 @@ See `PHASE_10_REPORT.md`, `EXECUTION_ENGINE.md`, `PHASE_10_EXECUTION_CONTRACT.md
 8. DEMO end-to-end validation and controlled deployment.
 
 LIVE/real-money activation is not implied by any phase. It requires a separate governance, legal, security, operational and rollback decision after DEMO evidence.
+
+## Phase 11 — Advanced Trade & Position Management (DEMO)
+
+Complete on branch `cursor/phase-11-trade-management-56f9`. Phase 12 analytics is stub-only.
+

@@ -86,3 +86,8 @@ Any DEMO write phase still requires a new threat review, account allowlists, dur
 - CI uses `FakeDemoBridgeClient` only; real MetaTrader5 `order_send` exists solely in `nexa_mt5.execution.authorized_order_send`.
 - Bridge writes require service token + nonce/timestamp replay protection.
 - Real Windows DEMO integration requires explicit `NEXA_MT5_DEMO_INTEGRATION` / bridge real mode.
+
+
+## Phase 11 management security
+
+LIVE modification/partial/full close HARD BLOCKED at gate + verifier + adapter + bridge. CI uses FakeDemoBridge only. `scripts/phase11-trade-management-audit.sh` guards order_send leakage.

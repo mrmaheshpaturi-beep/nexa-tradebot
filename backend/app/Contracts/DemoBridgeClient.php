@@ -23,6 +23,38 @@ interface DemoBridgeClient
      */
     public function checkAndSend(array $request, string $idempotencyKey, string $nonce, string $correlationId): array;
 
+    /**
+     * DEMO-only position protection modify (SL/TP). Routes through authorized order_send.
+     *
+     * @param  array<string,mixed>  $request
+     * @return array<string,mixed>
+     */
+    public function modifyPositionProtection(array $request, string $idempotencyKey, string $nonce, string $correlationId): array;
+
+    /**
+     * DEMO-only full close. Routes through authorized order_send.
+     *
+     * @param  array<string,mixed>  $request
+     * @return array<string,mixed>
+     */
+    public function closePosition(array $request, string $idempotencyKey, string $nonce, string $correlationId): array;
+
+    /**
+     * DEMO-only partial close. Routes through authorized order_send.
+     *
+     * @param  array<string,mixed>  $request
+     * @return array<string,mixed>
+     */
+    public function partialClose(array $request, string $idempotencyKey, string $nonce, string $correlationId): array;
+
+    /**
+     * DEMO-only cancel of application-owned pending order.
+     *
+     * @param  array<string,mixed>  $request
+     * @return array<string,mixed>
+     */
+    public function cancelPendingOrder(array $request, string $idempotencyKey, string $nonce, string $correlationId): array;
+
     public function syncOrders(): array;
 
     public function syncDeals(): array;

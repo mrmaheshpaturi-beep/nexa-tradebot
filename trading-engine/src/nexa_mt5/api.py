@@ -14,6 +14,7 @@ from .config import Settings, get_settings
 from .connectors import MT5Connector
 from .errors import BridgeError, ErrorCode
 from .execution import (
+    execute_demo_management_action,
     MockDemoExecutionBackend,
     RealDemoExecutionBackend,
     execute_demo_check_and_send,
@@ -242,6 +243,75 @@ def create_app(settings: Settings | None = None, connector: MT5Connector | None 
             correlation_id=correlation_id,
         )
         return envelope(request, result)
+
+    @application.post(
+        "/v1/execution/demo/modify-protection",
+        response_model=Envelope,
+        dependencies=[Depends(authenticate)],
+    )
+    async def demo_modify_protection(request: Request) -> Envelope:
+        body = await request.json()
+        if not isinstance(body, dict):
+            raise BridgeError(ErrorCode.INVALID_REQUEST, "Invalid DEMO management body.", 422)
+        return envelope(request, _demo_management(request, body, "MODIFY_POSITION_PROTECTION"))
+
+    @application.post(
+        "/v1/execution/demo/close-position",
+        response_model=Envelope,
+        dependencies=[Depends(authenticate)],
+    )
+    async def demo_close_position(request: Request) -> Envelope:
+        body = await request.json()
+        if not isinstance(body, dict):
+            raise BridgeError(ErrorCode.INVALID_REQUEST, "Invalid DEMO management body.", 422)
+        return envelope(request, _demo_management(request, body, "CLOSE_POSITION"))
+
+    @application.post(
+        "/v1/execution/demo/partial-close",
+        response_model=Envelope,
+        dependencies=[Depends(authenticate)],
+    )
+    async def demo_partial_close(request: Request) -> Envelope:
+        body = await request.json()
+        if not isinstance(body, dict):
+            raise BridgeError(ErrorCode.INVALID_REQUEST, "Invalid DEMO management body.", 422)
+        return envelope(request, _demo_management(request, body, "PARTIAL_CLOSE"))
+
+    @application.post(
+        "/v1/execution/demo/cancel-pending",
+        response_model=Envelope,
+        dependencies=[Depends(authenticate)],
+    )
+    async def demo_cancel_pending(request: Request) -> Envelope:
+        body = await request.json()
+        if not isinstance(body, dict):
+            raise BridgeError(ErrorCode.INVALID_REQUEST, "Invalid DEMO management body.", 422)
+        return envelope(request, _demo_management(request, body, "CANCEL_PENDING"))
+
+    def _demo_management(request: Request, body: dict, path_action: str):
+        trade_request = body.get("request")
+        if not isinstance(trade_request, dict):
+            raise BridgeError(ErrorCode.INVALID_REQUEST, "request object is required.", 422)
+        trade_request = {**trade_request, "action": trade_request.get("action") or path_action}
+        nonce = str(body.get("nonce") or request.headers.get("X-Nexa-Nonce") or "")
+        idempotency_key = str(
+            body.get("idempotency_key") or request.headers.get("X-Nexa-Idempotency-Key") or ""
+        )
+        timestamp = str(body.get("timestamp") or request.headers.get("X-Nexa-Timestamp") or "")
+        backend = request.app.state.demo_backend
+        if resolved.mode == "real" and hasattr(service.connector, "_mt5") and service.connector._mt5:
+            from .execution import RealDemoExecutionBackend as _Real
+            backend = _Real(service.connector._mt5)
+            request.app.state.demo_backend = backend
+        from .execution import execute_demo_management_action as _mgmt
+        return _mgmt(
+            backend,
+            trade_request,
+            nonce=nonce,
+            idempotency_key=idempotency_key,
+            timestamp=timestamp,
+            correlation_id=correlation(request),
+        )
 
     @application.get(
         "/v1/market/quotes", response_model=Envelope, dependencies=[Depends(authenticate)]

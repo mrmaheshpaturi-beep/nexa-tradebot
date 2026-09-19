@@ -383,3 +383,42 @@ export const phaseTenApi = {
       body: broker_account_id ? { broker_account_id } : {},
     }),
 }
+
+
+export const phaseElevenApi = {
+  status: () => apiRequest<Record<string, unknown>>('/api/v1/trade-management/status'),
+  health: () => apiRequest<Record<string, unknown>>('/api/v1/trade-management/health'),
+  dashboard: () => apiRequest<{
+    cards: Record<string, unknown>
+    positions: Array<Record<string, unknown>>
+    recent_decisions: Array<Record<string, unknown>>
+  }>('/api/v1/trade-management/dashboard'),
+  positions: () => apiRequest<Array<Record<string, unknown>>>('/api/v1/positions-managed'),
+  show: (id: string) => apiRequest<{
+    position: Record<string, unknown>
+    events: Array<Record<string, unknown>>
+    decisions: Array<Record<string, unknown>>
+    why?: string
+    chart_markers: Array<Record<string, unknown>>
+  }>(`/api/v1/positions-managed/${encodeURIComponent(id)}`),
+  pause: (id: string) => apiRequest<Record<string, unknown>>(`/api/v1/positions-managed/${encodeURIComponent(id)}/pause`, { method: 'POST' }),
+  resume: (id: string) => apiRequest<Record<string, unknown>>(`/api/v1/positions-managed/${encodeURIComponent(id)}/resume`, { method: 'POST' }),
+  evaluate: (id: string, body: Record<string, unknown> = {}) =>
+    apiRequest<{ decision: Record<string, unknown>; action: Record<string, unknown> | null }>(
+      `/api/v1/positions-managed/${encodeURIComponent(id)}/evaluate`,
+      { method: 'POST', body },
+    ),
+  prepareClose: (id: string, idempotency_key: string) =>
+    apiRequest<{ confirmation: { public_id: string }; challenge_token: string }>(
+      `/api/v1/positions-managed/${encodeURIComponent(id)}/close/prepare`,
+      { method: 'POST', body: { idempotency_key } },
+    ),
+  confirmClose: (id: string, body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>(
+      `/api/v1/positions-managed/${encodeURIComponent(id)}/close/confirm`,
+      { method: 'POST', body },
+    ),
+  policies: () => apiRequest<Array<Record<string, unknown>>>('/api/v1/trade-management/policies'),
+  monitorTick: () => apiRequest<Record<string, unknown>>('/api/v1/trade-management/monitor/tick', { method: 'POST' }),
+  recoverAll: () => apiRequest<Record<string, unknown>>('/api/v1/trade-management/recover', { method: 'POST' }),
+}

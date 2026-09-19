@@ -176,3 +176,8 @@ SQLite migration/rollback/test behavior is verified. Decimal behavior, JSON hand
 - `execution_reconciliation_runs` — DEMO sync runs
 - `execution_commands` columns: `submission_state`, bridge correlation/nonce, `order_check_passed`, `unknown_reason`, `blind_retry_forbidden`
 - `broker_accounts` columns: `broker_login`, `broker_server`, `verified_trade_mode`, `demo_verified_at`, `demo_verification`
+
+
+## Phase 11 tables
+
+`trade_management_policies`, `managed_positions`, `managed_position_targets`, `trade_management_decisions`, `position_management_actions`, `position_management_locks`, `broker_action_locks`, `trade_management_events`, `managed_position_snapshots`, `trade_summaries`, `management_confirmations`. Additive columns on `risk_locks`: `blocks_new_entries`, `blocks_protective_closes`.
