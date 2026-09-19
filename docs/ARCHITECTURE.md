@@ -167,3 +167,8 @@ OFF (default) | DRY_RUN (zero broker) | DEMO_AUTO
 **Design:** [`AUTOMATED_TRADING_ORCHESTRATOR.md`](AUTOMATED_TRADING_ORCHESTRATOR.md) · [`PHASE_14_AUTOMATION_ORCHESTRATION_CONTRACT.md`](PHASE_14_AUTOMATION_ORCHESTRATION_CONTRACT.md)
 
 **Completion audit:** [`PHASE_14_REPORT.md`](PHASE_14_REPORT.md)
+
+
+## Phase 15 Observability
+
+`App\Observability\*` coordinates metrics, health, watchdog, alerts, forward validation, data quality, backups, circuit breakers, and resource monitors. UI: `#/system-operations`.

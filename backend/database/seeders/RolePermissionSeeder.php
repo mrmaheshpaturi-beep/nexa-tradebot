@@ -30,6 +30,7 @@ class RolePermissionSeeder extends Seeder
         'backtest.view', 'backtest.run', 'backtest.export',
         'intelligence.view', 'intelligence.analyze', 'intelligence.manage',
         'automation.view', 'automation.manage', 'automation.operate', 'automation.kill',
+        'observability.view', 'observability.manage', 'observability.operate',
     ];
 
     public function run(): void
@@ -60,6 +61,7 @@ class RolePermissionSeeder extends Seeder
                 'backtest.view', 'backtest.run', 'backtest.export',
                 'intelligence.view', 'intelligence.analyze', 'intelligence.manage',
                 'automation.view', 'automation.manage', 'automation.operate', 'automation.kill',
+                'observability.view', 'observability.manage', 'observability.operate',
             ],
             'ANALYST' => [
                 'dashboard.view', 'strategies.view', 'risk_profiles.view', 'risk_engine.view',
@@ -69,6 +71,7 @@ class RolePermissionSeeder extends Seeder
                 'analytics.view', 'analytics.export', 'backtest.view', 'backtest.export',
                 'intelligence.view', 'intelligence.analyze',
                 'automation.view',
+                'observability.view',
             ],
             'VIEWER' => [
                 'dashboard.view', 'strategies.view', 'settings.view',
@@ -77,6 +80,7 @@ class RolePermissionSeeder extends Seeder
                 'analytics.view', 'backtest.view',
                 'intelligence.view',
                 'automation.view',
+                'observability.view',
             ],
         ];
 

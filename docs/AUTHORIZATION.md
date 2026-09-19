@@ -153,3 +153,10 @@ Viewers can see advisory desk/pulse/calendar/news. Analyze creates assessments/A
 | `automation.kill` | Kill switch |
 
 LIVE_AUTO endpoints always 403. Browser never receives raw MT5 write payloads.
+
+
+## Phase 15 permissions
+
+- `observability.view`
+- `observability.manage`
+- `observability.operate`

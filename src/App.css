@@ -21,3 +21,16 @@
 .phase14-tabs button.active{color:var(--blue);border-bottom:1px solid var(--blue)}
 .stack-gap{display:flex;flex-direction:column;gap:12px}
 .muted{color:var(--muted);font-size:11px}
+
+/* Phase 15 Operations / Validation Lab / Alert Center */
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin:12px 0}
+.tab-row{display:flex;flex-wrap:wrap;gap:4px;padding:8px 0 14px;border-bottom:1px solid var(--border);margin-bottom:12px}
+.tab-row .tab{background:none;border:0;color:#879cb4;font-size:9px;padding:7px 12px;cursor:pointer}
+.tab-row .tab.active{color:var(--blue);border-bottom:1px solid var(--blue)}
+.mobile-emergency-bar{display:none;position:sticky;bottom:0;padding:10px;background:#1a1014;border-top:1px solid #67303b;margin-top:16px}
+.mobile-emergency-bar .btn{width:100%;justify-content:center}
+@media(max-width:760px){
+  .metric-grid{grid-template-columns:1fr 1fr}
+  .mobile-emergency-bar{display:block}
+  .mobile-emergency{display:none}
+}

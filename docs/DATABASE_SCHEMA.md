@@ -207,3 +207,8 @@ Additive migration `2026_09_19_240000_create_phase_fourteen_demo_automation.php`
 - `automation_profiles`, `automation_sessions`, `automation_workflows`
 - `automation_events` (immutable), `automation_locks`, `automation_daily_counters`
 - `automation_queue_jobs`, `automation_notifications` (IN_APP foundation)
+
+
+## Phase 15 tables
+
+metric_samples, system_health_snapshots, system_alerts, system_error_records, validation_sessions, validation_observations, performance_drift_checks, data_quality_scores, circuit_breakers, backup_runs, dead_letter_jobs, watchdog_events, ops_incidents.

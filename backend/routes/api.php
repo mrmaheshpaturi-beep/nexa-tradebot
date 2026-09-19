@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuditLogController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AnalyticsBacktestController;
 use App\Http\Controllers\Api\AutomationController;
+use App\Http\Controllers\Api\ObservabilityController;
 use App\Http\Controllers\Api\IntelligenceController;
 use App\Http\Controllers\Api\BrokerAccountController;
 use App\Http\Controllers\Api\IndicatorController;
@@ -37,6 +38,12 @@ Route::prefix('v1')->middleware('web')->group(function (): void {
     Route::post('/auth/password/reset', [PasswordResetController::class, 'reset'])->middleware('throttle:5,1');
     Route::get('/system/status', [SystemController::class, 'status']);
     Route::get('/simulation/status', [SystemController::class, 'status']);
+
+    // Phase 15 — public health probes (no secrets; no trading actions)
+    Route::get('/health', [ObservabilityController::class, 'health'])->middleware('throttle:health');
+    Route::get('/health/liveness', [ObservabilityController::class, 'liveness'])->middleware('throttle:health');
+    Route::get('/health/readiness', [ObservabilityController::class, 'readiness'])->middleware('throttle:health');
+    Route::get('/health/trading-readiness', [ObservabilityController::class, 'tradingReadiness'])->middleware('throttle:health');
 
     Route::middleware(['auth:sanctum', 'active'])->group(function (): void {
         Route::get('/auth/me', [AuthController::class, 'me']);
@@ -295,5 +302,40 @@ Route::prefix('v1')->middleware('web')->group(function (): void {
         Route::get('/automation/notifications', [AutomationController::class, 'notifications'])->middleware('permission:automation.view');
         Route::post('/automation/settings/enable-auto-demo', [AutomationController::class, 'enableAutoDemoSetting'])->middleware('permission:automation.manage');
         Route::post('/automation/live-auto', [AutomationController::class, 'refuseLiveAuto'])->middleware('permission:automation.manage');
+
+        // Phase 15 — Validation, Observability & Production Hardening
+        Route::get('/observability/health', [ObservabilityController::class, 'health'])->middleware('permission:trading.read');
+        Route::get('/observability/operations', [ObservabilityController::class, 'operations'])->middleware('permission:observability.view');
+        Route::get('/observability/metrics', [ObservabilityController::class, 'metrics'])->middleware('permission:observability.view');
+        Route::post('/observability/metrics', [ObservabilityController::class, 'metrics'])->middleware('permission:observability.manage');
+        Route::get('/observability/health-history', [ObservabilityController::class, 'healthHistory'])->middleware('permission:observability.view');
+        Route::post('/observability/watchdog', [ObservabilityController::class, 'watchdog'])->middleware('permission:observability.operate');
+        Route::get('/observability/alerts', [ObservabilityController::class, 'alerts'])->middleware('permission:observability.view');
+        Route::post('/observability/alerts', [ObservabilityController::class, 'raiseAlert'])->middleware('permission:observability.operate');
+        Route::post('/observability/alerts/{alert}/ack', [ObservabilityController::class, 'ackAlert'])->middleware('permission:observability.operate');
+        Route::post('/observability/alerts/{alert}/resolve', [ObservabilityController::class, 'resolveAlert'])->middleware('permission:observability.operate');
+        Route::get('/observability/validation-lab', [ObservabilityController::class, 'validationLab'])->middleware('permission:observability.view');
+        Route::post('/observability/validation-sessions', [ObservabilityController::class, 'startValidation'])->middleware('permission:observability.manage');
+        Route::post('/observability/validation-sessions/{session}/observe', [ObservabilityController::class, 'observeValidation'])->middleware('permission:observability.manage');
+        Route::get('/observability/data-quality', [ObservabilityController::class, 'dataQuality'])->middleware('permission:observability.view');
+        Route::post('/observability/data-quality', [ObservabilityController::class, 'dataQuality'])->middleware('permission:observability.operate');
+        Route::post('/observability/drift', [ObservabilityController::class, 'drift'])->middleware('permission:observability.manage');
+        Route::post('/observability/backup', [ObservabilityController::class, 'backup'])->middleware('permission:observability.manage');
+        Route::get('/observability/disaster-recovery', [ObservabilityController::class, 'disasterRecovery'])->middleware('permission:observability.view');
+        Route::get('/observability/circuits', [ObservabilityController::class, 'circuits'])->middleware('permission:observability.view');
+        Route::post('/observability/circuits/event', [ObservabilityController::class, 'circuitEvent'])->middleware('permission:observability.operate');
+        Route::get('/observability/resources', [ObservabilityController::class, 'resources'])->middleware('permission:observability.view');
+        Route::get('/observability/scorecard', [ObservabilityController::class, 'scorecard'])->middleware('permission:observability.view');
+        Route::get('/observability/env', [ObservabilityController::class, 'envCheck'])->middleware('permission:observability.view');
+        Route::get('/observability/incidents', [ObservabilityController::class, 'incidents'])->middleware('permission:observability.view');
+        Route::post('/observability/incidents', [ObservabilityController::class, 'openIncident'])->middleware('permission:observability.operate');
+        Route::get('/observability/comparisons', [ObservabilityController::class, 'comparisons'])->middleware('permission:observability.view');
+        Route::get('/observability/risk', [ObservabilityController::class, 'riskOps'])->middleware('permission:observability.view');
+        Route::get('/observability/execution-quality', [ObservabilityController::class, 'executionQuality'])->middleware('permission:observability.view');
+        Route::get('/observability/reconciliation', [ObservabilityController::class, 'reconciliationOps'])->middleware('permission:observability.view');
+        Route::get('/observability/queue', [ObservabilityController::class, 'queueOps'])->middleware('permission:observability.view');
+        Route::get('/observability/server', [ObservabilityController::class, 'serverOps'])->middleware('permission:observability.view');
+        Route::get('/observability/failure-scenarios', [ObservabilityController::class, 'failureScenarios'])->middleware('permission:observability.view');
+        Route::post('/observability/live-production', [ObservabilityController::class, 'refuseLiveProduction'])->middleware('permission:observability.manage');
     });
 });

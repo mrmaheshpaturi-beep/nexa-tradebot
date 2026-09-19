@@ -184,3 +184,8 @@ See `PHASE_14_REPORT.md`, `AUTOMATED_TRADING_ORCHESTRATOR.md`, `PHASE_14_AUTOMAT
 
 LIVE/real-money activation is not implied by any phase. It requires a separate governance, legal, security, operational and rollback decision after DEMO evidence.
 
+
+
+## Phase 15 — Validation, Observability & Production Hardening
+
+**Status: COMPLETE (PASS WITH WARNINGS).** See `PHASE_15_REPORT.md`. Phase 16 not started.

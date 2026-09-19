@@ -552,3 +552,52 @@ export const phaseFourteenApi = {
   refuseLiveAuto: () =>
     apiRequest<Record<string, unknown>>('/api/v1/automation/live-auto', { method: 'POST', body: {} }),
 }
+
+export const phaseFifteenApi = {
+  health: () => apiRequest<Record<string, unknown>>('/api/v1/observability/health'),
+  publicHealth: () => apiRequest<Record<string, unknown>>('/api/v1/health', { csrf: false }),
+  liveness: () => apiRequest<Record<string, unknown>>('/api/v1/health/liveness', { csrf: false }),
+  readiness: () => apiRequest<Record<string, unknown>>('/api/v1/health/readiness', { csrf: false }),
+  tradingReadiness: () => apiRequest<Record<string, unknown>>('/api/v1/health/trading-readiness', { csrf: false }),
+  operations: () => apiRequest<Record<string, unknown>>('/api/v1/observability/operations'),
+  metrics: (evidenceLabel?: string) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/observability/metrics${evidenceLabel ? `?evidence_label=${encodeURIComponent(evidenceLabel)}` : ''}`),
+  recordMetric: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/observability/metrics', { method: 'POST', body }),
+  healthHistory: () => apiRequest<Record<string, unknown>>('/api/v1/observability/health-history'),
+  watchdog: () => apiRequest<Record<string, unknown>>('/api/v1/observability/watchdog', { method: 'POST', body: {} }),
+  alerts: (status?: string) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/observability/alerts${status ? `?status=${encodeURIComponent(status)}` : ''}`),
+  raiseAlert: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/observability/alerts', { method: 'POST', body }),
+  ackAlert: (id: string) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/observability/alerts/${encodeURIComponent(id)}/ack`, { method: 'POST', body: {} }),
+  resolveAlert: (id: string) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/observability/alerts/${encodeURIComponent(id)}/resolve`, { method: 'POST', body: {} }),
+  validationLab: () => apiRequest<Record<string, unknown>>('/api/v1/observability/validation-lab'),
+  startValidation: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/observability/validation-sessions', { method: 'POST', body }),
+  observeValidation: (id: string, body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/observability/validation-sessions/${encodeURIComponent(id)}/observe`, { method: 'POST', body }),
+  dataQuality: () => apiRequest<Record<string, unknown>>('/api/v1/observability/data-quality'),
+  evaluateDataQuality: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/observability/data-quality', { method: 'POST', body }),
+  backup: () => apiRequest<Record<string, unknown>>('/api/v1/observability/backup', { method: 'POST', body: {} }),
+  disasterRecovery: () => apiRequest<Record<string, unknown>>('/api/v1/observability/disaster-recovery'),
+  circuits: () => apiRequest<Record<string, unknown>>('/api/v1/observability/circuits'),
+  resources: () => apiRequest<Record<string, unknown>>('/api/v1/observability/resources'),
+  scorecard: () => apiRequest<Record<string, unknown>>('/api/v1/observability/scorecard'),
+  env: () => apiRequest<Record<string, unknown>>('/api/v1/observability/env'),
+  incidents: () => apiRequest<Record<string, unknown>>('/api/v1/observability/incidents'),
+  openIncident: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/observability/incidents', { method: 'POST', body }),
+  comparisons: () => apiRequest<Record<string, unknown>>('/api/v1/observability/comparisons'),
+  risk: () => apiRequest<Record<string, unknown>>('/api/v1/observability/risk'),
+  executionQuality: () => apiRequest<Record<string, unknown>>('/api/v1/observability/execution-quality'),
+  reconciliation: () => apiRequest<Record<string, unknown>>('/api/v1/observability/reconciliation'),
+  queue: () => apiRequest<Record<string, unknown>>('/api/v1/observability/queue'),
+  server: () => apiRequest<Record<string, unknown>>('/api/v1/observability/server'),
+  failureScenarios: () => apiRequest<Record<string, unknown>>('/api/v1/observability/failure-scenarios'),
+  refuseLiveProduction: () =>
+    apiRequest<Record<string, unknown>>('/api/v1/observability/live-production', { method: 'POST', body: {} }),
+}

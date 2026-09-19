@@ -119,3 +119,11 @@ LIVE modification/partial/full close HARD BLOCKED at gate + verifier + adapter +
 - Phase 14 has zero `order_send` call sites; Phase 10 remains sole path
 - Kill switch does not auto close-all
 - AI cannot bypass qualification/risk/execution/management
+
+
+## Phase 15 security notes
+
+- Secret redaction via `SecretRedactor`
+- EnvValidator rejects LIVE flags / LIVE_PRODUCTION
+- Health probes rate-limited
+- Phase 15 order_send = 0; LIVE_AUTO absent

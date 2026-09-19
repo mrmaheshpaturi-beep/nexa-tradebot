@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet } from 'react-router-dom'
-import { Activity, BarChart3, Bell, Bot, BriefcaseBusiness, CalendarDays, CandlestickChart, ChevronLeft, CircleDollarSign, ClipboardList, Command, FileBarChart, Gauge, HeartPulse, History, LayoutDashboard, LogOut, Menu, PanelLeftClose, ScanSearch, Search, Settings, ShieldAlert, SlidersHorizontal, Sparkles, Target, UserCircle } from 'lucide-react'
+import { Activity, BarChart3, Bell, Bot, BriefcaseBusiness, CalendarDays, CandlestickChart, ChevronLeft, CircleDollarSign, ClipboardList, Command, FileBarChart, Gauge, HeartPulse, History, LayoutDashboard, LogOut, Menu, PanelLeftClose, ScanSearch, Search, Settings, ShieldAlert, SlidersHorizontal, Sparkles, Target, UserCircle, Radar } from 'lucide-react'
 import { mt5Api, phaseTwoApi } from '../api/services'
 import { EnvironmentBadge } from './ui'
 import { useAuth } from '../auth/authState'
@@ -18,7 +18,7 @@ const navigation = [
   ['Reports', '/reports', FileBarChart], ['AI Trade Desk', '/ai-trade-desk', Sparkles], ['News Calendar', '/news-calendar', CalendarDays], ['MT5 Accounts', '/mt5-accounts', Command],
   ['MT5 Dashboard', '/mt5-dashboard', LayoutDashboard], ['MT5 Market', '/mt5-market', CandlestickChart], ['MT5 Charts', '/mt5-charts', BarChart3],
   ['MT5 Read Models', '/mt5-read-models', ClipboardList], ['MT5 Reconciliation', '/mt5-reconciliation', ShieldAlert],
-  ['Notifications', '/notifications', Bell], ['System Health', '/system-health', HeartPulse], ['Audit Logs', '/audit-logs', ClipboardList], ['Settings', '/settings', Settings],
+  ['Notifications', '/notifications', Bell], ['System Health', '/system-health', HeartPulse], ['System Operations', '/system-operations', Radar], ['Audit Logs', '/audit-logs', ClipboardList], ['Settings', '/settings', Settings],
 ] as const
 
 export function AppShell() {
@@ -46,6 +46,7 @@ export function AppShell() {
     if (label === 'MT5 Accounts' || label.startsWith('MT5 ')) return can('mt5.read')
     if (label === 'AI Trade Desk' || label === 'News Calendar') return can('intelligence.view') || can('trading.read')
     if (label === 'Notifications') return can('notifications.view')
+    if (label === 'System Operations') return can('observability.view') || can('trading.read')
     return true
   })
   return <div className={`app ${collapsed ? 'collapsed' : ''}`}>
