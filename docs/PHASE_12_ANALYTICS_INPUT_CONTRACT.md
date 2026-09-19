@@ -1,28 +1,29 @@
-# Phase 12 Analytics Input Contract (stub only)
+# Phase 12 Analytics Input Contract
 
-**Status: NOT IMPLEMENTED.** Input contract for a future phase. Do not treat as enabled capability.
+**Status: IMPLEMENTED in Phase 12** (see `PHASE_12_REPORT.md`, `ANALYTICS_ENGINE.md`).
 
 ## Boundary
 
-Phase 11 ends at DEMO-only TradeManagementEngine over Nexa-managed positions (break-even, trail, partial/full close, exits) behind PositionManagementGate and the sole authorized `order_send`.
+Phase 11 ends at DEMO-only TradeManagementEngine. Phase 12 consumes finalized research inputs without broker writes.
 
-Phase 12 may address (examples only):
+## Inputs received
 
-1. Trade analytics over finalized TradeSummary / MAE-MFE
-2. Performance attribution by strategy/policy version
-3. Operator reporting — still DEMO-first; LIVE remains hard-disabled
+1. TradeSummary (immutable finalize)
+2. Strategy identity/version
+3. Candidate data
+4. Signal data
+5. RiskDecision
+6. ExecutionResult
+7. Management events
+8. MAE / MFE / R-multiple / net P/L
+9. Market regime / session / timeframe
 
-## Non-negotiable constraints carried forward
+## Non-negotiable constraints
 
-1. LIVE remains hard-disabled until separate governance.
-2. Auto Demo remains OFF unless explicitly unlocked.
-3. React never talks to the bridge for writes.
-4. RiskEngine never calls MT5 order APIs.
-5. Exactly one authorized `order_send` call site.
-6. Foreign positions never auto-managed.
-
-## Explicit non-goals of this stub
-
-- No LIVE enablement
-- No AutoTrading
-- No Phase 12 implementation work
+1. LIVE remains hard-disabled
+2. Auto Demo remains OFF unless unlocked
+3. React never talks to the bridge for writes
+4. Analytics/Backtest never call MT5 order APIs
+5. Exactly one authorized `order_send` call site
+6. No auto-promote of strategies/risk from research results
+7. BACKTEST and DEMO remain strictly separate environments/labels

@@ -139,5 +139,27 @@ LIVE/real-money activation is not implied by any phase. It requires a separate g
 
 ## Phase 11 — Advanced Trade & Position Management (DEMO)
 
-Complete on branch `cursor/phase-11-trade-management-56f9`. Phase 12 analytics is stub-only.
+Complete on branch `cursor/phase-11-trade-management-56f9`.
+
+## Phase 12 — Analytics + Backtesting / Research Engine
+
+Complete on branch `cursor/phase-12-analytics-backtest-56f9`:
+
+- AnalyticsEngine datasets/snapshots/metrics/exports over TradeSummary lineage
+- BacktestEngine deterministic BACKTEST runs with lineage, costs, WF/OOS, MC, opt, portfolio
+- Strict BACKTEST/DEMO separation; zero broker-changing calls; no auto-promote
+- Phase 13 contract stub only
+
+See `PHASE_12_REPORT.md`, `ANALYTICS_ENGINE.md`, `BACKTEST_ENGINE.md`, `PHASE_13_CONTRACT.md`.
+
+## Later phases requiring separate approval
+
+1. Phase 13 operational/research follow-ons (contract only — `PHASE_13_CONTRACT.md`).
+2. Durable outbox / exactly-once delivery beyond process-local nonce cache.
+3. AI analysis behind the risk boundary.
+4. News/session intelligence.
+5. Security hardening, tamper-evident audit, observability and recovery.
+6. DEMO end-to-end validation and controlled deployment.
+
+LIVE/real-money activation is not implied by any phase. It requires a separate governance, legal, security, operational and rollback decision after DEMO evidence.
 

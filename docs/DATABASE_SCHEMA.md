@@ -181,3 +181,11 @@ SQLite migration/rollback/test behavior is verified. Decimal behavior, JSON hand
 ## Phase 11 tables
 
 `trade_management_policies`, `managed_positions`, `managed_position_targets`, `trade_management_decisions`, `position_management_actions`, `position_management_locks`, `broker_action_locks`, `trade_management_events`, `managed_position_snapshots`, `trade_summaries`, `management_confirmations`. Additive columns on `risk_locks`: `blocks_new_entries`, `blocks_protective_closes`.
+
+## Phase 12 tables (additive)
+
+- `analytics_datasets`, `analytics_dataset_rows`, `analytics_snapshots`, `analytics_reports`
+- `backtest_data_snapshots`, `backtest_runs`, `backtest_jobs`
+- `backtest_walk_forward_folds`, `backtest_optimization_trials`, `backtest_monte_carlo_paths`
+- `research_comparisons` (strict BACKTEST vs DEMO labels)
+

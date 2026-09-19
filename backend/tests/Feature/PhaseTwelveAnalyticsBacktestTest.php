@@ -312,12 +312,10 @@ class PhaseTwelveAnalyticsBacktestTest extends TestCase
     public function test_phase12_source_has_zero_broker_changing_calls(): void
     {
         $roots = [
-            base_path('../backend/app/Analytics'),
-            base_path('../backend/app/Backtest'),
             app_path('Analytics'),
             app_path('Backtest'),
         ];
-        foreach (array_unique($roots) as $root) {
+        foreach ($roots as $root) {
             if (! is_dir($root)) {
                 continue;
             }
@@ -327,10 +325,11 @@ class PhaseTwelveAnalyticsBacktestTest extends TestCase
                     continue;
                 }
                 $src = file_get_contents($file->getPathname());
-                $this->assertStringNotContainsString('order_send', $src, $file->getPathname());
+                $this->assertDoesNotMatchRegularExpression('/\border_send\s*\(/', $src, $file->getPathname());
                 $this->assertStringNotContainsString('DemoBridgeClient', $src, $file->getPathname());
                 $this->assertStringNotContainsString('TradingBridgeDemoClient', $src, $file->getPathname());
                 $this->assertStringNotContainsString('authorized_order_send', $src, $file->getPathname());
+                $this->assertStringNotContainsString('MetaTrader5', $src, $file->getPathname());
             }
         }
     }

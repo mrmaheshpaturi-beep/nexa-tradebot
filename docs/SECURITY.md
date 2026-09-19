@@ -6,7 +6,7 @@
 - CSRF cookie and `X-XSRF-TOKEN` on writes; session regeneration on login and invalidation on logout.
 - Login and reset throttles; non-enumerating reset request response.
 - `ACTIVE` user enforcement followed by named backend permission middleware.
-- Five roles and 34 seeded permissions. React permission controls are UX only.
+- Five roles and seeded named permissions (includes Phase 12 `analytics.*` / `backtest.*`). React permission controls are UX only.
 - Current-user ownership checks for accounts, signals, intents, orders, positions and other user-scoped resources.
 
 See `AUTHORIZATION.md` for the exact matrix.
@@ -91,3 +91,12 @@ Any DEMO write phase still requires a new threat review, account allowlists, dur
 ## Phase 11 management security
 
 LIVE modification/partial/full close HARD BLOCKED at gate + verifier + adapter + bridge. CI uses FakeDemoBridge only. `scripts/phase11-trade-management-audit.sh` guards order_send leakage.
+
+## Phase 12 analytics / backtest security
+
+- Phase 12 engines never call `order_send`, DemoBridgeClient, or TradingBridgeDemoClient.
+- BACKTEST environment is research-only and never silently labeled DEMO.
+- Research promote endpoints refuse (403); StrategySetting/RiskProfile are never auto-mutated from results.
+- LIVE remains hard-blocked. Audit: `scripts/phase12-analytics-backtest-audit.sh`.
+- Permissions: `analytics.view|manage|export`, `backtest.view|run|export`.
+

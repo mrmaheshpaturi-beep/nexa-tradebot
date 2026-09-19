@@ -119,3 +119,21 @@ Phase 10 adds a gated DEMO write path behind ExecutionGate + two-step confirmati
 ## Phase 11 — Trade Management
 
 DEMO-only `TradeManagementEngine` manages Nexa-owned positions (break-even, trailing, partial/full close, exits) behind `PositionManagementGate`. LIVE hard-blocked. Adapter extends Phase 10 with modify/close/partial/cancel; sole `order_send` unchanged.
+
+## Phase 12 — Analytics + Backtesting / Research
+
+```text
+TradeSummary (+ signal/candidate/risk/execution/management lineage)
+  → AnalyticsEngine → datasets/snapshots/metrics/exports/trade explorer
+Closed candles snapshot
+  → BacktestEngine (BACKTEST only) → lineage + WF/OOS/MC/opt/portfolio
+  → BACKTEST vs DEMO comparison (labels never mixed)
+  → NEVER order_send / NEVER auto-promote
+```
+
+**Design:** [`ANALYTICS_ENGINE.md`](ANALYTICS_ENGINE.md) · [`BACKTEST_ENGINE.md`](BACKTEST_ENGINE.md)
+
+**Phase 13 input (contract only):** [`PHASE_13_CONTRACT.md`](PHASE_13_CONTRACT.md)
+
+**Completion audit:** [`PHASE_12_REPORT.md`](PHASE_12_REPORT.md)
+
