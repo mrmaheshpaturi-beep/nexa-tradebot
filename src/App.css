@@ -34,3 +34,9 @@
   .mobile-emergency-bar{display:block}
   .mobile-emergency{display:none}
 }
+
+/* Phase 16 Strategy Governance */
+.form-row{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;padding:12px 0}
+.form-row label{display:flex;flex-direction:column;gap:4px;font-size:9px;color:var(--muted);text-transform:uppercase}
+.form-row input{height:34px;background:#091522;border:1px solid var(--border);border-radius:4px;color:var(--text);padding:0 9px;min-width:160px}
+.page-stack{display:flex;flex-direction:column;gap:4px}

@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AnalyticsBacktestController;
 use App\Http\Controllers\Api\AutomationController;
 use App\Http\Controllers\Api\ObservabilityController;
+use App\Http\Controllers\Api\GovernanceController;
 use App\Http\Controllers\Api\IntelligenceController;
 use App\Http\Controllers\Api\BrokerAccountController;
 use App\Http\Controllers\Api\IndicatorController;
@@ -337,5 +338,28 @@ Route::prefix('v1')->middleware('web')->group(function (): void {
         Route::get('/observability/server', [ObservabilityController::class, 'serverOps'])->middleware('permission:observability.view');
         Route::get('/observability/failure-scenarios', [ObservabilityController::class, 'failureScenarios'])->middleware('permission:observability.view');
         Route::post('/observability/live-production', [ObservabilityController::class, 'refuseLiveProduction'])->middleware('permission:observability.manage');
+
+        // Phase 16 — Strategy Governance (DEMO-only; AI cannot approve/deploy)
+        Route::get('/governance/health', [GovernanceController::class, 'health'])->middleware('permission:trading.read');
+        Route::get('/governance/lifecycle', [GovernanceController::class, 'lifecycleDoc'])->middleware('permission:governance.view');
+        Route::get('/governance/dashboard', [GovernanceController::class, 'dashboard'])->middleware('permission:governance.view');
+        Route::get('/governance/versions', [GovernanceController::class, 'versions'])->middleware('permission:governance.view');
+        Route::post('/governance/versions', [GovernanceController::class, 'registerVersion'])->middleware('permission:governance.manage');
+        Route::get('/governance/versions/{version}', [GovernanceController::class, 'showVersion'])->middleware('permission:governance.view');
+        Route::post('/governance/versions/{version}/transition', [GovernanceController::class, 'transition'])->middleware('permission:governance.manage');
+        Route::post('/governance/versions/{version}/release-candidates', [GovernanceController::class, 'openReleaseCandidate'])->middleware('permission:governance.manage');
+        Route::post('/governance/versions/{version}/evidence', [GovernanceController::class, 'buildEvidence'])->middleware('permission:governance.manage');
+        Route::post('/governance/versions/{version}/validate', [GovernanceController::class, 'evaluateValidation'])->middleware('permission:governance.manage');
+        Route::post('/governance/versions/{version}/approvals', [GovernanceController::class, 'startApproval'])->middleware('permission:governance.approve');
+        Route::post('/governance/approvals/{approval}/step', [GovernanceController::class, 'approvalStep'])->middleware('permission:governance.approve');
+        Route::post('/governance/policies', [GovernanceController::class, 'createPolicy'])->middleware('permission:governance.manage');
+        Route::post('/governance/comparisons', [GovernanceController::class, 'compare'])->middleware('permission:governance.view');
+        Route::get('/governance/lab', [GovernanceController::class, 'lab'])->middleware('permission:governance.lab');
+        Route::post('/governance/lab/experiments', [GovernanceController::class, 'runLab'])->middleware('permission:governance.lab');
+        Route::post('/governance/portfolios', [GovernanceController::class, 'createPortfolio'])->middleware('permission:governance.manage');
+        Route::post('/governance/change-requests', [GovernanceController::class, 'createChangeRequest'])->middleware('permission:governance.manage');
+        Route::post('/governance/change-requests/{changeRequest}/reject', [GovernanceController::class, 'rejectChangeRequest'])->middleware('permission:governance.approve');
+        Route::post('/governance/live-deploy', [GovernanceController::class, 'refuseLiveDeploy'])->middleware('permission:governance.manage');
+        Route::post('/governance/ai-approve', [GovernanceController::class, 'refuseAiApprove'])->middleware('permission:governance.manage');
     });
 });

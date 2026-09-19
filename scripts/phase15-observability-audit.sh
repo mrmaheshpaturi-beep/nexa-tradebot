@@ -67,10 +67,10 @@ if rg -n "MetaTrader5|order_send\s*\(" "$ROOT/src" --glob '!**/node_modules/**' 
   exit 1
 fi
 
-# Phase 16 must remain stub only if present
-if [[ -f "$ROOT/docs/PHASE_16_CONTRACT.md" ]]; then
-  if ! rg -n "NOT IMPLEMENTED|stub only" "$ROOT/docs/PHASE_16_CONTRACT.md" >/dev/null; then
-    echo "FAIL: Phase 16 contract missing stub markers"
+# Phase 17 must remain stub only if present (Phase 16 is implemented)
+if [[ -f "$ROOT/docs/PHASE_17_CONTRACT.md" ]]; then
+  if ! rg -n "NOT IMPLEMENTED|stub only" "$ROOT/docs/PHASE_17_CONTRACT.md" >/dev/null; then
+    echo "FAIL: Phase 17 contract missing stub markers"
     exit 1
   fi
 fi

@@ -160,3 +160,14 @@ LIVE_AUTO endpoints always 403. Browser never receives raw MT5 write payloads.
 - `observability.view`
 - `observability.manage`
 - `observability.operate`
+
+## Phase 16 permissions
+
+| Permission | Capability |
+|---|---|
+| `governance.view` | Dashboard, versions, comparisons, lifecycle |
+| `governance.manage` | Register versions, transitions, evidence, policies, portfolios, change requests |
+| `governance.approve` | Two-step human approvals, reject change requests |
+| `governance.lab` | Strategy Lab experiments (never deploys) |
+
+AI approve/deploy endpoints always 403. LIVE deploy endpoints always 403. DEMO_AUTO promotion only after two-step human approval.

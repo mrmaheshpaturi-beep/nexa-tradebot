@@ -601,3 +601,43 @@ export const phaseFifteenApi = {
   refuseLiveProduction: () =>
     apiRequest<Record<string, unknown>>('/api/v1/observability/live-production', { method: 'POST', body: {} }),
 }
+
+export const phaseSixteenApi = {
+  health: () => apiRequest<Record<string, unknown>>('/api/v1/governance/health'),
+  dashboard: () => apiRequest<Record<string, unknown>>('/api/v1/governance/dashboard'),
+  lifecycle: () => apiRequest<Record<string, unknown>>('/api/v1/governance/lifecycle'),
+  versions: () => apiRequest<Array<Record<string, unknown>>>('/api/v1/governance/versions'),
+  registerVersion: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/governance/versions', { method: 'POST', body }),
+  transition: (id: string, to: string) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/governance/versions/${encodeURIComponent(id)}/transition`, {
+      method: 'POST', body: { to },
+    }),
+  openReleaseCandidate: (id: string, body: Record<string, unknown> = {}) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/governance/versions/${encodeURIComponent(id)}/release-candidates`, {
+      method: 'POST', body,
+    }),
+  buildEvidence: (id: string, body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/governance/versions/${encodeURIComponent(id)}/evidence`, {
+      method: 'POST', body,
+    }),
+  startApproval: (id: string, action: string) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/governance/versions/${encodeURIComponent(id)}/approvals`, {
+      method: 'POST', body: { action },
+    }),
+  approvalStep: (id: string, body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/governance/approvals/${encodeURIComponent(id)}/step`, {
+      method: 'POST', body,
+    }),
+  lab: () => apiRequest<Record<string, unknown>>('/api/v1/governance/lab'),
+  runLab: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/governance/lab/experiments', { method: 'POST', body }),
+  compare: (left: string, right: string) =>
+    apiRequest<Record<string, unknown>>('/api/v1/governance/comparisons', {
+      method: 'POST', body: { left_public_id: left, right_public_id: right },
+    }),
+  refuseLiveDeploy: () =>
+    apiRequest<Record<string, unknown>>('/api/v1/governance/live-deploy', { method: 'POST', body: {} }),
+  refuseAiApprove: () =>
+    apiRequest<Record<string, unknown>>('/api/v1/governance/ai-approve', { method: 'POST', body: {} }),
+}

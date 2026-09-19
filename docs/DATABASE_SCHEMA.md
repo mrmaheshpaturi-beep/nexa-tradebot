@@ -212,3 +212,16 @@ Additive migration `2026_09_19_240000_create_phase_fourteen_demo_automation.php`
 ## Phase 15 tables
 
 metric_samples, system_health_snapshots, system_alerts, system_error_records, validation_sessions, validation_observations, performance_drift_checks, data_quality_scores, circuit_breakers, backup_runs, dead_letter_jobs, watchdog_events, ops_incidents.
+
+## Phase 16 — Strategy Governance tables
+
+Additive migration `2026_09_19_260000_create_phase_sixteen_strategy_governance.php` (never destroys trade history):
+
+- `governed_strategy_versions` — immutable semantic versions + code/config hashes + lifecycle
+- `strategy_release_candidates`, `strategy_evidence_packages`
+- `strategy_validation_policies`, `strategy_validation_decisions`
+- `governance_approvals`, `governance_approval_tokens` (bound, single-use, nonce/replay)
+- `strategy_deployments` — DEMO_AUTO only; positions/history preserved flags
+- `strategy_comparisons`, `strategy_experiments` (lab; never deploys)
+- `strategy_portfolios`, `strategy_change_requests`
+- `governance_events` (immutable), `governance_idempotency_keys`

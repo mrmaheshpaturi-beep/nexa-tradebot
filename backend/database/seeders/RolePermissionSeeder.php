@@ -31,6 +31,7 @@ class RolePermissionSeeder extends Seeder
         'intelligence.view', 'intelligence.analyze', 'intelligence.manage',
         'automation.view', 'automation.manage', 'automation.operate', 'automation.kill',
         'observability.view', 'observability.manage', 'observability.operate',
+        'governance.view', 'governance.manage', 'governance.approve', 'governance.lab',
     ];
 
     public function run(): void
@@ -62,6 +63,7 @@ class RolePermissionSeeder extends Seeder
                 'intelligence.view', 'intelligence.analyze', 'intelligence.manage',
                 'automation.view', 'automation.manage', 'automation.operate', 'automation.kill',
                 'observability.view', 'observability.manage', 'observability.operate',
+                'governance.view', 'governance.manage', 'governance.approve', 'governance.lab',
             ],
             'ANALYST' => [
                 'dashboard.view', 'strategies.view', 'risk_profiles.view', 'risk_engine.view',
@@ -72,6 +74,7 @@ class RolePermissionSeeder extends Seeder
                 'intelligence.view', 'intelligence.analyze',
                 'automation.view',
                 'observability.view',
+                'governance.view', 'governance.lab',
             ],
             'VIEWER' => [
                 'dashboard.view', 'strategies.view', 'settings.view',
@@ -81,6 +84,7 @@ class RolePermissionSeeder extends Seeder
                 'intelligence.view',
                 'automation.view',
                 'observability.view',
+                'governance.view',
             ],
         ];
 

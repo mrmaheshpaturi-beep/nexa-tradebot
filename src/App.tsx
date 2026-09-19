@@ -21,6 +21,7 @@ const LiveCharts = lazy(() => import('./pages/PhaseFiveMarketPages').then((modul
 const Strategies = lazy(() => import('./pages/PhaseSevenStrategyPages').then((module) => ({ default: module.PhaseSevenStrategies })))
 const AutoTrading = lazy(() => import('./pages/PhaseFourteenAutomationPages').then((module) => ({ default: module.PhaseFourteenAutomationControlCenter })))
 const SystemOperations = lazy(() => import('./pages/PhaseFifteenObservabilityPages').then((module) => ({ default: module.PhaseFifteenOperationsCenter })))
+const StrategyGovernance = lazy(() => import('./pages/PhaseSixteenGovernancePages').then((module) => ({ default: module.PhaseSixteenGovernanceCenter })))
 const ManualTrading = lazy(() => import('./pages/PhaseThreeTradingPages').then((module) => ({ default: module.PersistentManualTrading })))
 const Positions = lazy(() => import('./pages/PhaseThreeTradingPages').then((module) => ({ default: module.PersistentPositions })))
 const PendingOrders = lazy(() => import('./pages/PhaseThreeTradingPages').then((module) => ({ default: module.PersistentOrders })))
@@ -65,7 +66,7 @@ export default function App() {
     <Route path="reports" element={<Reports />} /><Route path="news-calendar" element={<NewsCalendar />} /><Route path="ai-trade-desk" element={<AiTradeDesk />} /><Route path="mt5-accounts" element={<MT5Accounts />} />
     <Route path="mt5-dashboard" element={<Mt5Dashboard />} /><Route path="mt5-market" element={<Mt5Market />} /><Route path="mt5-charts" element={<Mt5Charts />} />
     <Route path="mt5-read-models" element={<Mt5ReadModels />} /><Route path="mt5-reconciliation" element={<Mt5Reconciliation />} />
-    <Route path="notifications" element={<Notifications />} /><Route path="system-health" element={<SystemHealth />} /><Route path="system-operations" element={<SystemOperations />} /><Route path="validation-lab" element={<SystemOperations />} /><Route path="alert-center" element={<SystemOperations />} /><Route path="audit-logs" element={<AuditLogs />} />
+    <Route path="notifications" element={<Notifications />} /><Route path="system-health" element={<SystemHealth />} /><Route path="system-operations" element={<SystemOperations />} /><Route path="validation-lab" element={<SystemOperations />} /><Route path="alert-center" element={<SystemOperations />} /><Route path="strategy-governance" element={<StrategyGovernance />} /><Route path="strategy-lab" element={<StrategyGovernance />} /><Route path="audit-logs" element={<AuditLogs />} />
     <Route path="settings" element={<Settings />} />
     </Route></Route>
     <Route path="*" element={<Navigate to="/" replace />} />
