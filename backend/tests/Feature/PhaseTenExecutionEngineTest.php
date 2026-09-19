@@ -28,7 +28,7 @@ class PhaseTenExecutionEngineTest extends TestCase
         $this->assertFalse(SettingsService::SAFETY_DEFAULTS['auto_demo_execution']);
         $this->assertFalse(SettingsService::SAFETY_DEFAULTS['allow_live_execution']);
         $this->assertContains('allow_live_execution', SettingsService::LOCKED_FALSE);
-        $this->assertContains('auto_demo_execution', SettingsService::LOCKED_FALSE);
+        $this->assertNotContains('auto_demo_execution', SettingsService::LOCKED_FALSE);
         $this->assertNotContains('allow_demo_execution', SettingsService::LOCKED_FALSE);
     }
 

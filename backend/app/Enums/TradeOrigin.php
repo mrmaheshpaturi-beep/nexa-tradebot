@@ -9,4 +9,5 @@ enum TradeOrigin: string
     case Simulation = 'SIMULATION';
     case System = 'SYSTEM';
     case Demo = 'DEMO';
+    case Automation = 'AUTOMATION';
 }

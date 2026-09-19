@@ -31,8 +31,11 @@ class SettingsService
         'simulation_engine' => 'SIMULATION ENGINE',
     ];
 
-    /** allow_demo_execution is unlockable (default false). LIVE + auto paths stay hard-false. */
-    public const LOCKED_FALSE = ['auto_trading_enabled', 'auto_demo_execution', 'allow_live_execution'];
+    /**
+     * Phase 14: auto_demo_execution is unlockable (default false) for DEMO_AUTO only.
+     * LIVE paths and generic auto_trading_enabled stay hard-false. LIVE_AUTO does not exist.
+     */
+    public const LOCKED_FALSE = ['auto_trading_enabled', 'allow_live_execution'];
 
     public function __construct(private readonly AuditService $audit) {}
 

@@ -507,3 +507,48 @@ export const phaseThirteenApi = {
   refuseMutate: (action: string) =>
     apiRequest<Record<string, unknown>>('/api/v1/intelligence/mutate', { method: 'POST', body: { action } }),
 }
+
+export const phaseFourteenApi = {
+  health: () => apiRequest<Record<string, unknown>>('/api/v1/automation/health'),
+  controlCenter: () => apiRequest<Record<string, unknown>>('/api/v1/automation/control-center'),
+  preflight: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/automation/preflight', { method: 'POST', body }),
+  profiles: () => apiRequest<{ data?: Array<Record<string, unknown>> } | Array<Record<string, unknown>>>('/api/v1/automation/profiles'),
+  createProfile: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/automation/profiles', { method: 'POST', body }),
+  validateProfile: (id: string) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/automation/profiles/${encodeURIComponent(id)}/validate`, { method: 'POST', body: {} }),
+  activateProfile: (id: string) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/automation/profiles/${encodeURIComponent(id)}/activate`, { method: 'POST', body: {} }),
+  enableAutoDemo: (confirmation_phrase: string) =>
+    apiRequest<Record<string, unknown>>('/api/v1/automation/settings/enable-auto-demo', {
+      method: 'POST',
+      body: { confirmation_phrase },
+    }),
+  startStep1: (body: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>('/api/v1/automation/start/step1', { method: 'POST', body }),
+  startStep2: (sessionId: string, confirmation_phrase: string) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/automation/sessions/${encodeURIComponent(sessionId)}/start/step2`, {
+      method: 'POST',
+      body: { confirmation_phrase },
+    }),
+  pause: (sessionId: string) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/automation/sessions/${encodeURIComponent(sessionId)}/pause`, { method: 'POST', body: {} }),
+  resume: (sessionId: string) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/automation/sessions/${encodeURIComponent(sessionId)}/resume`, { method: 'POST', body: {} }),
+  stop: (sessionId: string) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/automation/sessions/${encodeURIComponent(sessionId)}/stop`, { method: 'POST', body: {} }),
+  killSwitch: (sessionId: string) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/automation/sessions/${encodeURIComponent(sessionId)}/kill-switch`, { method: 'POST', body: {} }),
+  tick: (sessionId: string, candidate?: Record<string, unknown>) =>
+    apiRequest<Record<string, unknown>>(`/api/v1/automation/sessions/${encodeURIComponent(sessionId)}/tick`, {
+      method: 'POST',
+      body: { candidate: candidate ?? {} },
+    }),
+  workflows: () => apiRequest<Record<string, unknown>>('/api/v1/automation/workflows'),
+  rejections: () => apiRequest<Record<string, unknown>>('/api/v1/automation/rejections'),
+  executions: () => apiRequest<Record<string, unknown>>('/api/v1/automation/executions'),
+  events: () => apiRequest<Record<string, unknown>>('/api/v1/automation/events'),
+  refuseLiveAuto: () =>
+    apiRequest<Record<string, unknown>>('/api/v1/automation/live-auto', { method: 'POST', body: {} }),
+}

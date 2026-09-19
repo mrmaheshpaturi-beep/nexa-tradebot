@@ -125,6 +125,75 @@ class ExecutionConfirmationService
         });
     }
 
+    /**
+     * Phase 14 automation confirmation — only when AUTO DEMO enabled and session is DEMO_AUTO.
+     * Still goes through Phase 10 ExecutionEngine; does not call order_send.
+     *
+     * @return array{confirmation:ExecutionConfirmation,confirm_token:string}
+     */
+    public function createAutomationConfirmation(TradeIntent $intent, \App\Models\AutomationSession $session, Request $request): array
+    {
+        $user = $request->user();
+        $this->assertDemoIntentReady($intent, $user);
+
+        if ($session->mode->value !== 'DEMO_AUTO') {
+            throw ValidationException::withMessages(['session' => 'Automation confirmation requires DEMO_AUTO mode.']);
+        }
+        if (app(\App\Services\SettingsService::class)->value('auto_demo_execution') !== true) {
+            throw ValidationException::withMessages(['auto_demo_execution' => 'AUTO DEMO setting required.']);
+        }
+
+        return DB::transaction(function () use ($intent, $session, $request, $user): array {
+            $verification = $this->verifier->verify($intent->brokerAccount, true);
+            $confirmToken = Str::random(48);
+            $confirmation = ExecutionConfirmation::query()->create([
+                'user_id' => $user->id,
+                'trade_intent_id' => $intent->id,
+                'broker_account_id' => $intent->broker_account_id,
+                'environment' => TradingEnvironment::Demo,
+                'status' => ExecutionConfirmationStatus::Initiated,
+                'step' => 1,
+                'challenge_token_hash' => hash('sha256', Str::random(48)),
+                'confirm_token_hash' => hash('sha256', $confirmToken),
+                'idempotency_key' => 'atm-cnf-'.$intent->public_id,
+                'preview_payload' => [
+                    'symbol' => $intent->instrument->symbol,
+                    'side' => $intent->side->value,
+                    'order_type' => $intent->order_type->value,
+                    'volume' => (string) $intent->requested_volume,
+                    'stop_loss' => $intent->stop_loss,
+                    'take_profit' => $intent->take_profit,
+                    'disclaimer' => 'AUTO DEMO TRADING — not live funds. Orchestrated confirmation (not AUTO LIVE).',
+                    'auto_demo' => true,
+                    'automation_session_id' => $session->public_id,
+                ],
+                'fresh_context' => [
+                    'verification' => $verification,
+                    'automation' => true,
+                    'session' => $session->public_id,
+                ],
+                'step1_at' => now(),
+                'step2_at' => now(),
+                'expires_at' => now()->addMinutes(5),
+            ]);
+            $confirmation->transitionTo(ExecutionConfirmationStatus::Step1Complete);
+            $confirmation->transitionTo(ExecutionConfirmationStatus::Confirmed);
+            $intent->update([
+                'confirmation_status' => ExecutionConfirmationStatus::Confirmed->value,
+                'active_confirmation_id' => $confirmation->id,
+            ]);
+            $this->recordEvent($confirmation, 'CONFIRMATION_AUTOMATION', $user->id);
+            $this->audit->record('execution.confirmation.automation', $confirmation, [], [
+                'intent' => $intent->public_id,
+                'environment' => 'DEMO',
+                'auto_demo' => true,
+                'session' => $session->public_id,
+            ], $request);
+
+            return ['confirmation' => $confirmation->fresh(), 'confirm_token' => $confirmToken];
+        });
+    }
+
     public function assertConsumable(ExecutionConfirmation $confirmation, string $confirmToken): void
     {
         if ($confirmation->status !== ExecutionConfirmationStatus::Confirmed) {

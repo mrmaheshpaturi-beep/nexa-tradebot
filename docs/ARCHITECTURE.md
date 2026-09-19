@@ -153,3 +153,17 @@ Market/strategy/confluence/scanner/analytics evidence (labels kept distinct)
 
 **Completion audit:** [`PHASE_13_REPORT.md`](PHASE_13_REPORT.md)
 
+
+## Phase 14 — Automated DEMO Trading Orchestrator
+
+```text
+OFF (default) | DRY_RUN (zero broker) | DEMO_AUTO
+  → AutomatedTradingOrchestrator (modular tick/queues)
+      → Qualification (AI not authority) → Risk → Phase 10 Execution
+      → Phase 11 Management → Phase 12 Analytics
+  → NEVER LIVE_AUTO / Phase 14 order_send = 0
+```
+
+**Design:** [`AUTOMATED_TRADING_ORCHESTRATOR.md`](AUTOMATED_TRADING_ORCHESTRATOR.md) · [`PHASE_14_AUTOMATION_ORCHESTRATION_CONTRACT.md`](PHASE_14_AUTOMATION_ORCHESTRATION_CONTRACT.md)
+
+**Completion audit:** [`PHASE_14_REPORT.md`](PHASE_14_REPORT.md)

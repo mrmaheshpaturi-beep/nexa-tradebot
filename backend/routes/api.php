@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuditLogController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\AnalyticsBacktestController;
+use App\Http\Controllers\Api\AutomationController;
 use App\Http\Controllers\Api\IntelligenceController;
 use App\Http\Controllers\Api\BrokerAccountController;
 use App\Http\Controllers\Api\IndicatorController;
@@ -266,5 +267,33 @@ Route::prefix('v1')->middleware('web')->group(function (): void {
         Route::get('/intelligence/queue', [IntelligenceController::class, 'queueStats'])->middleware('permission:intelligence.view');
         Route::post('/intelligence/queue/process', [IntelligenceController::class, 'processQueue'])->middleware('permission:intelligence.manage');
         Route::post('/intelligence/mutate', [IntelligenceController::class, 'refuseMutate'])->middleware('permission:intelligence.manage');
+
+        // Phase 14 — Automated DEMO Trading Orchestrator (OFF|DRY_RUN|DEMO_AUTO; no LIVE_AUTO)
+        Route::get('/automation/health', [AutomationController::class, 'health'])->middleware('permission:trading.read');
+        Route::get('/automation/control-center', [AutomationController::class, 'controlCenter'])->middleware('permission:automation.view');
+        Route::post('/automation/preflight', [AutomationController::class, 'preflight'])->middleware('permission:automation.view');
+        Route::get('/automation/profiles', [AutomationController::class, 'profiles'])->middleware('permission:automation.view');
+        Route::post('/automation/profiles', [AutomationController::class, 'createProfile'])->middleware('permission:automation.manage');
+        Route::post('/automation/profiles/{profile}/validate', [AutomationController::class, 'validateProfile'])->middleware('permission:automation.manage');
+        Route::post('/automation/profiles/{profile}/activate', [AutomationController::class, 'activateProfile'])->middleware('permission:automation.manage');
+        Route::put('/automation/profiles/{profile}', [AutomationController::class, 'reviseProfile'])->middleware('permission:automation.manage');
+        Route::post('/automation/start/step1', [AutomationController::class, 'startStep1'])->middleware('permission:automation.operate');
+        Route::post('/automation/sessions/{session}/start/step2', [AutomationController::class, 'startStep2'])->middleware('permission:automation.operate');
+        Route::post('/automation/sessions/{session}/pause', [AutomationController::class, 'pause'])->middleware('permission:automation.operate');
+        Route::post('/automation/sessions/{session}/resume', [AutomationController::class, 'resume'])->middleware('permission:automation.operate');
+        Route::post('/automation/sessions/{session}/stop', [AutomationController::class, 'stop'])->middleware('permission:automation.operate');
+        Route::post('/automation/sessions/{session}/kill-switch', [AutomationController::class, 'killSwitch'])->middleware('permission:automation.kill');
+        Route::post('/automation/sessions/{session}/recover', [AutomationController::class, 'recover'])->middleware('permission:automation.operate');
+        Route::post('/automation/sessions/{session}/tick', [AutomationController::class, 'tick'])->middleware('permission:automation.operate');
+        Route::get('/automation/sessions', [AutomationController::class, 'sessions'])->middleware('permission:automation.view');
+        Route::get('/automation/sessions/{session}', [AutomationController::class, 'showSession'])->middleware('permission:automation.view');
+        Route::get('/automation/workflows', [AutomationController::class, 'workflows'])->middleware('permission:automation.view');
+        Route::get('/automation/workflows/{workflow}', [AutomationController::class, 'showWorkflow'])->middleware('permission:automation.view');
+        Route::get('/automation/events', [AutomationController::class, 'events'])->middleware('permission:automation.view');
+        Route::get('/automation/rejections', [AutomationController::class, 'rejections'])->middleware('permission:automation.view');
+        Route::get('/automation/executions', [AutomationController::class, 'executions'])->middleware('permission:automation.view');
+        Route::get('/automation/notifications', [AutomationController::class, 'notifications'])->middleware('permission:automation.view');
+        Route::post('/automation/settings/enable-auto-demo', [AutomationController::class, 'enableAutoDemoSetting'])->middleware('permission:automation.manage');
+        Route::post('/automation/live-auto', [AutomationController::class, 'refuseLiveAuto'])->middleware('permission:automation.manage');
     });
 });

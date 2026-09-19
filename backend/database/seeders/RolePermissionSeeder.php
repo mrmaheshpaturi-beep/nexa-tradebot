@@ -29,6 +29,7 @@ class RolePermissionSeeder extends Seeder
         'analytics.view', 'analytics.manage', 'analytics.export',
         'backtest.view', 'backtest.run', 'backtest.export',
         'intelligence.view', 'intelligence.analyze', 'intelligence.manage',
+        'automation.view', 'automation.manage', 'automation.operate', 'automation.kill',
     ];
 
     public function run(): void
@@ -58,6 +59,7 @@ class RolePermissionSeeder extends Seeder
                 'analytics.view', 'analytics.manage', 'analytics.export',
                 'backtest.view', 'backtest.run', 'backtest.export',
                 'intelligence.view', 'intelligence.analyze', 'intelligence.manage',
+                'automation.view', 'automation.manage', 'automation.operate', 'automation.kill',
             ],
             'ANALYST' => [
                 'dashboard.view', 'strategies.view', 'risk_profiles.view', 'risk_engine.view',
@@ -66,6 +68,7 @@ class RolePermissionSeeder extends Seeder
                 'trading.read', 'signals.view', 'mt5.read', 'execution.view', 'trade_management.view',
                 'analytics.view', 'analytics.export', 'backtest.view', 'backtest.export',
                 'intelligence.view', 'intelligence.analyze',
+                'automation.view',
             ],
             'VIEWER' => [
                 'dashboard.view', 'strategies.view', 'settings.view',
@@ -73,6 +76,7 @@ class RolePermissionSeeder extends Seeder
                 'trading.read', 'mt5.read', 'risk_engine.view', 'execution.view', 'trade_management.view',
                 'analytics.view', 'backtest.view',
                 'intelligence.view',
+                'automation.view',
             ],
         ];
 

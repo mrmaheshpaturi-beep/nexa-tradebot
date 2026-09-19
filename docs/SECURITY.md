@@ -109,3 +109,13 @@ LIVE modification/partial/full close HARD BLOCKED at gate + verifier + adapter +
 - LIVE remains hard-blocked. Audit: `scripts/phase13-trade-intelligence-audit.sh`.
 - Permissions: `intelligence.view|analyze|manage` (viewers can view advisory; admins configure; no LIVE perms).
 
+
+## Phase 14 automation security
+
+- Default OFF; no boot auto-start of broker execution
+- DEMO_AUTO requires verified DEMO trade mode continuously
+- LIVE/UNKNOWN → SAFE_MODE; zero broker-changing actions
+- `auto_demo_execution` unlockable; `allow_live_execution` locked false
+- Phase 14 has zero `order_send` call sites; Phase 10 remains sole path
+- Kill switch does not auto close-all
+- AI cannot bypass qualification/risk/execution/management

@@ -1,0 +1,45 @@
+<?php
+
+namespace App\Models;
+
+use App\Models\Concerns\HasSimulationPublicId;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class AutomationEvent extends BaseModel
+{
+    use HasSimulationPublicId;
+
+    public function getRouteKeyName(): string
+    {
+        return 'public_id';
+    }
+
+    protected function casts(): array
+    {
+        return [
+            'payload' => 'array',
+            'immutable' => 'boolean',
+            'occurred_at' => 'datetime',
+        ];
+    }
+
+    protected static function simulationPublicIdPrefix(): string
+    {
+        return 'ATM-EVT-';
+    }
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function session(): BelongsTo
+    {
+        return $this->belongsTo(AutomationSession::class, 'automation_session_id');
+    }
+
+    public function workflow(): BelongsTo
+    {
+        return $this->belongsTo(AutomationWorkflow::class, 'automation_workflow_id');
+    }
+}

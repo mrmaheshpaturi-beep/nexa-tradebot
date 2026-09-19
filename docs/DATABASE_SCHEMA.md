@@ -199,3 +199,11 @@ SQLite migration/rollback/test behavior is verified. Decimal behavior, JSON hand
 
 Advisory/shadow only — no broker write tables.
 
+
+## Phase 14 — Automation tables
+
+Additive migration `2026_09_19_240000_create_phase_fourteen_demo_automation.php`:
+
+- `automation_profiles`, `automation_sessions`, `automation_workflows`
+- `automation_events` (immutable), `automation_locks`, `automation_daily_counters`
+- `automation_queue_jobs`, `automation_notifications` (IN_APP foundation)

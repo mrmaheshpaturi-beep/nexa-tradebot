@@ -164,12 +164,23 @@ Complete on branch `cursor/phase-13-trade-intelligence-56f9`:
 
 See `PHASE_13_REPORT.md`, `TRADE_INTELLIGENCE_ENGINE.md`, `AI_ANALYSIS_SERVICE.md`, `PHASE_14_CONTRACT.md`.
 
+## Phase 14 — Automated DEMO Trading Orchestrator
+
+Complete on branch `cursor/phase-14-demo-automation-56f9`:
+
+- AutomatedTradingOrchestrator (OFF / DRY_RUN / DEMO_AUTO; no LIVE_AUTO)
+- Startup/safety gates, qualification, workflows, locks, kill switch, Control Center UI
+- Phase 10 sole order_send; Phase 14 sites = 0; AI never authority / never MT5
+- Phase 15 contract stub only
+
+See `PHASE_14_REPORT.md`, `AUTOMATED_TRADING_ORCHESTRATOR.md`, `PHASE_14_AUTOMATION_ORCHESTRATION_CONTRACT.md`.
+
 ## Later phases requiring separate approval
 
-1. Phase 14 operational follow-ons (contract only — `PHASE_14_CONTRACT.md`).
+1. Phase 15 operational follow-ons (contract only — `PHASE_15_CONTRACT.md`).
 2. Durable outbox / exactly-once delivery beyond process-local nonce cache.
 3. Security hardening, tamper-evident audit, observability and recovery.
-4. DEMO end-to-end validation and controlled deployment.
+4. Real Windows MT5 DEMO end-to-end automation validation and controlled deployment.
 
 LIVE/real-money activation is not implied by any phase. It requires a separate governance, legal, security, operational and rollback decision after DEMO evidence.
 

@@ -19,7 +19,7 @@ const MarketScanner = lazy(() => import('./pages/PhaseEightScannerPages').then((
 const AISignals = lazy(() => import('./pages/PhaseSevenStrategyPages').then((module) => ({ default: module.PhaseSevenSignals })))
 const LiveCharts = lazy(() => import('./pages/PhaseFiveMarketPages').then((module) => ({ default: module.PhaseFiveLiveCharts })))
 const Strategies = lazy(() => import('./pages/PhaseSevenStrategyPages').then((module) => ({ default: module.PhaseSevenStrategies })))
-const AutoTrading = page('TradingPages', 'AutoTrading')
+const AutoTrading = lazy(() => import('./pages/PhaseFourteenAutomationPages').then((module) => ({ default: module.PhaseFourteenAutomationControlCenter })))
 const ManualTrading = lazy(() => import('./pages/PhaseThreeTradingPages').then((module) => ({ default: module.PersistentManualTrading })))
 const Positions = lazy(() => import('./pages/PhaseThreeTradingPages').then((module) => ({ default: module.PersistentPositions })))
 const PendingOrders = lazy(() => import('./pages/PhaseThreeTradingPages').then((module) => ({ default: module.PersistentOrders })))

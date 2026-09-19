@@ -57,9 +57,8 @@ class ExecutionGate
             if ($this->settings->value('allow_demo_execution') !== true) {
                 $errors['allow_demo_execution'] = 'DEMO execution is disabled.';
             }
-            if ($this->settings->value('auto_demo_execution') === true) {
-                $errors['auto_demo_execution'] = 'Auto Demo execution is hard-off and cannot authorize submit.';
-            }
+            // Phase 14: auto_demo_execution may be true for DEMO_AUTO orchestrator path.
+            // It never authorizes LIVE and never bypasses DEMO verification below.
             if ($this->settings->value('allow_live_execution') === true) {
                 $errors['allow_live_execution'] = 'LIVE flag must remain false.';
             }

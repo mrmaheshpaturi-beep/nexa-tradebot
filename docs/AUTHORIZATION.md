@@ -142,3 +142,14 @@ React's `can(permission)` checks the permission objects returned in `roles.permi
 | `intelligence.manage` | ✓ | ✓ | ✓ | — | — |
 
 Viewers can see advisory desk/pulse/calendar/news. Analyze creates assessments/AI chat. Manage updates intelligence settings and queue. No LIVE execution permissions are granted by Phase 13.
+
+## Phase 14 automation permissions
+
+| Permission | Purpose |
+|---|---|
+| `automation.view` | Control Center, sessions, workflows, feeds |
+| `automation.manage` | Profiles, enable AUTO DEMO setting |
+| `automation.operate` | Two-step start, pause/resume/stop, tick, recover |
+| `automation.kill` | Kill switch |
+
+LIVE_AUTO endpoints always 403. Browser never receives raw MT5 write payloads.
