@@ -19,9 +19,7 @@ $ZipUrl = "https://github.com/mrmaheshpaturi-beep/nexa-tradebot/archive/refs/hea
 $HostingerHost = 'u366409319@92.113.19.122'
 $HostingerPort = 65002
 $KeyCandidates = @(
-  (Join-Path $env:USERPROFILE '.ssh\nexa_hostinger_ed25519'),
-  (Join-Path $env:USERPROFILE '.ssh\id_ed25519'),
-  (Join-Path $env:USERPROFILE '.ssh\id_rsa')
+  (Join-Path $env:USERPROFILE '.ssh\nexa_hostinger_ed25519')
 )
 
 function Write-Step([string]$Msg) { Write-Output "=== $Msg ===" }
@@ -125,20 +123,30 @@ Write-Output "venv=$(Test-Path .\.venv\Scripts\python.exe)"
 Write-Step '4) Pull coordinated Hostinger token (no echo)'
 $key = $KeyCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
 if (-not $key) {
-  Write-Output 'TOKEN_PULL=SKIPPED (no SSH key found under ~/.ssh for Hostinger)'
-  Write-Output 'Place nexa_hostinger_ed25519 in %USERPROFILE%\.ssh\ then re-run this script.'
-  Write-Output 'Hostinger already has TRADING_BRIDGE_SERVICE_TOKEN set + ~/secure/bridge-token-once.txt'
+  Write-Output 'TOKEN_PULL=SKIPPED (missing %USERPROFILE%\.ssh\nexa_hostinger_ed25519)'
+  Write-Output 'Use Hostinger File Manager: download secure/bridge-token-once.txt to Downloads,'
+  Write-Output 'then run: powershell -ExecutionPolicy Bypass -File .\scripts\windows-import-bridge-token-file.ps1'
+  Write-Output 'Do not type Hostinger passwords into scp/ssh.'
   exit 0
 }
 
 $tmp = Join-Path $env:TEMP 'nexa-bridge-token-once.txt'
 if (Test-Path $tmp) { Remove-Item $tmp -Force }
 $scpArgs = @(
-  '-i', $key, '-P', "$HostingerPort", '-o', 'IdentitiesOnly=yes', '-o', 'StrictHostKeyChecking=accept-new',
+  '-i', $key, '-P', "$HostingerPort",
+  '-o', 'IdentitiesOnly=yes',
+  '-o', 'BatchMode=yes',
+  '-o', 'PreferredAuthentications=publickey',
+  '-o', 'StrictHostKeyChecking=accept-new',
   "${HostingerHost}:secure/bridge-token-once.txt", $tmp
 )
 & scp @scpArgs
-if (-not (Test-Path $tmp)) { throw 'scp did not create token file' }
+if (-not (Test-Path $tmp)) {
+  Write-Output 'TOKEN_PULL=FAILED (scp public-key auth failed)'
+  Write-Output 'Fall back: Hostinger File Manager → download secure/bridge-token-once.txt to Downloads'
+  Write-Output 'Then: powershell -ExecutionPolicy Bypass -File .\scripts\windows-import-bridge-token-file.ps1'
+  exit 0
+}
 $tok = [IO.File]::ReadAllText($tmp).Trim()
 Remove-Item $tmp -Force
 if ($tok.Length -lt 32) { throw 'pulled token too short — abort; do not invent a local token' }
