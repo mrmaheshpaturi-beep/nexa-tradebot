@@ -299,6 +299,16 @@ class RealMT5Connector:
             raise BridgeError(ErrorCode.DISCONNECTED, "The read-only terminal is disconnected.")
         return self._mt5
 
+    def _ensure_symbol_selected(self, symbol: str) -> bool:
+        """MT5 returns no tick until the symbol is in Market Watch."""
+        mt5 = self._require()
+        info = mt5.symbol_info(symbol)
+        if info is None:
+            return False
+        if bool(getattr(info, "visible", False)):
+            return True
+        return bool(mt5.symbol_select(symbol, True))
+
     def terminal(self) -> dict[str, Any]:
         info = self._require().terminal_info()
         return _public_record(info) if info else {}
@@ -315,14 +325,20 @@ class RealMT5Connector:
         return [_public_record(item) for item in (self._require().symbols_get() or ())]
 
     def symbol_info(self, symbol: str) -> dict[str, Any] | None:
+        if not self._ensure_symbol_selected(symbol):
+            return None
         info = self._require().symbol_info(symbol)
         return _public_record(info) if info else None
 
     def tick(self, symbol: str) -> dict[str, Any] | None:
+        if not self._ensure_symbol_selected(symbol):
+            return None
         info = self._require().symbol_info_tick(symbol)
         return _public_record(info) if info else None
 
     def rates(self, symbol: str, timeframe: str, count: int) -> list[dict[str, Any]]:
+        if not self._ensure_symbol_selected(symbol):
+            return []
         mt5 = self._require()
         timeframes = {
             "M1": mt5.TIMEFRAME_M1,
