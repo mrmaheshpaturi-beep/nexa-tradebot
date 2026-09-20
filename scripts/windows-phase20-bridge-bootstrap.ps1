@@ -108,6 +108,13 @@ Write-Output "NEXA_MT5_MODE=mock"
 Write-Output "TOKEN_LEN=$tokenLen"
 
 Write-Step '3) venv + install'
+$pyCmd = Get-Command python -ErrorAction SilentlyContinue
+if (-not $pyCmd) { throw 'python not on PATH — install Python 3.12 (winget install --id Python.Python.3.12 -e) and reopen PowerShell' }
+if ($pyCmd.Source -match '\\WindowsApps\\python\.exe$') {
+  throw 'Windows Store Python stub detected — install real Python 3.12: winget install --id Python.Python.3.12 -e --source winget  then close/reopen PowerShell and re-run'
+}
+$verOut = & python --version 2>&1 | Out-String
+Write-Output ("PYTHON_VERSION=" + $verOut.Trim())
 if (-not (Test-Path .\.venv\Scripts\python.exe)) {
   python -m venv .venv
 }
