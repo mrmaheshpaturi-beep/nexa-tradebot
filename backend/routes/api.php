@@ -188,6 +188,8 @@ Route::prefix('v1')->middleware('web')->group(function (): void {
         Route::get('/mt5/connections', [Mt5BridgeController::class, 'connections'])->middleware('permission:mt5.read');
         Route::post('/mt5/connections', [Mt5BridgeController::class, 'storeConnection'])->middleware('permission:mt5.connections.manage');
         Route::post('/mt5/connections/{connection}/test', [Mt5BridgeController::class, 'testConnection'])->middleware('permission:mt5.connections.manage');
+        Route::post('/mt5/connections/{connection}/enable', [Mt5BridgeController::class, 'enableConnection'])->middleware('permission:mt5.connections.manage');
+        Route::delete('/mt5/connections/{connection}', [Mt5BridgeController::class, 'destroyConnection'])->middleware('permission:mt5.connections.manage');
         Route::post('/mt5/connections/{connection}/sync', [Mt5BridgeController::class, 'syncConnection'])->middleware('permission:mt5.sync');
         Route::get('/mt5/mappings/{mapping}/positions', [Mt5BridgeController::class, 'mappingPositions'])->middleware('permission:mt5.read');
         Route::get('/mt5/mappings/{mapping}/orders', [Mt5BridgeController::class, 'mappingOrders'])->middleware('permission:mt5.read');

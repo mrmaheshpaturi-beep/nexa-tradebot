@@ -106,6 +106,7 @@ class MT5ReadService:
     def health(self) -> dict[str, Any]:
         return {
             "status": self.state.value,
+            "connected": self.state is ConnectionState.CONNECTED,
             "configured": bool(self.settings.service_token)
             and (self.settings.mode == "mock" or self.settings.login is not None),
             "mode": self.settings.mode.upper(),

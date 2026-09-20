@@ -101,6 +101,67 @@ class PhaseFourMt5BridgeTest extends TestCase
             ->assertJsonPath('data.allow_demo_execution', false);
     }
 
+    public function test_connection_enable_and_delete_flow(): void
+    {
+        $this->fakeBridgeReads();
+        $admin = $this->userWithRole('SUPER_ADMIN');
+
+        $created = $this->actingAs($admin)
+            ->postJson('/api/v1/mt5/connections', ['name' => 'Demo bridge A'])
+            ->assertCreated()
+            ->json('data');
+
+        $this->assertFalse((bool) $created['is_enabled']);
+        $id = $created['id'];
+
+        $this->actingAs($admin)
+            ->postJson("/api/v1/mt5/connections/{$id}/test")
+            ->assertOk()
+            ->assertJsonPath('data.connection.status', 'CONNECTED');
+
+        $this->actingAs($admin)
+            ->postJson("/api/v1/mt5/connections/{$id}/enable", ['is_enabled' => true])
+            ->assertOk()
+            ->assertJsonPath('data.is_enabled', true);
+
+        $this->actingAs($admin)
+            ->postJson("/api/v1/mt5/connections/{$id}/sync")
+            ->assertOk();
+
+        $this->actingAs($admin)
+            ->deleteJson("/api/v1/mt5/connections/{$id}")
+            ->assertOk()
+            ->assertJsonPath('data.deleted', true);
+
+        $this->assertDatabaseMissing('mt5_bridge_connections', ['id' => $id]);
+    }
+
+    public function test_health_without_connected_flag_still_marks_connected_on_ready_status(): void
+    {
+        Http::fake([
+            '127.0.0.1:8765/v1/health' => Http::response($this->bridgePayload([
+                'status' => 'CONNECTED',
+                'mode' => 'REAL',
+                'read_only' => false,
+            ])),
+        ]);
+
+        $admin = $this->userWithRole('SUPER_ADMIN');
+        $connection = Mt5BridgeConnection::create([
+            'user_id' => $admin->id,
+            'name' => 'Status-only health',
+            'mode' => 'REAL',
+            'environment' => 'DEMO',
+            'status' => 'UNTESTED',
+            'is_enabled' => false,
+        ]);
+
+        $this->actingAs($admin)
+            ->postJson("/api/v1/mt5/connections/{$connection->id}/test")
+            ->assertOk()
+            ->assertJsonPath('data.connection.status', 'CONNECTED');
+    }
+
     private function fakeBridgeReads(): void
     {
         Http::fake(function ($request) {

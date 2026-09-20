@@ -133,11 +133,12 @@ class Mt5BridgeController extends Controller
     public function testConnection(Request $request, Mt5BridgeConnection $connection): JsonResponse
     {
         $this->assertOwnedConnection($request, $connection);
-        $payload = $this->bridge->get('health', [], cacheable: true);
+        $payload = $this->bridge->get('health', [], cacheable: false);
+        $connected = $this->bridgeReportsConnected($payload);
         $connection->update([
-            'status' => data_get($payload, 'data.connected', false) ? 'CONNECTED' : 'DISCONNECTED',
+            'status' => $connected ? 'CONNECTED' : 'DISCONNECTED',
             'last_tested_at' => now(),
-            'last_connected_at' => data_get($payload, 'data.connected', false) ? now() : $connection->last_connected_at,
+            'last_connected_at' => $connected ? now() : $connection->last_connected_at,
             'last_error_code' => null,
         ]);
         $this->audit->record('mt5_bridge.connection_tested', $connection, [], [
@@ -149,6 +150,39 @@ class Mt5BridgeController extends Controller
             'connection' => $connection->fresh(),
             'bridge' => $payload,
         ]]);
+    }
+
+    public function enableConnection(Request $request, Mt5BridgeConnection $connection): JsonResponse
+    {
+        $this->assertOwnedConnection($request, $connection);
+        $validated = $request->validate([
+            'is_enabled' => ['required', 'boolean'],
+        ]);
+        $before = $connection->only(['is_enabled', 'status']);
+        $connection->update([
+            'is_enabled' => $validated['is_enabled'],
+        ]);
+        $this->audit->record(
+            $validated['is_enabled'] ? 'mt5_bridge.connection_enabled' : 'mt5_bridge.connection_disabled',
+            $connection,
+            $before,
+            $connection->only(['is_enabled', 'status']),
+            $request,
+        );
+
+        return response()->json(['data' => $connection->fresh()]);
+    }
+
+    public function destroyConnection(Request $request, Mt5BridgeConnection $connection): JsonResponse
+    {
+        $this->assertOwnedConnection($request, $connection);
+        $snapshot = $connection->toArray();
+        DB::transaction(function () use ($connection, $request, $snapshot): void {
+            $connection->delete();
+            $this->audit->record('mt5_bridge.connection_deleted', null, $snapshot, [], $request);
+        });
+
+        return response()->json(['data' => ['deleted' => true, 'id' => $snapshot['id'] ?? null]]);
     }
 
     public function syncConnection(Request $request, Mt5BridgeConnection $connection): JsonResponse
@@ -235,5 +269,24 @@ class Mt5BridgeController extends Controller
     private function assertOwnedMapping(Request $request, Mt5AccountMapping $mapping): void
     {
         abort_unless($mapping->connection?->user_id === $request->user()->id, 404);
+    }
+
+    /**
+     * @param  array<string, mixed>  $payload
+     */
+    private function bridgeReportsConnected(array $payload): bool
+    {
+        $explicit = data_get($payload, 'data.connected');
+        if (is_bool($explicit)) {
+            return $explicit;
+        }
+
+        $status = strtoupper((string) data_get($payload, 'data.status', ''));
+        if (in_array($status, ['DISCONNECTED', 'ERROR', 'SHUTTING_DOWN'], true)) {
+            return false;
+        }
+
+        // Successful health envelope without explicit connected=false means the bridge answered.
+        return $status !== '' || data_get($payload, 'data.mode') !== null;
     }
 }

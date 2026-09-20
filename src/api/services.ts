@@ -214,6 +214,13 @@ export const mt5Api = {
     apiRequest<{ connection: Mt5BridgeConnection; bridge: Mt5BridgeEnvelope<Record<string, unknown>> }>(
       `/api/v1/mt5/connections/${id}/test`, { method: 'POST' },
     ),
+  setConnectionEnabled: (id: number, isEnabled: boolean) =>
+    apiRequest<Mt5BridgeConnection>(`/api/v1/mt5/connections/${id}/enable`, {
+      method: 'POST',
+      body: { is_enabled: isEnabled },
+    }),
+  deleteConnection: (id: number) =>
+    apiRequest<{ deleted: boolean; id: number | null }>(`/api/v1/mt5/connections/${id}`, { method: 'DELETE' }),
   syncConnection: (id: number) =>
     apiRequest<Record<string, unknown>>(`/api/v1/mt5/connections/${id}/sync`, { method: 'POST' }),
   mappingPositions: (mappingId: number) =>

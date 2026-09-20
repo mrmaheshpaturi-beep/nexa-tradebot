@@ -166,17 +166,68 @@ export function Mt5AccountsPage() {
   const result = useService(useCallback(() => mt5Api.connections(), []))
   const [busyId, setBusyId] = useState<number>()
   const [actionError, setActionError] = useState('')
+  const [actionInfo, setActionInfo] = useState('')
   const create = async () => {
     setActionError('')
-    try { await mt5Api.createConnection('Primary MT5 DEMO bridge', false); result.reload() } catch (error) { setActionError(firstValidationError(error)) }
+    setActionInfo('')
+    const name = window.prompt('Connection name', 'Primary MT5 DEMO bridge')
+    if (!name?.trim()) return
+    try {
+      await mt5Api.createConnection(name.trim(), false)
+      setActionInfo('Connection created. Run TEST, then ENABLE, then SYNC.')
+      result.reload()
+    } catch (error) {
+      setActionError(firstValidationError(error))
+    }
   }
   const test = async (id: number) => {
-    setBusyId(id); setActionError('')
-    try { await mt5Api.testConnection(id); result.reload() } catch (error) { setActionError(firstValidationError(error)) } finally { setBusyId(undefined) }
+    setBusyId(id); setActionError(''); setActionInfo('')
+    try {
+      const response = await mt5Api.testConnection(id)
+      setActionInfo(`Test finished: ${response.connection.status}. ${response.connection.status === 'CONNECTED' ? 'Click ENABLE, then SYNC.' : 'Check Windows bridge + Cloudflare tunnel.'}`)
+      result.reload()
+    } catch (error) {
+      setActionError(firstValidationError(error))
+    } finally {
+      setBusyId(undefined)
+    }
+  }
+  const setEnabled = async (id: number, isEnabled: boolean) => {
+    setBusyId(id); setActionError(''); setActionInfo('')
+    try {
+      await mt5Api.setConnectionEnabled(id, isEnabled)
+      setActionInfo(isEnabled ? 'Enabled. Click SYNC to pull DEMO account data.' : 'Connection disabled.')
+      result.reload()
+    } catch (error) {
+      setActionError(firstValidationError(error))
+    } finally {
+      setBusyId(undefined)
+    }
   }
   const sync = async (id: number) => {
-    setBusyId(id); setActionError('')
-    try { await mt5Api.syncConnection(id); result.reload() } catch (error) { setActionError(firstValidationError(error)) } finally { setBusyId(undefined) }
+    setBusyId(id); setActionError(''); setActionInfo('')
+    try {
+      await mt5Api.syncConnection(id)
+      setActionInfo('Sync completed. Open MT5 Dashboard / Read Models and set Source to MT5 DEMO.')
+      result.reload()
+    } catch (error) {
+      setActionError(firstValidationError(error))
+    } finally {
+      setBusyId(undefined)
+    }
+  }
+  const remove = async (id: number, name: string) => {
+    if (!window.confirm(`Delete connection “${name}”? This cannot be undone.`)) return
+    setBusyId(id); setActionError(''); setActionInfo('')
+    try {
+      await mt5Api.deleteConnection(id)
+      setActionInfo('Connection deleted.')
+      result.reload()
+    } catch (error) {
+      setActionError(firstValidationError(error))
+    } finally {
+      setBusyId(undefined)
+    }
   }
   if (result.loading) return <LoadingState />
   if (result.error || !result.data) return <ErrorState message={result.error ?? 'MT5 connections are unavailable.'} />
@@ -184,6 +235,8 @@ export function Mt5AccountsPage() {
     <PageHeader title="MT5 Accounts" description="Read-only bridge connections and sync controls. Credentials remain server-side only."
       actions={can('mt5.connections.manage') ? <button className="btn ghost" onClick={create}>ADD CONNECTION</button> : undefined} />
     {source === 'MT5_DEMO' ? <ReadOnlyBanner /> : <div className="info-banner">Simulation source is active. Switch to MT5 DEMO to inspect external connectivity without mock fallback.</div>}
+    <div className="info-banner">Flow: ADD CONNECTION → TEST → ENABLE → SYNC. Keep Windows MT5 DEMO + bridge + cloudflared tunnel running.</div>
+    {actionInfo && <div className="info-banner" role="status">{actionInfo}</div>}
     {actionError && <div className="danger-banner" role="alert">{actionError}</div>}
     <Panel title="Connections" subtitle={`${result.data.total} persisted records`}>
       <DataTable columns={['Name', 'Environment', 'Status', 'Enabled', 'Last tested', 'Actions']}
@@ -195,7 +248,16 @@ export function Mt5AccountsPage() {
           connection.last_tested_at ?? '—',
           <div key={`${connection.id}-actions`} className="inline-controls">
             {can('mt5.connections.manage') && <button className="btn ghost" disabled={busyId === connection.id} onClick={() => test(connection.id)}>TEST</button>}
+            {can('mt5.connections.manage') && !connection.is_enabled && (
+              <button className="btn ghost" disabled={busyId === connection.id || connection.status !== 'CONNECTED'} onClick={() => setEnabled(connection.id, true)}>ENABLE</button>
+            )}
+            {can('mt5.connections.manage') && connection.is_enabled && (
+              <button className="btn ghost" disabled={busyId === connection.id} onClick={() => setEnabled(connection.id, false)}>DISABLE</button>
+            )}
             {can('mt5.sync') && <button className="btn ghost" disabled={busyId === connection.id || !connection.is_enabled} onClick={() => sync(connection.id)}>SYNC</button>}
+            {can('mt5.connections.manage') && (
+              <button className="btn ghost" disabled={busyId === connection.id} onClick={() => remove(connection.id, connection.name)}>DELETE</button>
+            )}
           </div>,
         ])} />
     </Panel>
