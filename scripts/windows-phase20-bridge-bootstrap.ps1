@@ -7,7 +7,7 @@
   - Does NOT copy C:\Users\<you>\.env
   - Does NOT print the service token
   - Does NOT enable LIVE / DEMO execution gates
-  - Requires: git, python, and (for token pull) OpenSSH + Hostinger ed25519 key
+  - Requires: python; git OR zip download; (for token pull) OpenSSH + Hostinger ed25519 key
 #>
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -15,6 +15,7 @@ Set-StrictMode -Version Latest
 $Dest = if ($env:NEXA_TRADEBOT_ROOT) { $env:NEXA_TRADEBOT_ROOT } else { Join-Path $env:USERPROFILE 'nexa-tradebot' }
 $Branch = 'cursor/phase-20-demo-release-candidate-56f9'
 $Repo = 'https://github.com/mrmaheshpaturi-beep/nexa-tradebot.git'
+$ZipUrl = "https://github.com/mrmaheshpaturi-beep/nexa-tradebot/archive/refs/heads/$Branch.zip"
 $HostingerHost = 'u366409319@92.113.19.122'
 $HostingerPort = 65002
 $KeyCandidates = @(
@@ -24,20 +25,45 @@ $KeyCandidates = @(
 )
 
 function Write-Step([string]$Msg) { Write-Output "=== $Msg ===" }
+function Test-Command([string]$Name) {
+  return [bool](Get-Command $Name -ErrorAction SilentlyContinue)
+}
 
-Write-Step '1) Clone / verify Phase 20'
+Write-Step '1) Obtain / verify Phase 20 tree'
 if (-not (Test-Path (Join-Path $Dest 'trading-engine\start.ps1'))) {
   if (Test-Path $Dest) { throw "Path exists but is not a complete checkout: $Dest" }
-  git clone --branch $Branch --single-branch $Repo $Dest
+  if (Test-Command 'git') {
+    git clone --branch $Branch --single-branch $Repo $Dest
+    Write-Output 'SOURCE=git-clone'
+  } else {
+    Write-Output 'SOURCE=zip (git not on PATH)'
+    $zip = Join-Path $env:TEMP 'nexa-tradebot-phase20.zip'
+    $extractRoot = Join-Path $env:TEMP 'nexa-tradebot-phase20-extract'
+    if (Test-Path $zip) { Remove-Item $zip -Force }
+    if (Test-Path $extractRoot) { Remove-Item $extractRoot -Recurse -Force }
+    Invoke-WebRequest -Uri $ZipUrl -OutFile $zip -UseBasicParsing
+    Expand-Archive -Path $zip -DestinationPath $extractRoot -Force
+    $inner = Get-ChildItem -Path $extractRoot -Directory | Select-Object -First 1
+    if (-not $inner) { throw 'Zip extract produced no folder' }
+    Move-Item $inner.FullName $Dest
+    Remove-Item $zip -Force -ErrorAction SilentlyContinue
+    Remove-Item $extractRoot -Recurse -Force -ErrorAction SilentlyContinue
+  }
 }
 Set-Location $Dest
-$sha = (git rev-parse --short HEAD).Trim()
-$br = (git branch --show-current).Trim()
-Write-Output "SHA=$sha"
-Write-Output "BRANCH=$br"
+if (Test-Command 'git' -and (Test-Path .\.git)) {
+  $sha = (git rev-parse --short HEAD).Trim()
+  $br = (git branch --show-current).Trim()
+  Write-Output "SHA=$sha"
+  Write-Output "BRANCH=$br"
+  if ($br -ne $Branch) { throw "Unexpected branch: $br" }
+} else {
+  Write-Output 'SHA=zip-tree'
+  Write-Output "BRANCH=$Branch"
+}
 Write-Output "start_ps1=$(Test-Path .\trading-engine\start.ps1)"
 Write-Output "env_example=$(Test-Path .\trading-engine\.env.example)"
-if ($br -ne $Branch) { throw "Unexpected branch: $br" }
+if (-not (Test-Path .\trading-engine\start.ps1)) { throw 'trading-engine\start.ps1 missing after obtain' }
 
 Write-Step '2) trading-engine .env from .env.example only'
 Set-Location (Join-Path $Dest 'trading-engine')
