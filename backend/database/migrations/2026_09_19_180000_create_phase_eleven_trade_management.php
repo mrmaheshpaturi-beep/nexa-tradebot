@@ -132,7 +132,7 @@ return new class extends Migration
             $table->json('payload')->nullable();
             $table->timestamp('decided_at');
             $table->timestamps();
-            $table->index(['managed_position_id', 'status', 'decided_at']);
+            $table->index(['managed_position_id', 'status', 'decided_at'], 'tm_decision_position_status_at_idx');
             $table->index(['decision_type', 'status']);
         });
 

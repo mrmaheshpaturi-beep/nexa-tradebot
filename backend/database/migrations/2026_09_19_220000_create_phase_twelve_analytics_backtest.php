@@ -160,7 +160,7 @@ return new class extends Migration
             $table->json('metrics')->nullable();
             $table->json('parameters_used')->nullable();
             $table->timestamps();
-            $table->unique(['backtest_run_id', 'fold_index', 'phase']);
+            $table->unique(['backtest_run_id', 'fold_index', 'phase'], 'bt_walk_run_fold_phase_unique');
         });
 
         Schema::create('backtest_optimization_trials', function (Blueprint $table): void {

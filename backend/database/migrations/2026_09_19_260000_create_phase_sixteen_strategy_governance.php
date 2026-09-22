@@ -67,7 +67,7 @@ return new class extends Migration
             $table->json('warnings')->nullable();
             $table->json('payload')->nullable();
             $table->timestamps();
-            $table->index(['governed_strategy_version_id', 'evidence_label']);
+            $table->index(['governed_strategy_version_id', 'evidence_label'], 'strategy_evidence_version_label_idx');
         });
 
         Schema::create('strategy_validation_policies', function (Blueprint $table): void {
@@ -89,16 +89,23 @@ return new class extends Migration
             $table->id();
             $table->string('public_id', 50)->unique();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('governed_strategy_version_id')->constrained('governed_strategy_versions')->cascadeOnDelete();
-            $table->foreignId('strategy_evidence_package_id')->nullable()->constrained('strategy_evidence_packages')->nullOnDelete();
-            $table->foreignId('strategy_validation_policy_id')->nullable()->constrained('strategy_validation_policies')->nullOnDelete();
+            // Explicit names keep MySQL constraints below its 64-character identifier limit.
+            $table->foreignId('governed_strategy_version_id');
+            $table->foreign('governed_strategy_version_id', 'strat_valid_decision_version_fk')
+                ->references('id')->on('governed_strategy_versions')->cascadeOnDelete();
+            $table->foreignId('strategy_evidence_package_id')->nullable();
+            $table->foreign('strategy_evidence_package_id', 'strat_valid_decision_evidence_fk')
+                ->references('id')->on('strategy_evidence_packages')->nullOnDelete();
+            $table->foreignId('strategy_validation_policy_id')->nullable();
+            $table->foreign('strategy_validation_policy_id', 'strat_valid_decision_policy_fk')
+                ->references('id')->on('strategy_validation_policies')->nullOnDelete();
             $table->string('decision', 32); // PASS|FAIL|INSUFFICIENT|HUMAN_REJECT
             $table->boolean('auto')->default(false); // auto PASS never used for deploy; auto cannot APPROVE
             $table->json('reasons')->nullable();
             $table->json('metrics_snapshot')->nullable();
             $table->timestamp('decided_at');
             $table->timestamps();
-            $table->index(['governed_strategy_version_id', 'decision']);
+            $table->index(['governed_strategy_version_id', 'decision'], 'strat_valid_decision_version_idx');
         });
 
         Schema::create('governance_approvals', function (Blueprint $table): void {

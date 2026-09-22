@@ -181,7 +181,7 @@ return new class extends Migration
             $table->timestamp('started_at')->nullable();
             $table->timestamp('finished_at')->nullable();
             $table->timestamps();
-            $table->index(['queue_name', 'status', 'priority', 'available_at']);
+            $table->index(['queue_name', 'status', 'priority', 'available_at'], 'auto_queue_status_priority_at_idx');
         });
 
         Schema::create('automation_notifications', function (Blueprint $table): void {

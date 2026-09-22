@@ -147,7 +147,7 @@ return new class extends Migration
             $table->json('metadata')->nullable();
             $table->timestamps();
             $table->unique(['user_id', 'idempotency_key']);
-            $table->index(['broker_account_id', 'environment', 'status', 'created_at']);
+            $table->index(['broker_account_id', 'environment', 'status', 'created_at'], 'ti_broker_env_status_created_idx');
         });
 
         Schema::create('risk_decisions', function (Blueprint $table): void {
@@ -203,7 +203,7 @@ return new class extends Migration
             $table->timestamp('failed_at')->nullable();
             $table->timestamps();
             $table->unique(['user_id', 'idempotency_key']);
-            $table->index(['broker_account_id', 'environment', 'status', 'created_at']);
+            $table->index(['broker_account_id', 'environment', 'status', 'created_at'], 'ec_broker_env_status_created_idx');
         });
 
         Schema::table('orders', function (Blueprint $table): void {
@@ -230,7 +230,7 @@ return new class extends Migration
             $table->timestamp('rejected_at')->nullable();
             $table->timestamp('expired_at')->nullable();
             $table->timestamp('failed_at')->nullable();
-            $table->index(['broker_account_id', 'environment', 'status', 'created_at']);
+            $table->index(['broker_account_id', 'environment', 'status', 'created_at'], 'orders_broker_env_status_created_idx');
             $table->index(['trade_intent_id', 'status']);
         });
         DB::table('orders')->orderBy('id')->each(function (object $row): void {
@@ -265,7 +265,7 @@ return new class extends Migration
             $table->json('metadata')->nullable();
             $table->timestamp('opened_at')->nullable();
             $table->timestamp('closed_at')->nullable();
-            $table->index(['broker_account_id', 'environment', 'status', 'created_at']);
+            $table->index(['broker_account_id', 'environment', 'status', 'created_at'], 'positions_broker_env_status_created_idx');
             $table->index(['user_id', 'status', 'opened_at']);
         });
 

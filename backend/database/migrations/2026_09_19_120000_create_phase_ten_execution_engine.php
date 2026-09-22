@@ -110,7 +110,7 @@ return new class extends Migration
             $table->timestamp('started_at');
             $table->timestamp('finished_at')->nullable();
             $table->timestamps();
-            $table->index(['environment', 'status', 'started_at']);
+            $table->index(['environment', 'status', 'started_at'], 'exec_recon_env_status_started_idx');
         });
 
         Schema::table('execution_commands', function (Blueprint $table): void {

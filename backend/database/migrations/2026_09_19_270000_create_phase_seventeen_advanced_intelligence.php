@@ -16,7 +16,10 @@ return new class extends Migration
             $table->id();
             $table->string('public_id', 50)->unique();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('intelligence_assessment_id')->nullable()->constrained()->nullOnDelete();
+            // Keep the constraint name within MySQL's 64-character identifier limit.
+            $table->foreignId('intelligence_assessment_id')->nullable();
+            $table->foreign('intelligence_assessment_id', 'intel_adv_snapshot_assessment_fk')
+                ->references('id')->on('intelligence_assessments')->nullOnDelete();
             $table->string('symbol', 64);
             $table->string('timeframe', 16)->nullable();
             $table->string('mode', 32)->default('ADVISORY');
