@@ -245,7 +245,7 @@ export function PhaseFourteenAutomationControlCenter() {
         ))}
       </div>
       {tab === 'center' && (
-        <div className="stack-gap">
+        <div className="automation-dashboard stack-gap">
           <Panel title="Mode selector (UI path)">
             <div className="button-row">
               {(['OFF', 'DRY_RUN', 'DEMO_AUTO'] as const).map((m) => (
