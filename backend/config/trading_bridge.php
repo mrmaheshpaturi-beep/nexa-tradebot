@@ -3,6 +3,9 @@
 return [
     'base_url' => env('TRADING_BRIDGE_URL', 'http://127.0.0.1:8765'),
     'service_token' => env('TRADING_BRIDGE_SERVICE_TOKEN'),
+    // Shared hosts without a TUN device can reach the private bridge through a
+    // local Unix-socket relay. Leave empty for a direct HTTP connection.
+    'unix_socket' => env('TRADING_BRIDGE_UNIX_SOCKET'),
     'connect_timeout' => (float) env('TRADING_BRIDGE_CONNECT_TIMEOUT', 1.0),
     'timeout' => (float) env('TRADING_BRIDGE_TIMEOUT', 3.0),
     'read_retries' => (int) env('TRADING_BRIDGE_READ_RETRIES', 2),

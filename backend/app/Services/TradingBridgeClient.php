@@ -41,14 +41,24 @@ class TradingBridgeClient
         $attempts = max(1, min(4, (int) config('trading_bridge.read_retries', 2) + 1));
         for ($attempt = 1; $attempt <= $attempts; $attempt++) {
             try {
-                $response = $this->http
+                $request = $this->http
                     ->baseUrl(rtrim((string) config('trading_bridge.base_url'), '/'))
                     ->connectTimeout((float) config('trading_bridge.connect_timeout', 1))
                     ->timeout((float) config('trading_bridge.timeout', 3))
                     ->acceptJson()
                     ->withToken((string) config('trading_bridge.service_token'))
-                    ->withHeaders(['X-Correlation-ID' => (string) Str::uuid()])
-                    ->get('/v1/'.ltrim($path, '/'), $query);
+                    ->withHeaders([
+                        'Connection' => 'close',
+                        'X-Correlation-ID' => (string) Str::uuid(),
+                    ]);
+
+                if (filled($unixSocket = config('trading_bridge.unix_socket'))) {
+                    $request = $request->withOptions([
+                        'curl' => [\CURLOPT_UNIX_SOCKET_PATH => $unixSocket],
+                    ]);
+                }
+
+                $response = $request->get('/v1/'.ltrim($path, '/'), $query);
 
                 if ($response->successful()) {
                     $payload = $response->json();
