@@ -29,10 +29,9 @@ export function AppShell() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [connectionLabel, setConnectionLabel] = useState('Simulation services')
   useEffect(() => {
-    if (source === 'MT5_DEMO' && can('mt5.read')) {
-      mt5Api.status().then((status) => {
-        setConnectionLabel(status.configured ? `MT5 bridge ${status.circuit_state}` : 'MT5 bridge not configured')
-      }).catch(() => setConnectionLabel('MT5 bridge unavailable'))
+    if (source === 'MT5_DEMO') {
+      mt5Api.health().then(() => setConnectionLabel('MT5 bridge connected'))
+        .catch(() => setConnectionLabel('MT5 bridge unavailable'))
       return
     }
     phaseTwoApi.status().then((status) => {

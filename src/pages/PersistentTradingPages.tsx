@@ -4,13 +4,21 @@ import { firstValidationError } from '../api/client'
 import { ConfirmationDialog, DataTable, EnvironmentBadge, ErrorState, LoadingState, MetricCard, PageHeader, Panel, PnLDisplay, StatusBadge } from '../components/ui'
 import { EquityChart } from '../components/TradingCharts'
 import { useAuth } from '../auth/authState'
+import { useTradingSource } from '../context/tradingSourceState'
 import { useService } from '../hooks/useService'
+import { Mt5Dashboard } from './PhaseFourMt5Pages'
 import { persistentServices } from '../services/persistenceServices'
 import { services } from '../services/mockServices'
 
 const number = (value: string | number | null | undefined) => Number(value ?? 0)
 
 export function PersistentDashboard() {
+  const { source } = useTradingSource()
+  if (source === 'MT5_DEMO') return <Mt5Dashboard />
+  return <SimulationDashboard />
+}
+
+function SimulationDashboard() {
   const summary = useService(useCallback(() => persistentServices.dashboard.getSummary(), []))
   const equity = useService(useCallback(() => services.analytics.getEquitySeries(), []))
   const { user } = useAuth()

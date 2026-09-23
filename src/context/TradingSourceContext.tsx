@@ -7,7 +7,9 @@ const STORAGE_KEY = 'nexa.trading-source'
 export function TradingSourceProvider({ children }: { children: ReactNode }) {
   const [source, setSourceState] = useState<TradingSource>(() => {
     const stored = localStorage.getItem(STORAGE_KEY)
-    return stored === 'MT5_DEMO' ? 'MT5_DEMO' : 'SIMULATION'
+    // MT5 DEMO is the safe, read-only default for this connected application.
+    // Simulation remains available only when a user explicitly selects it.
+    return stored === 'SIMULATION' ? 'SIMULATION' : 'MT5_DEMO'
   })
 
   useEffect(() => {
