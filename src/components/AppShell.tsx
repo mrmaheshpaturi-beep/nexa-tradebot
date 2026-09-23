@@ -24,6 +24,7 @@ const navigation = [
 export function AppShell() {
   const { user, logout, can } = useAuth()
   const { source, setSource } = useTradingSource()
+  const displayName = user?.name ?? user?.email ?? 'Nexa user'
   const [collapsed, setCollapsed] = useState(user?.preference?.sidebar_collapsed ?? false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [connectionLabel, setConnectionLabel] = useState('Simulation services')
@@ -64,7 +65,7 @@ export function AppShell() {
         <div className="top-actions">
           {can('mt5.read') && <label className="source-selector"><span>Source</span><select value={source} onChange={(event) => setSource(event.target.value as 'SIMULATION' | 'MT5_DEMO')} aria-label="Trading source"><option value="SIMULATION">SIMULATION</option><option value="MT5_DEMO">MT5 DEMO READ-ONLY</option></select></label>}
           <span className="connection"><span className="status-dot" /> {connectionLabel}</span>
-          {can('notifications.view') && <NavLink to="/notifications" aria-label="Notifications" className="icon-button"><Bell size={18} /></NavLink>}<div className="profile"><span>{user?.name.split(/\s+/).map((part) => part[0]).join('').slice(0, 2).toUpperCase()}</span><p><strong>{user?.name}</strong><small>{user?.roles[0]?.label ?? user?.roles[0]?.name}</small></p><UserCircle size={17} /></div><button className="icon-button" aria-label="Sign out" title="Sign out" onClick={logout}><LogOut size={16} /></button></div>
+          {can('notifications.view') && <NavLink to="/notifications" aria-label="Notifications" className="icon-button"><Bell size={18} /></NavLink>}<div className="profile"><span>{displayName.split(/\s+/).map((part) => part[0]).join('').slice(0, 2).toUpperCase()}</span><p><strong>{displayName}</strong><small>{user?.roles?.[0]?.label ?? user?.roles?.[0]?.name}</small></p><UserCircle size={17} /></div><button className="icon-button" aria-label="Sign out" title="Sign out" onClick={logout}><LogOut size={16} /></button></div>
       </header>
       <div className="safety-strip"><ShieldAlert size={14} /> {source === 'MT5_DEMO'
         ? 'MT5 DEMO source — read models plus gated DEMO execution via ExecutionEngine (manual two-step confirm). LIVE hard-fail. Auto Demo OFF.'
