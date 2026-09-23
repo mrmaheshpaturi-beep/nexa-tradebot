@@ -14,6 +14,13 @@ function Mt5Unavailable({ message }: { message: string }) {
   return <ErrorState message={message} />
 }
 
+function formatAccountMetric(value: unknown, suffix = '') {
+  if (value === null || value === undefined || value === '') return '—'
+  const numericValue = Number(value)
+  if (!Number.isFinite(numericValue)) return String(value)
+  return `${numericValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}${suffix}`
+}
+
 export function Mt5Dashboard() {
   const { source } = useTradingSource()
   const result = useService(useCallback(() => Promise.all([mt5Api.status(), mt5Api.account().catch(() => null)]), []))
@@ -22,15 +29,18 @@ export function Mt5Dashboard() {
   if (result.error || !result.data) return <ErrorState message={result.error ?? 'MT5 status is unavailable.'} />
   const [status, accountEnvelope] = result.data
   const account = accountEnvelope?.data ?? {}
+  const currency = typeof account.currency === 'string' && account.currency.trim() ? account.currency : 'MT5 DEMO'
   return <>
     <PageHeader title="MT5 DEMO Dashboard" description="External account snapshot from the authenticated read-only bridge." actions={<StatusBadge tone={status.configured ? 'info' : 'warning'}>{status.configured ? status.circuit_state : 'NOT CONFIGURED'}</StatusBadge>} />
     <ReadOnlyBanner />
     {!status.configured && <div className="warning-box"><p><strong>Bridge not configured</strong><span>Laravel requires TRADING_BRIDGE_URL and TRADING_BRIDGE_SERVICE_TOKEN. No mock fallback is used in MT5 mode.</span></p></div>}
-    <div className="metric-grid">
-      <MetricCard label="Balance" value={String(account.balance ?? '—')} detail="MT5 DEMO external read model" />
-      <MetricCard label="Equity" value={String(account.equity ?? '—')} />
-      <MetricCard label="Free margin" value={String(account.free_margin ?? '—')} />
-      <MetricCard label="Freshness" value={accountEnvelope?.meta.freshness ?? 'UNKNOWN'} />
+    <div className="metric-grid mt5-account-metrics">
+      <MetricCard label="Balance" value={formatAccountMetric(account.balance)} detail={`${currency} · MT5 DEMO account`} />
+      <MetricCard label="Equity" value={formatAccountMetric(account.equity)} detail="Current account value" />
+      <MetricCard label="Credit" value={formatAccountMetric(account.credit)} detail="Broker-issued credit" />
+      <MetricCard label="Margin" value={formatAccountMetric(account.margin)} detail="Margin currently reserved" />
+      <MetricCard label="Free margin" value={formatAccountMetric(account.free_margin)} detail="Available trading margin" />
+      <MetricCard label="Margin level" value={formatAccountMetric(account.margin_level, '%')} detail="Equity relative to used margin" />
     </div>
     <Panel title="Connection metadata" subtitle="Credential-free server-side bridge boundary">
       <div className="settings-list">

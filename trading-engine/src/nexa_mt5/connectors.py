@@ -84,6 +84,7 @@ class MockMT5Connector:
             "leverage": 100,
             "balance": "10000.00",
             "equity": "10024.50",
+            "credit": "0.00",
             "margin": "120.00",
             "free_margin": "9904.50",
             "margin_level": "8353.75",
